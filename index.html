@@ -1,0 +1,1577 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sonar | Intelligence LLM pour Agences Marketing</title>
+    <meta name="description" content="Analysez la visibilité de vos clients sur ChatGPT, Perplexity et Claude. La première plateforme d'audit LLM pour agences, fondée par des ex-Googlers.">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="https://i.postimg.cc/Qt13j0hV/Logo-(1).png" type="image/png">
+
+    <!-- Fonts: Inter pour le corps de texte -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Icons: FontAwesome (CDN léger) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* ------------------------------------------------------------------
+           1. CORE VARIABLES & RESET
+           ------------------------------------------------------------------ */
+        :root {
+            /* Palette Profondeur & Atmosphère (COSMIC STYLE) */
+            --bg-deep: #050505;
+            --bg-surface: #0B0B0B;
+            --bg-glass: rgba(255, 255, 255, 0.03);
+            --bg-glass-hover: rgba(255, 255, 255, 0.06);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --border-highlight: rgba(255, 255, 255, 0.2);
+            
+            --border-color-v1: #2D2D2D;
+            
+            --accent-glow: rgba(255, 255, 255, 0.15);
+            --accent-solid: #FFFFFF;
+            --accent-gradient: linear-gradient(135deg, #FFFFFF 0%, #A0A0A0 100%);
+            
+            --text-main: #FFFFFF;
+            --text-secondary: #B0B0B0;
+            --text-muted: #666666;
+            
+            /* Typography */
+            --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            
+            /* Spacing ADJUSTED */
+            --container-width: 1200px;
+            --section-padding: 100px 0; /* Reduced from 140px */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* FIX HORIZONTAL SCROLL */
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: var(--font-main);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+            position: relative;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+        }
+
+        /* TYPOGRAPHY */
+        h1, h2, h3, h4 {
+            color: var(--text-main);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+        }
+
+        h1 { 
+            font-size: 4rem; 
+            margin-bottom: 1.5rem; 
+            background: linear-gradient(to bottom, #fff 0%, #aaa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            letter-spacing: -0.03em;
+            font-weight: 800;
+        }
+        h2 { font-size: 2.8rem; margin-bottom: 1rem; }
+        h3 { font-size: 1.5rem; margin-bottom: 1rem; color: #fff; }
+        p { color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 1.15rem; line-height: 1.7; }
+
+        .text-center { text-align: center; }
+
+        /* ------------------------------------------------------------------
+           2. ANIMATIONS
+           ------------------------------------------------------------------ */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes radarSweep {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes starMove {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-100px); }
+        }
+
+        @keyframes blip {
+            0% { opacity: 0; transform: scale(0.5); }
+            50% { opacity: 1; transform: scale(1.2); box-shadow: 0 0 15px #00aaff; }
+            100% { opacity: 0; transform: scale(1); }
+        }
+
+        .animate-on-scroll {
+            opacity: 0;
+            animation-fill-mode: forwards;
+        }
+
+        /* ------------------------------------------------------------------
+           3. SPECIAL BACKGROUNDS
+           ------------------------------------------------------------------ */
+        /* PLANET */
+        .planet-glow {
+            position: absolute;
+            top: -300px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 1200px;
+            height: 600px;
+            background: radial-gradient(ellipse at center, rgba(255,255,255,0.08) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* SONAR */
+        .sonar-wrapper {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 1400px; height: 1400px;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.4;
+        }
+        .sonar-grid {
+            width: 1000px; height: 1000px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: 
+                radial-gradient(circle, transparent 69%, rgba(255,255,255,0.05) 70%, transparent 71%),
+                radial-gradient(circle, transparent 49%, rgba(255,255,255,0.05) 50%, transparent 51%),
+                radial-gradient(circle, transparent 29%, rgba(255,255,255,0.05) 30%, transparent 31%);
+            position: relative;
+        }
+        .sonar-grid::before { content:''; position: absolute; top: 0; bottom: 0; left: 50%; width: 1px; background: rgba(255,255,255,0.05); }
+        .sonar-grid::after { content:''; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: rgba(255,255,255,0.05); }
+        .sonar-sweep {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, transparent 0deg, transparent 280deg, rgba(0, 150, 255, 0.05) 300deg, rgba(0, 180, 255, 0.4) 359deg, rgba(255, 255, 255, 0.8) 360deg);
+            animation: radarSweep 6s linear infinite;
+            z-index: 1;
+        }
+        .sonar-blip {
+            position: absolute;
+            width: 8px; height: 8px;
+            background-color: #00ccff;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #00ccff;
+            animation: blip 4s infinite ease-in-out;
+            z-index: 2;
+        }
+
+        /* STARS */
+        .star-field {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0;
+            background-image: 
+                radial-gradient(1px 1px at 20px 30px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 40px 70px, #fff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 90px 40px, rgba(255,255,255,0.5), rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 160px 120px, #fff, rgba(0,0,0,0));
+            background-size: 300px 300px;
+            opacity: 0.15;
+            animation: starMove 100s linear infinite;
+        }
+
+        /* ABYSS */
+        .bg-abyss {
+            background: linear-gradient(180deg, #050505 0%, #0F0F12 50%, #000000 100%);
+            position: relative;
+        }
+        .abyss-light {
+            position: absolute;
+            bottom: 0; left: 50%;
+            transform: translateX(-50%);
+            width: 100%; height: 400px;
+            background: radial-gradient(ellipse at bottom, rgba(255,255,255,0.05) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        /* ------------------------------------------------------------------
+           4. UTILITIES
+           ------------------------------------------------------------------ */
+        .container {
+            max-width: var(--container-width);
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .section-std { 
+            padding: var(--section-padding); 
+            position: relative; 
+            overflow: hidden; /* CUTS the sonar circles at section edges */
+        }
+        .section-alt { 
+            background-color: var(--bg-surface); 
+            border-top: 1px solid rgba(255,255,255,0.02); 
+            border-bottom: 1px solid rgba(255,255,255,0.02); 
+        }
+
+        /* ------------------------------------------------------------------
+           5. COMPONENTS
+           ------------------------------------------------------------------ */
+        .btn {
+            display: inline-flex; justify-content: center; align-items: center;
+            padding: 16px 32px; border-radius: 100px; font-weight: 600; text-decoration: none;
+            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1); cursor: pointer; font-size: 1rem; position: relative; overflow: hidden; z-index: 1;
+        }
+        .btn-primary { background: var(--accent-gradient); color: #000000; border: none; box-shadow: 0 0 20px rgba(255, 255, 255, 0.2); }
+        .btn-primary:hover { transform: scale(1.05); box-shadow: 0 0 40px rgba(255, 255, 255, 0.4); }
+        .btn-secondary { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); color: #FFFFFF; }
+        .btn-secondary:hover { background: rgba(255,255,255,0.15); border-color: #FFFFFF; }
+
+        .card {
+            background: var(--bg-glass); border: 1px solid var(--border-glass); padding: 2.5rem; border-radius: 24px;
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+            transition: all 0.4s ease; position: relative; overflow: hidden;
+        }
+        .card:hover { background: var(--bg-glass-hover); border-color: var(--border-highlight); transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.6), inset 0 0 20px rgba(255,255,255,0.02); }
+
+        .badge {
+            display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 100px; font-size: 0.85rem; color: #fff; margin-bottom: 2rem;
+            backdrop-filter: blur(10px); box-shadow: 0 0 15px rgba(255,255,255,0.05);
+        }
+
+        /* ------------------------------------------------------------------
+           6. NEW SECTIONS & SPECIFICS
+           ------------------------------------------------------------------ */
+        
+        /* HEADER & LANG SWITCH */
+        header {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: var(--container-width);
+            z-index: 100; background: rgba(10, 10, 10, 0.6); backdrop-filter: blur(20px); border: 1px solid var(--border-glass);
+            border-radius: 100px; padding: 12px 30px; transition: all 0.3s ease;
+        }
+        .header-inner { display: flex; justify-content: space-between; align-items: center; }
+        
+        .logo-link { text-decoration: none; display: flex; align-items: center; }
+        .logo-link:hover { opacity: 0.9; }
+        .logo-main { width: 150px; height: auto; filter: brightness(0) invert(1); }
+
+        .header-right { display: flex; align-items: center; gap: 20px; }
+
+        /* HEADER CTA SPECIFIC */
+        .header-cta {
+            padding: 10px 24px;
+            font-size: 0.9rem;
+            min-width: 180px; /* FIXED WIDTH to prevent shift */
+            text-align: center;
+        }
+
+        /* LANGUAGE TOGGLE */
+        .lang-switch {
+            display: flex;
+            align-items: center;
+            background: rgba(255,255,255,0.1);
+            border-radius: 30px;
+            padding: 4px;
+            position: relative;
+            cursor: pointer;
+            width: 80px;
+            height: 36px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .lang-option {
+            flex: 1;
+            text-align: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #888;
+            z-index: 2;
+            transition: color 0.3s ease;
+        }
+        .lang-option.active { color: #000; }
+        .lang-slider {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: 36px;
+            height: 26px;
+            background: #fff;
+            border-radius: 20px;
+            transition: transform 0.3s cubic-bezier(0.45, 0.05, 0.55, 0.95);
+            z-index: 1;
+        }
+        /* State when EN is active (slide right) */
+        .lang-switch.en-active .lang-slider {
+            transform: translateX(36px);
+        }
+        .lang-switch.en-active #lang-fr { color: #888; }
+        .lang-switch.en-active #lang-en { color: #000; }
+
+
+        /* HERO */
+        .hero { 
+            padding-top: 180px; /* Reduced from 220px to lift titles */
+            min-height: 100vh; 
+            display: flex; 
+            align-items: center; 
+            background: radial-gradient(circle at 50% -20%, rgba(255,255,255,0.08), transparent 70%); 
+        }
+        .hero-visual-container { position: relative; transform-style: preserve-3d; perspective: 1000px; }
+        .mockup-container {
+            background: rgba(20, 20, 20, 0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 24px;
+            box-shadow: 0 0 0 1px rgba(255,255,255,0.05), 0 30px 60px rgba(0,0,0,0.8), 0 0 100px rgba(255,255,255,0.05);
+            backdrop-filter: blur(30px); animation: float 8s ease-in-out infinite; transform: rotateX(5deg) rotateY(-5deg); position: relative;
+        }
+        .mockup-header { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; }
+        .dot { width: 10px; height: 10px; border-radius: 50%; opacity: 0.5; }
+        .mockup-graph { height: 180px; display: flex; align-items: flex-end; gap: 15px; margin-bottom: 20px; position: relative; }
+        .bar { flex: 1; background: linear-gradient(to top, rgba(255,255,255,0.1), rgba(255,255,255,0.4)); border-radius: 4px 4px 0 0; transition: height 1s ease; position: relative; overflow: hidden; }
+        .bar.high { height: 80%; background: linear-gradient(to top, rgba(255,255,255,0.2), #fff); box-shadow: 0 0 30px rgba(255,255,255,0.2); }
+        .bar.med { height: 50%; }
+        .bar.low { height: 30%; }
+
+        /* LOGO BAND SECTION */
+        .logo-band {
+            padding: 80px 0;
+            background: #000;
+            position: relative;
+            z-index: 5;
+        }
+        
+        .logo-grid-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 30px;
+            background: rgba(255,255,255,0.02);
+        }
+        
+        .logo-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            border-right: 1px solid rgba(255,255,255,0.15);
+            transition: background 0.3s;
+        }
+        
+        .logo-item:last-child {
+            border-right: none;
+        }
+        
+        .logo-item:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .llm-logo {
+            height: 45px; 
+            width: auto;
+            max-width: 140px;
+            opacity: 0.8;
+            transition: all 0.3s ease;
+            filter: brightness(0) invert(1);
+        }
+        .logo-item:hover .llm-logo { transform: scale(1.1); opacity: 1; }
+        
+        .logo-caption {
+            text-align: center;
+            font-size: 0.95rem;
+            color: #888;
+            max-width: 700px;
+            margin: 0 auto;
+            font-weight: 400;
+        }
+
+        /* DEMO SECTION STYLES */
+        .demo-display {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #000;
+            border: 1px solid var(--border-highlight);
+            border-radius: 20px;
+            margin-bottom: 0; /* Connected to grid */
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 50px rgba(255,255,255,0.05);
+        }
+        .demo-video {
+            width: 100%;
+            height: 100%;
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
+            animation: fadeIn 0.5s ease;
+        }
+        .demo-video.active { display: flex; }
+        
+        .video-placeholder {
+            text-align: center;
+            color: #fff;
+        }
+        .video-placeholder h3 { margin-top: 20px; font-weight: 400; color: #888; letter-spacing: 1px; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+
+        /* Demo Tab Specifics */
+        .demo-grid {
+            margin-top: 40px;
+            grid-template-columns: repeat(3, 1fr) !important; /* Force 3 columns */
+        }
+        .demo-tab {
+            cursor: pointer;
+            flex-direction: column;
+            gap: 10px;
+            text-align: center;
+            color: #666;
+            font-weight: 600;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+        .demo-tab span { font-size: 1.1rem; }
+        .demo-tab:hover { background: rgba(255,255,255,0.05); color: #fff; }
+        .demo-tab.active {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            box-shadow: inset 0 0 20px rgba(255,255,255,0.05);
+        }
+        .demo-tab i { font-size: 1.5rem; margin-bottom: 5px; }
+
+        /* NEW SECTION: BENEFITS CARD STYLES */
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+        }
+        .benefit-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid #2D2D2D;
+            padding: 2.5rem;
+            border-radius: 16px;
+            transition: all 0.3s ease;
+        }
+        .benefit-card:hover {
+            border-color: #fff;
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.04);
+        }
+        /* Typography inside card */
+        .benefit-card h3 { 
+            font-size: 1.1rem; 
+            margin-bottom: 10px; 
+            color: #fff; 
+            text-transform: uppercase; 
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .benefit-card .subtitle { 
+            font-weight: 700; 
+            color: #fff; 
+            margin-bottom: 20px; 
+            font-size: 1.3rem; 
+            line-height: 1.3;
+        }
+        /* Structured List for Benefits */
+        .benefit-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .benefit-list li {
+            position: relative;
+            padding-left: 25px;
+            margin-bottom: 10px;
+            color: #ccc;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        .benefit-list li::before {
+            content: '•';
+            color: #fff;
+            position: absolute;
+            left: 5px;
+            font-weight: bold;
+        }
+        .benefit-list li strong {
+            color: #fff;
+        }
+        
+        .benefit-icon {
+            font-size: 1.5rem; 
+            color: #fff;
+            margin-right: 10px;
+        }
+
+        .problem-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 60px; position: relative; z-index: 2; }
+        .problem-card i {
+            font-size: 2rem; margin-bottom: 20px; color: #fff; background: rgba(255,255,255,0.1); width: 60px; height: 60px;
+            display: flex; align-items: center; justify-content: center; border-radius: 50%; box-shadow: 0 0 20px rgba(255,255,255,0.1);
+        }
+
+        .comparison-wrapper { background: var(--bg-glass); border: 1px solid var(--border-glass); border-radius: 24px; padding: 10px; backdrop-filter: blur(20px); overflow-x: auto; }
+        .comp-table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 800px; }
+        .comp-table th, .comp-table td { text-align: left; padding: 24px; border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: top; }
+        .comp-table th { color: #888; font-weight: 500; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; }
+        .comp-table th:nth-child(3), .comp-table td:nth-child(3) { background: rgba(255,255,255,0.03); color: #fff; border-left: 1px solid rgba(255,255,255,0.05); }
+
+        .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 60px; align-items: stretch; position: relative; z-index: 2; }
+        .pricing-card.popular { background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255,255,255,0.3); box-shadow: 0 0 50px rgba(255,255,255,0.05); transform: scale(1.05); z-index: 10; }
+        .popular-tag { position: absolute; top: 20px; right: 20px; background: #fff; color: #000; padding: 4px 12px; font-size: 0.75rem; font-weight: 700; border-radius: 100px; text-transform: uppercase; box-shadow: 0 0 10px rgba(255,255,255,0.5); }
+        .price { font-size: 3rem; font-weight: 700; color: #fff; margin: 20px 0; letter-spacing: -2px; }
+        .features-list { list-style: none; margin: 30px 0; padding: 0;}
+        .features-list li { margin-bottom: 15px; color: #ccc; display: flex; align-items: flex-start; gap: 12px; font-size: 0.95rem; line-height: 1.4; }
+        .features-list i { color: #fff; font-size: 0.8rem; margin-top: 5px; }
+        .cumulative-label { display: block; font-size: 0.8rem; color: #888; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; }
+
+        .faq-grid { max-width: 800px; margin: 60px auto 0; }
+        .faq-item { border-bottom: 1px solid var(--border-color-v1); background: transparent; margin-bottom: 0; border-radius: 0; padding: 0; }
+        .faq-question { padding: 24px 0; width: 100%; text-align: left; background: none; border: none; color: #fff; font-size: 1.1rem; font-weight: 500; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; color: var(--text-secondary); }
+        .faq-answer p { padding-bottom: 24px; font-size: 1rem; margin: 0;}
+        .faq-item.active .faq-answer { max-height: 300px; }
+        .faq-item.active i { transform: rotate(180deg); transition: transform 0.3s ease; }
+
+        .cta-box-v1 { background: linear-gradient(to bottom, #000, #111); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 80px 20px; box-shadow: 0 0 100px rgba(255,255,255,0.05); max-width: 900px; margin: 0 auto; position: relative; z-index: 2; }
+
+        footer { padding: 80px 0; border-top: 1px solid var(--border-color-v1); background: #050505; margin-top: 0; }
+        .footer-flex { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
+        
+        /* FOUNDERS REDESIGN - SIDE BY SIDE ON DESKTOP */
+        .founders-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 40px; 
+            margin-top: 50px; 
+        }
+        
+        .founder-card {
+            display: flex;
+            flex-direction: row; 
+            align-items: center; 
+            text-align: left;
+            padding: 2rem;
+            gap: 25px; 
+            min-height: auto; 
+        }
+
+        .founder-img {
+            width: 120px; 
+            height: 120px;
+            flex-shrink: 0; 
+            object-fit: cover;
+            border-radius: 50%;
+            margin-bottom: 0; 
+            filter: grayscale(100%);
+            border: 2px solid rgba(255,255,255,0.1);
+            transition: all 0.4s ease;
+        }
+        
+        .founder-card:hover .founder-img {
+            filter: grayscale(0%);
+            border-color: #fff;
+            transform: scale(1.05);
+        }
+
+        /* --- MOBILE ADAPTATIONS (MAX-WIDTH: 992px) --- */
+        @media (max-width: 992px) {
+            h1 { font-size: 3rem; }
+            .hero { flex-direction: column; padding-top: 140px; text-align: center; justify-content: center;}
+            .hero-content { margin-right: 0; margin-bottom: 60px; }
+            .hero-visual { width: 100%; }
+            .pricing-grid, .problem-grid, .benefits-grid { grid-template-columns: 1fr; }
+            
+            /* Founders Mobile Stack */
+            .founders-grid { grid-template-columns: 1fr; }
+            .founder-card { flex-direction: column; text-align: center; }
+            .founder-img { margin-bottom: 20px; }
+            
+            .pricing-card.popular { transform: scale(1); }
+            
+            /* Adjust Header Inner for flex wrapping/spacing on tablet/mobile */
+            .header-inner { justify-content: space-between; }
+            
+            .logo-grid-container { grid-template-columns: 1fr 1fr; }
+            .logo-item { border-bottom: 1px solid rgba(255,255,255,0.15); }
+            .logo-item:nth-child(2), .logo-item:last-child { border-right: none; }
+            .logo-item:nth-child(3), .logo-item:nth-child(4) { border-bottom: none; }
+            
+            .demo-grid { grid-template-columns: 1fr !important; }
+            .demo-tab { border-right: none !important; border-bottom: 1px solid rgba(255,255,255,0.15); }
+            .demo-tab:last-child { border-bottom: none; }
+
+            /* SOLUTION SECTION MOBILE FIX */
+            .sol-grid-split { grid-template-columns: 1fr !important; } /* Force stack */
+            .sol-card-wide { flex-direction: column; text-align: center; }
+            .sol-content { width: 100%; min-width: auto !important; }
+            .sol-visual { width: 100%; }
+        }
+
+        /* --- MOBILE HEADER SPECIFIC (MAX-WIDTH: 768px) --- */
+        @media (max-width: 768px) {
+            header {
+                padding: 10px 15px; /* Thinner header */
+                width: 95%; /* Wider on mobile */
+            }
+            .header-inner {
+                position: relative; /* For absolute positioning of lang switch */
+                justify-content: space-between;
+                width: 100%;
+            }
+            .logo-main {
+                width: 100px; /* Smaller logo */
+            }
+            .header-right {
+                gap: 0; /* Gap handled by structure */
+            }
+            .lang-switch {
+                position: absolute;
+                left: 42%; /* Default for FR (shifted left to make room for longer button) */
+                top: 50%;
+                transform: translate(-50%, -50%) scale(0.75); /* Centered and smaller */
+                margin: 0;
+                transition: left 0.3s ease; /* Smooth transition when changing language */
+            }
+            /* When English is active, center it because button is shorter */
+            .lang-switch.en-active {
+                left: 50%;
+            }
+
+            .header-cta {
+                min-width: auto; /* Remove fixed width constraints */
+                padding: 8px 16px; /* Smaller button */
+        /* SOLUTION SECTION CUSTOM CLASSES (Replaces inline styles) */
+        .sol-container { display: flex; flex-direction: column; gap: 60px; }
+        .sol-card-wide { display: flex; gap: 40px; align-items: center; flex-wrap: wrap; }
+        .sol-grid-split { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+        .sol-content { flex: 1; min-width: 280px; }
+        .sol-visual { 
+            flex: 1; 
+            height: 200px; 
+            background: rgba(0,0,0,0.3); 
+            border-radius: 16px; 
+            border: 1px solid rgba(255,255,255,0.1); 
+            position: relative; 
+            overflow: hidden; 
+        }
+        /* Visual shapes */
+        .sol-shape-1 { position:absolute; top:20px; left:20px; right:20px; height:20px; background:rgba(255,255,255,0.1); border-radius:4px; }
+        .sol-shape-2 { position:absolute; top:50px; left:20px; right:60px; height:20px; background:rgba(255,255,255,0.05); border-radius:4px; }
+        .sol-shape-3 { position:absolute; bottom:-50px; right:-50px; width:150px; height:150px; background:radial-gradient(circle, rgba(255,255,255,0.1), transparent); filter:blur(20px); }
+
+    </style>
+</head>
+<body id="top">
+
+    <!-- Planet Effect (Hero Only) -->
+    <div class="planet-glow"></div>
+
+    <!-- Header -->
+    <header>
+        <div class="header-inner">
+            <a href="#top" class="logo-link">
+                <img src="https://i.ibb.co/Vc4jcr7k/Sonar-black.png" alt="Sonar" class="logo-main">
+            </a>
+            
+            <div class="header-right">
+                <!-- Lang Switch -->
+                <div class="lang-switch" onclick="toggleLanguage()">
+                    <div class="lang-option active" id="lang-fr">FR</div>
+                    <div class="lang-option" id="lang-en">EN</div>
+                    <div class="lang-slider"></div>
+                </div>
+                
+                <a href="https://calendar.app.google/9VVpZhQHtdeW4LWW9" class="btn btn-primary header-cta" data-i18n="cta_demo">Réserver une démo</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- SECTION 1: HERO -->
+    <section class="section-std hero">
+        <div class="container" style="display:flex; flex-direction:row; align-items:center; flex-wrap:wrap;">
+            <div class="hero-content" style="flex:1; min-width: 300px; margin-right: 50px; animation: fadeUp 1s ease-out forwards;">
+                <div class="badge">
+                    <i class="fa-brands fa-google"></i> <span data-i18n="hero_badge">Fondée par des ex-Google experts en IA</span>
+                </div>
+                <h1 data-i18n="hero_title">Offrez à vos clients la visibilité qu'ils méritent sur les LLM</h1>
+                <p data-i18n="hero_subtitle">
+                    Vos clients vous demandent où ils se positionnent sur les IA génératives. Notre plateforme analyse en temps réel la visibilité de leurs marques sur ChatGPT, Perplexity et Claude — avec la précision d'ex-ingénieurs Google.
+                </p>
+                <div style="margin-top: 2.5rem;">
+                    <a href="https://calendar.app.google/9VVpZhQHtdeW4LWW9" class="btn btn-primary" data-i18n="cta_demo_free">Réservez une démo gratuite</a>
+                    <span class="fuds-text" style="display:block; margin-top:15px; opacity:0.6;" data-i18n="hero_fuds">✓ Config en 1 min · ✓ Rapport immédiat</span>
+                </div>
+            </div>
+
+            <div class="hero-visual" style="flex:1; min-width: 300px;">
+                <div class="hero-visual-container">
+                    <div class="mockup-container">
+                        <div class="mockup-header">
+                            <div class="dot" style="background:#555"></div>
+                            <div class="dot" style="background:#555"></div>
+                            <div style="margin-left:auto; font-size:10px; color:#888; letter-spacing:1px;">LIVE_ANALYSIS.EXE</div>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:25px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:15px;">
+                            <div>
+                                <div style="font-size:0.7rem; color:#888; text-transform:uppercase; letter-spacing:1px;">Client</div>
+                                <div style="font-size:1rem; font-weight:700; color:#fff;">Acme Corp</div>
+                            </div>
+                            <div style="text-align:right;">
+                                <div style="font-size:0.7rem; color:#888; text-transform:uppercase; letter-spacing:1px;">Status</div>
+                                <div style="font-size:0.9rem; color:#fff; display:flex; align-items:center; gap:5px; justify-content:flex-end;">
+                                    <span style="width:6px; height:6px; background:#fff; border-radius:50%; box-shadow:0 0 10px #fff;"></span> Live
+                                </div>
+                            </div>
+                        </div>
+                        <div style="font-size:0.7rem; color:#888; margin-bottom:15px; letter-spacing:1px;" data-i18n="mockup_label">VISIBILITÉ PAR IA</div>
+                        <div class="mockup-graph">
+                            <div class="bar med"></div>
+                            <div class="bar low"></div>
+                            <div class="bar high"></div>
+                            <div class="bar med"></div>
+                        </div>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                            <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:12px;">
+                                <div style="font-size:1.8rem; font-weight:700; color:#fff;">84%</div>
+                                <div style="font-size:0.7rem; color:#aaa;" data-i18n="mockup_sentiment">Sentiment Positif</div>
+                            </div>
+                            <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:12px;">
+                                <div style="font-size:1.8rem; font-weight:700; color:#fff;">#1</div>
+                                <div style="font-size:0.7rem; color:#aaa;" data-i18n="mockup_position">Position Recommandée</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 2: PROBLEM (REAL SONAR - EXTENDED) -->
+    <section class="section-std section-alt" style="border-bottom:none;">
+        <!-- Sonar Animation Background -->
+        <div class="sonar-wrapper">
+            <div class="sonar-grid">
+                <div class="sonar-blip" style="top: 20%; left: 30%; animation-delay: 0s;"></div>
+                <div class="sonar-blip" style="top: 60%; left: 80%; animation-delay: 1.5s;"></div>
+                <div class="sonar-blip" style="top: 80%; left: 20%; animation-delay: 2.2s;"></div>
+                <div class="sonar-blip" style="top: 15%; left: 60%; animation-delay: 0.5s;"></div>
+                <div class="sonar-blip" style="top: 70%; left: 50%; animation-delay: 3s;"></div>
+                <div class="sonar-blip" style="top: 40%; left: 90%; animation-delay: 2.8s;"></div>
+                <div class="sonar-blip" style="top: 30%; left: 10%; animation-delay: 1.2s;"></div>
+                <div class="sonar-sweep"></div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="text-center animate-on-scroll" style="max-width: 700px; margin: 0 auto; margin-bottom: 60px;">
+                <h2 style="text-shadow: 0 0 20px rgba(255,255,255,0.2);" data-i18n="prob_title">L'angle mort de vos audits SEO</h2>
+                <p data-i18n="prob_sub">Les méthodes traditionnelles sont aveugles face au nouveau comportement de recherche.</p>
+            </div>
+
+            <div class="problem-grid">
+                <div class="card problem-card animate-on-scroll" style="animation-delay: 0.1s;">
+                    <i class="fa-solid fa-eye-slash"></i>
+                    <h3 data-i18n="prob_1_title">Aucun outil d'analyse</h3>
+                    <p style="font-size:0.95rem;" data-i18n="prob_1_desc">Impossible de mesurer la présence sur ChatGPT, Perplexity ou Claude. Vous naviguez à l'aveugle.</p>
+                </div>
+                <div class="card problem-card animate-on-scroll" style="animation-delay: 0.2s;">
+                    <i class="fa-solid fa-circle-question"></i>
+                    <h3 data-i18n="prob_2_title">Clients exigeants</h3>
+                    <p style="font-size:0.95rem;" data-i18n="prob_2_desc">Vos clients savent que les LLM sont l'avenir. Ils demandent des KPIs que vous ne pouvez pas fournir.</p>
+                </div>
+                <div class="card problem-card animate-on-scroll" style="animation-delay: 0.3s;">
+                    <!-- New Icon for Opportunity Missed -->
+                    <i class="fa-solid fa-arrow-trend-down"></i>
+                    <h3 data-i18n="prob_3_title">Opportunité manquée</h3>
+                    <p style="font-size:0.95rem;" data-i18n="prob_3_desc">Sans visibilité, vos clients perdent un canal qui convertit 2 à 3x mieux que le SEO classique.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 2.5: BENEFITS (New Section) -->
+    <section class="section-std" style="background-color: #0A0A0A;">
+        <div class="container">
+            <div class="text-center" style="margin-bottom: 60px;">
+                <h2 data-i18n="ben_title">Ce que Sonar transforme pour votre agence</h2>
+                <p data-i18n="ben_sub">Passez d'un simple prestataire SEO à un partenaire stratégique indispensable.</p>
+            </div>
+
+            <div class="benefits-grid">
+                <!-- Card 1 -->
+                <div class="benefit-card animate-on-scroll" style="animation-delay: 0.1s;">
+                    <h3><i class="fa-solid fa-trophy benefit-icon"></i> <span data-i18n="ben_1_head">DÉMARQUEZ-VOUS</span></h3>
+                    <p class="subtitle" data-i18n="ben_1_sub">Soyez l'agence qui maîtrise l'avenir du search</p>
+                    <ul class="benefit-list">
+                        <li data-i18n="ben_1_li1">Analysez la visibilité LLM en temps réel</li>
+                        <li data-i18n="ben_1_li2">Surpassez le SEO classique (<strong>4,4x plus de conversions</strong>)</li>
+                        <li data-i18n="ben_1_li3">Positionnez-vous comme une agence visionnaire</li>
+                    </ul>
+                </div>
+                
+                <!-- Card 2 -->
+                <div class="benefit-card animate-on-scroll" style="animation-delay: 0.2s;">
+                    <h3><i class="fa-solid fa-sack-dollar benefit-icon"></i> <span data-i18n="ben_2_head">REVENUS MULTIPLICÉS</span></h3>
+                    <p class="subtitle" data-i18n="ben_2_sub">Transformez vos audits en services récurrents premium</p>
+                    <ul class="benefit-list">
+                        <li data-i18n="ben_2_li1">Augmentez votre CA par client de <strong>+30-50%</strong></li>
+                        <li data-i18n="ben_2_li2">Monétisez de nouveaux services :</li>
+                        <li data-i18n="ben_2_li3">Rapports mensuels, Benchmarks, Optimisations stratégiques</li>
+                    </ul>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="benefit-card animate-on-scroll" style="animation-delay: 0.3s;">
+                    <h3><i class="fa-solid fa-bullseye benefit-icon"></i> <span data-i18n="ben_3_head">ADAPTATION TOTALE</span></h3>
+                    <p class="subtitle" data-i18n="ben_3_sub">Un outil, tous vos clients — tous secteurs</p>
+                    <ul class="benefit-list">
+                        <li data-i18n="ben_3_li1">Compatible tous secteurs (E-commerce, SaaS, B2B)</li>
+                        <li data-i18n="ben_3_li2">Adaptation automatique : Produits vs Marque</li>
+                        <li data-i18n="ben_3_li3">Segmentation par <strong>Persona & Localisation</strong></li>
+                    </ul>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="benefit-card animate-on-scroll" style="animation-delay: 0.4s;">
+                    <h3><i class="fa-solid fa-bolt benefit-icon"></i> <span data-i18n="ben_4_head">ZÉRO EXPERTISE REQUISE</span></h3>
+                    <p class="subtitle" data-i18n="ben_4_sub">2 minutes de setup = expertise Sonar instantanée</p>
+                    <ul class="benefit-list">
+                        <li data-i18n="ben_4_li1">Zéro recrutement technique nécessaire</li>
+                        <li data-i18n="ben_4_li2">Workflow ultra-rapide :</li>
+                        <li data-i18n="ben_4_li3">1. Connectez, 2. Analysez, 3. <strong>Exportez le rapport</strong></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="text-center" style="margin-top: 60px;">
+                <p style="color: #fff; margin-bottom: 20px; font-weight: 500;" data-i18n="ben_cta_text">Ces bénéfices, dès demain pour votre agence ?</p>
+                <a href="https://calendar.app.google/9VVpZhQHtdeW4LWW9" class="btn btn-primary" data-i18n="cta_demo_custom">Réservez votre démo personnalisée</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 3: SOLUTION (Stars/Space Theme) -->
+    <section id="solution" class="section-std">
+        <div class="star-field"></div>
+        <div class="container">
+            <div class="text-center" style="margin-bottom: 80px;">
+                <h2 data-i18n="sol_title">Auditez, analysez, optimisez</h2>
+                <p data-i18n="sol_sub">La stack complète pour la visibilité LLM.</p>
+            </div>
+
+            <div class="sol-container">
+                <!-- Step 1 -->
+                <div class="card sol-card-wide">
+                    <div class="sol-content">
+                        <div style="font-size:4rem; font-weight:800; color:rgba(255,255,255,0.1); line-height:1;">01</div>
+                        <h3 data-i18n="sol_1_title">AUDITEZ</h3>
+                        <p data-i18n="sol_1_desc">Obtenez un diagnostic complet : où votre client apparaît-il sur ChatGPT, Perplexity, Claude et Gemini ?</p>
+                    </div>
+                    <div class="sol-visual">
+                        <div class="sol-shape-1"></div>
+                        <div class="sol-shape-2"></div>
+                        <div class="sol-shape-3"></div>
+                    </div>
+                </div>
+
+                <!-- Step 2 & 3 -->
+                <div class="sol-grid-split">
+                    <div class="card">
+                         <div style="font-size:4rem; font-weight:800; color:rgba(255,255,255,0.1); line-height:1;">02</div>
+                        <h3 data-i18n="sol_2_title">ANALYSEZ</h3>
+                        <p data-i18n="sol_2_desc">Comparez avec les concurrents. Identifiez les gaps, les opportunités et les menaces.</p>
+                    </div>
+                    <div class="card">
+                         <div style="font-size:4rem; font-weight:800; color:rgba(255,255,255,0.1); line-height:1;">03</div>
+                        <h3 data-i18n="sol_3_title">OPTIMISEZ</h3>
+                        <p data-i18n="sol_3_desc">Recevez des recommandations basées sur des modèles mathématiques pour dominer les résultats.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NEW SECTION: LOGO BAND (MOVED AFTER SOLUTION) -->
+    <section class="logo-band">
+        <div class="container">
+            
+            <div class="logo-grid-container">
+                <!-- ChatGPT -->
+                <div class="logo-item">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/1/13/ChatGPT-Logo.png" alt="ChatGPT" class="llm-logo">
+                </div>
+                
+                <!-- Perplexity -->
+                <div class="logo-item">
+                    <img src="https://registry.npmmirror.com/@lobehub/icons-static-png/latest/files/dark/perplexity-color.png" alt="Perplexity" class="llm-logo">
+                </div>
+
+                <!-- Claude -->
+                <div class="logo-item">
+                    <img src="https://registry.npmmirror.com/@lobehub/icons-static-png/latest/files/dark/claude-color.png" alt="Claude" class="llm-logo">
+                </div>
+                
+                <!-- Gemini -->
+                <div class="logo-item">
+                    <img src="https://registry.npmmirror.com/@lobehub/icons-static-png/latest/files/dark/gemini-color.png" alt="Gemini" class="llm-logo">
+                </div>
+            </div>
+            
+            <p class="logo-caption" data-i18n="logo_band_caption">Nous analysons chacun de ces LLM via les applications directement et non les API, ce qui change drastiquement le résultat des données.</p>
+        </div>
+    </section>
+
+    <!-- SECTION 4: DIFFERENTIATION -->
+    <section class="section-std section-alt">
+        <div class="container">
+            <div class="text-center" style="margin-bottom:60px;">
+                <h2 data-i18n="diff_title">Ce qui nous rend différents</h2>
+            </div>
+            
+            <div class="comparison-wrapper animate-on-scroll">
+                <table class="comp-table">
+                    <thead>
+                        <tr>
+                            <th style="width:25%" data-i18n="diff_col_1">Critère</th>
+                            <th style="width:35%" data-i18n="diff_col_2">Concurrents</th>
+                            <th style="width:40%">Sonar Platform</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td data-i18n="diff_row1_1">Source des données</td>
+                            <td style="color:#666;" data-i18n="diff_row1_2">API officielles (données filtrées/incomplètes)</td>
+                            <td><strong data-i18n="diff_row1_3">Scraping web app réel (User View)</strong></td>
+                        </tr>
+                        <tr>
+                            <td data-i18n="diff_row2_1">Méthodologie</td>
+                            <td style="color:#666;" data-i18n="diff_row2_2">Basée sur des prompts manuels</td>
+                            <td><strong data-i18n="diff_row2_3">Approche scientifique (ML Engineers Google)</strong></td>
+                        </tr>
+                        <tr>
+                            <td data-i18n="diff_row3_1">Granularité</td>
+                            <td style="color:#666;" data-i18n="diff_row3_2">Analyse globale de marque uniquement</td>
+                            <td><strong data-i18n="diff_row3_3">Par produit, persona, localisation et intention</strong></td>
+                        </tr>
+                         <tr>
+                            <td data-i18n="diff_row4_1">Interface</td>
+                            <td style="color:#666;" data-i18n="diff_row4_2">Masse de données brutes difficile à interpréter</td>
+                            <td><strong data-i18n="diff_row4_3">Dashboard clair, intuitif & actionnable</strong></td>
+                        </tr>
+                         <tr>
+                            <td data-i18n="diff_row5_1">Positionnement</td>
+                            <td style="color:#666;" data-i18n="diff_row5_2">Conçu pour l'usage interne</td>
+                            <td><strong data-i18n="diff_row5_3">Optimisé pour le reporting agence</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- NEW SECTION: SONAR IN ACTION (DEMO) -->
+    <section class="section-std">
+        <div class="container">
+            <div class="text-center" style="margin-bottom: 60px;">
+                <h2 data-i18n="demo_title">Sonar en action</h2>
+            </div>
+            
+            <!-- Video Screen Mockup -->
+            <div class="demo-display">
+                <!-- 1. ADD BRAND VIDEO (Active by default) -->
+                <div class="demo-video active" id="video-add">
+                    <img src="https://s12.gifyu.com/images/bkX6u.gif" alt="Add Brand Demo" style="width: 100%; height: 100%; object-fit: contain;">
+                </div>
+                
+                <!-- 2. AUDIT VIDEO -->
+                <div class="demo-video" id="video-audit">
+                    <img src="https://s12.gifyu.com/images/bkX6Q.gif" alt="Audit Demo" style="width: 100%; height: 100%; object-fit: contain;">
+                </div>
+                
+                <!-- 3. ANALYZE VIDEO -->
+                <div class="demo-video" id="video-analyze">
+                    <img src="https://s12.gifyu.com/images/bkX6W.gif" alt="Analyze Demo" style="width: 100%; height: 100%; object-fit: contain;">
+                </div>
+            </div>
+
+            <!-- Controls Grid -->
+            <div class="logo-grid-container demo-grid">
+                <div class="logo-item demo-tab active" onclick="switchDemo('add')">
+                    <i class="fa-solid fa-circle-plus"></i>
+                    <span data-i18n="demo_tab_1">AJOUTER</span>
+                </div>
+                <div class="logo-item demo-tab" onclick="switchDemo('audit')">
+                    <i class="fa-solid fa-eye"></i>
+                    <span data-i18n="demo_tab_2">AUDITER</span>
+                </div>
+                <div class="logo-item demo-tab" onclick="switchDemo('analyze')">
+                    <i class="fa-solid fa-chart-column"></i>
+                    <span data-i18n="demo_tab_3">ANALYSER</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 5: FOUNDERS -->
+    <section class="section-std">
+        <div class="container">
+            <h2 class="text-center" data-i18n="founders_title">Qui sommes-nous ?</h2>
+            
+            <div class="founders-grid">
+                <div class="card founder-card">
+                    <img src="https://media.licdn.com/dms/image/v2/D4E03AQEB18sWBIRQWg/profile-displayphoto-shrink_800_800/B4EZbPMZdhHIAc-/0/1747232856476?e=1772064000&v=beta&t=bhfGTVBHGCHzidHGtZ3jZmmjQ_-8SKiKeDtSPa3LsyI" alt="Clément" class="founder-img" width="150" height="150">
+                    <div>
+                        <h4>Clément</h4>
+                        <p style="font-size:0.85rem; color:#888;">Ex-Sales Specialist Gen AI @ Google</p>
+                        <p style="font-size:0.95rem; margin-bottom:0; color:#ddd;" data-i18n="founder_1_quote">"Chez Google, j'ai accompagné des centaines d'entreprises françaises dans l'adoption de l'IA et collaboré directement avec les équipes Gemini."</p>
+                    </div>
+                </div>
+                <div class="card founder-card">
+                    <img src="https://media.licdn.com/dms/image/v2/D4E03AQF2EWf3tOeKPA/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1680617800193?e=1772064000&v=beta&t=Xl-8yDVxct1P2xV7UXX0EZ5G8RrtCSILz9W_0gOgb2M" alt="Yacine" class="founder-img" width="150" height="150">
+                    <div>
+                        <h4>Yacine</h4>
+                        <p style="font-size:0.85rem; color:#888;">Ex-ML Engineer Gen AI @ Google</p>
+                        <p style="font-size:0.95rem; margin-bottom:0; color:#ddd;" data-i18n="founder_2_quote">"J'ai travaillé directement sur la partie Machine Learning des modèles Gemini avec les équipes de recherche aux US et en Suisse."</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 6: PRICING -->
+    <section id="pricing" class="section-std bg-abyss">
+        <div class="abyss-light"></div>
+        <div class="container">
+            <div class="text-center" style="margin-bottom:60px;">
+                <h2 data-i18n="pricing_title">Pricing</h2>
+                <p data-i18n="pricing_sub">Simple, transparent, évolutif.</p>
+            </div>
+
+            <div class="pricing-grid">
+                <!-- Starter -->
+                <div class="pricing-card card">
+                    <h4>Starter</h4>
+                    <div class="price">179€<span style="font-size:1rem; color:#888;">/mo</span></div>
+                    <ul class="features-list">
+                        <li><i class="fa-solid fa-check"></i> <span data-i18n="price_1_feat1">1 000 crédits/mois</span></li>
+                        <li><i class="fa-solid fa-check"></i> <span data-i18n="price_1_feat2">Jusqu'à 3 clients</span></li>
+                        <li><i class="fa-solid fa-check"></i> <span data-i18n="price_1_feat3">Configuration en 1 minute</span></li>
+                        <li><i class="fa-solid fa-check"></i> <span data-i18n="price_1_feat4">Pays & Personas illimités</span></li>
+                        <li><i class="fa-solid fa-check"></i> <span data-i18n="price_1_feat5">1 dashboard par client</span></li>
+                        <li><i class="fa-solid fa-check"></i> <span data-i18n="price_1_feat6">Export CSV uniquement</span></li>
+                    </ul>
+                    <a href="https://calendar.app.google/9VVpZhQHtdeW4LWW9" class="btn btn-secondary" style="width:100%; text-align:center; border-radius:8px;" data-i18n="cta_demo">Réserver une démo</a>
+                </div>
+
+                <!-- Growth -->
+                <div class="pricing-card card popular">
+                    <div class="popular-tag" data-i18n="popular_tag">Populaire</div>
+                    <h4>Growth</h4>
+                    <div class="price">349€<span style="font-size:1rem; color:#888;">/mo</span></div>
+                    
+                    <ul class="features-list">
+                        <span class="cumulative-label" data-i18n="cumulative_growth">Tout dans Starter, plus :</span>
+                        <li><i class="fa-solid fa-check"></i> <strong data-i18n="price_2_feat1">3 000 crédits/mois</strong></li>
+                        <li><i class="fa-solid fa-check"></i> <strong data-i18n="price_2_feat2">Jusqu'à 10 clients</strong></li>
+                        <li><i class="fa-solid fa-check"></i> <strong data-i18n="price_2_feat3">Dashboards white-label</strong></li>
+                        <li><i class="fa-solid fa-check"></i> <span data-i18n="price_2_feat4">Export CSV, GA4 et Looker Studio</span></li>
+                    </ul>
+                    <a href="https://calendar.app.google/9VVpZhQHtdeW4LWW9" class="btn btn-primary" style="width:100%; text-align:center; border-radius:8px;" data-i18n="cta_demo">Réserver une démo</a>
+                </div>
+
+                <!-- Agency -->
+                <div class="pricing-card card">
+                    <h4>Agency</h4>
+                    <div class="price">839€<span style="font-size:1rem; color:#888;">/mo</span></div>
+                    <ul class="features-list">
+                        <span class="cumulative-label" data-i18n="cumulative_agency">Tout dans Growth, plus :</span>
+                        <li><i class="fa-solid fa-check"></i> <strong data-i18n="price_3_feat1">10 000 crédits/mois</strong></li>
+                        <li><i class="fa-solid fa-check"></i> <strong data-i18n="price_3_feat2">Jusqu'à 50 clients</strong></li>
+                        <li><i class="fa-solid fa-check"></i> <span data-i18n="price_3_feat3">Support prioritaire</span></li>
+                    </ul>
+                    <a href="https://calendar.app.google/9VVpZhQHtdeW4LWW9" class="btn btn-secondary" style="width:100%; text-align:center; border-radius:8px;" data-i18n="cta_demo">Réserver une démo</a>
+                </div>
+            </div>
+            <p class="text-center" style="margin-top:40px; color:#666; font-size:0.9rem;" data-i18n="pricing_footer">
+                Tous les plans incluent : Accès à tous les LLM majeurs (ChatGPT, Perplexity, Claude, Gemini) · Mises à jour auto
+            </p>
+        </div>
+    </section>
+
+    <!-- SECTION 7: FAQ -->
+    <section class="section-std">
+        <div class="container">
+            <h2 class="text-center" data-i18n="faq_title">Questions fréquentes</h2>
+            <div class="faq-grid">
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span data-i18n="faq_1_q">Comment fonctionne le système de crédits ?</span>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p data-i18n="faq_1_a">Chaque crédit correspond à une analyse LLM pour une requête donnée. Par exemple, analyser la visibilité d'un client sur 10 requêtes stratégiques sur ChatGPT = 10 crédits. Vous contrôlez totalement l'utilisation.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span data-i18n="faq_2_q">Quels LLM sont couverts par la plateforme ?</span>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p data-i18n="faq_2_a">Nous analysons les 4 principaux moteurs IA : ChatGPT (qui détient 60% du marché IA), Perplexity, Claude et Google Gemini.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span data-i18n="faq_3_q">Puis-je personnaliser les dashboards avec mon branding ?</span>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p data-i18n="faq_3_a">Oui, les plans Growth et Agency incluent des dashboards white-label. Vous pouvez ajouter votre logo, vos couleurs et présenter les rapports comme s'ils provenaient directement de votre agence.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span data-i18n="faq_4_q">Proposez-vous un essai gratuit ?</span>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p data-i18n="faq_4_a">Nous offrons une démo gratuite personnalisée où nous analysons 1-2 clients de votre choix en direct avec vous. C'est plus efficace qu'un essai autodidacte.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 8: FINAL CTA -->
+    <section id="demo" class="section-std">
+        <div class="container cta-box-v1 text-center">
+            <h2 style="margin-bottom: 20px;" data-i18n="final_cta_title">Pendant que vos concurrents hésitent, prenez de l'avance</h2>
+            <p style="max-width: 600px; margin: 0 auto 40px auto;" data-i18n="final_cta_sub">
+                Les agences qui maîtriseront ce canal en premier captureront le marché. La question n'est pas "si", mais "quand".
+            </p>
+            
+            <div style="display:flex; flex-direction:column; gap:10px; align-items:center; margin-bottom:30px;">
+                <div style="display:flex; gap:10px; color:#ccc;"><i class="fa-solid fa-check" style="color:#fff"></i> <span data-i18n="final_fud_1">Setup en 1 minute</span></div>
+                <div style="display:flex; gap:10px; color:#ccc;"><i class="fa-solid fa-check" style="color:#fff"></i> <span data-i18n="final_fud_2">Données réelles scrapées</span></div>
+                <div style="display:flex; gap:10px; color:#ccc;"><i class="fa-solid fa-check" style="color:#fff"></i> <span data-i18n="final_fud_3">Dashboards White-label</span></div>
+            </div>
+
+            <div style="display:flex; gap:20px; justify-content:center; flex-wrap:wrap;">
+                <a href="https://calendar.app.google/9VVpZhQHtdeW4LWW9" class="btn btn-primary" data-i18n="cta_demo_free">Réservez une démo gratuite</a>
+                <a href="#pricing" class="btn btn-secondary" data-i18n="cta_see_pricing">Voir les tarifs</a>
+            </div>
+            
+            <p style="font-size:0.8rem; margin-top:20px; color: #555;" data-i18n="final_small">
+                Aucune CB requise · Analyse offerte d'un client
+            </p>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container footer-flex">
+            <div style="color:#444; font-size:0.9rem;">
+                <span data-i18n="footer_rights_2026">© 2026 Sonar AI. Tous droits réservés.</span><br>
+                <a href="#" style="color:#444; text-decoration:none; margin-right:10px;" data-i18n="footer_legal">Mentions Légales</a>
+                <a href="#" style="color:#444; text-decoration:none;" data-i18n="footer_cgv">CGV</a>
+            </div>
+            <!-- STILL HERE SECTION -->
+            <div style="display:flex; align-items:center; gap:20px;">
+                <span style="color:#666; font-size:0.95rem; font-weight:600;" data-i18n="still_here">Encore ici ?</span>
+                <a href="https://calendar.app.google/9VVpZhQHtdeW4LWW9" class="btn btn-secondary" style="padding: 10px 20px; font-size: 0.9rem;" data-i18n="cta_demo_footer">Réserver une démo</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- SCRIPTS -->
+    <script>
+        // TRANSLATIONS
+        const translations = {
+            fr: {
+                cta_demo: "Réserver une démo",
+                hero_badge: "Fondée par des ex-Google experts en IA",
+                hero_title: "Offrez à vos clients la visibilité qu'ils méritent sur les LLM",
+                hero_subtitle: "Vos clients vous demandent où ils se positionnent sur les IA génératives. Notre plateforme analyse en temps réel la visibilité de leurs marques sur ChatGPT, Perplexity et Claude — avec la précision d'ex-ingénieurs Google.",
+                cta_demo_free: "Réservez une démo gratuite",
+                hero_fuds: "✓ Config en 1 min · ✓ Rapport immédiat",
+                metric_1: "Croissance trafic LLM",
+                metric_2: "Conversion vs SEO",
+                mockup_label: "VISIBILITÉ PAR IA",
+                mockup_sentiment: "Sentiment Positif",
+                mockup_position: "Position Recommandée",
+                prob_title: "L'angle mort de vos audits SEO",
+                prob_sub: "Les méthodes traditionnelles sont aveugles face au nouveau comportement de recherche.",
+                prob_1_title: "Aucun outil d'analyse",
+                prob_1_desc: "Impossible de mesurer la présence sur ChatGPT, Perplexity ou Claude. Vous naviguez à l'aveugle.",
+                prob_2_title: "Clients exigeants",
+                prob_2_desc: "Vos clients savent que les LLM sont l'avenir. Ils demandent des KPIs que vous ne pouvez pas fournir.",
+                prob_3_title: "Opportunité manquée",
+                prob_3_desc: "Sans visibilité, vos clients perdent un canal qui convertit 2 à 3x mieux que le SEO classique.",
+                ben_title: "Ce que Sonar transforme pour votre agence",
+                ben_sub: "Passez d'un simple prestataire SEO à un partenaire stratégique indispensable.",
+                ben_1_head: "DÉMARQUEZ-VOUS",
+                ben_1_sub: "Soyez l'agence qui maîtrise l'avenir du search",
+                ben_1_li1: "Analysez la visibilité LLM en temps réel",
+                ben_1_li2: "Surpassez le SEO classique (<strong>4,4x plus de conversions</strong>)",
+                ben_1_li3: "Positionnez-vous comme une agence visionnaire",
+                ben_2_head: "REVENUS MULTIPLICÉS",
+                ben_2_sub: "Transformez vos audits en services récurrents premium",
+                ben_2_li1: "Augmentez votre CA par client de <strong>+30-50%</strong>",
+                ben_2_li2: "Monétisez de nouveaux services :",
+                ben_2_li3: "Rapports mensuels, Benchmarks, Optimisations stratégiques",
+                ben_3_head: "ADAPTATION TOTALE",
+                ben_3_sub: "Un outil, tous vos clients — tous secteurs",
+                ben_3_li1: "Compatible tous secteurs (E-commerce, SaaS, B2B)",
+                ben_3_li2: "Adaptation automatique : Produits vs Marque",
+                ben_3_li3: "Segmentation par <strong>Persona & Localisation</strong>",
+                ben_4_head: "ZÉRO EXPERTISE REQUISE",
+                ben_4_sub: "2 minutes de setup = expertise Sonar instantanée",
+                ben_4_li1: "Zéro recrutement technique nécessaire",
+                ben_4_li2: "Workflow ultra-rapide :",
+                ben_4_li3: "1. Connectez, 2. Analysez, 3. <strong>Exportez le rapport</strong>",
+                ben_cta_text: "Ces bénéfices, dès demain pour votre agence ?",
+                cta_demo_custom: "Réservez votre démo personnalisée",
+                sol_title: "Auditez, analysez, optimisez",
+                sol_sub: "La stack complète pour la visibilité LLM.",
+                sol_1_title: "AUDITEZ",
+                sol_1_desc: "Obtenez un diagnostic complet : où votre client apparaît-il sur ChatGPT, Perplexity, Claude et Gemini ?",
+                sol_2_title: "ANALYSEZ",
+                sol_2_desc: "Comparez avec les concurrents. Identifiez les gaps, les opportunités et les menaces.",
+                sol_3_title: "OPTIMISEZ",
+                sol_3_desc: "Recevez des recommandations basées sur des modèles mathématiques pour dominer les résultats.",
+                logo_band_caption: "Nous analysons chacun de ces LLM via les applications directement et non les API, ce qui change drastiquement le résultat des données.",
+                diff_title: "Ce qui nous rend différents",
+                diff_col_1: "Critère",
+                diff_col_2: "Concurrents",
+                diff_row1_1: "Source des données",
+                diff_row1_2: "API officielles (données filtrées/incomplètes)",
+                diff_row1_3: "Scraping web app réel (User View)",
+                diff_row2_1: "Méthodologie",
+                diff_row2_2: "Basée sur des prompts manuels",
+                diff_row2_3: "Approche scientifique (ML Engineers Google)",
+                diff_row3_1: "Granularité",
+                diff_row3_2: "Analyse globale de marque uniquement",
+                diff_row3_3: "Par produit, persona, localisation et intention",
+                diff_row4_1: "Interface",
+                diff_row4_2: "Masse de données brutes difficile à interpréter",
+                diff_row4_3: "Dashboard clair, intuitif & actionnable",
+                diff_row5_1: "Positionnement",
+                diff_row5_2: "Conçu pour l'usage interne",
+                diff_row5_3: "Optimisé pour le reporting agence",
+                demo_title: "Sonar en action",
+                demo_tab_1: "AJOUTER",
+                demo_tab_2: "AUDITER",
+                demo_tab_3: "ANALYSER",
+                founders_title: "Qui sommes-nous ?",
+                founder_1_quote: "\"Chez Google, j'ai accompagné des centaines d'entreprises françaises dans l'adoption de l'IA et collaboré directement avec les équipes Gemini.\"",
+                founder_2_quote: "\"J'ai travaillé directement sur la partie Machine Learning des modèles Gemini avec les équipes de recherche aux US et en Suisse.\"",
+                pricing_title: "Pricing",
+                pricing_sub: "Simple, transparent, évolutif.",
+                price_1_feat1: "1 000 crédits/mois",
+                price_1_feat2: "Jusqu'à 3 clients",
+                price_1_feat3: "Configuration en 1 minute",
+                price_1_feat4: "Pays & Personas illimités",
+                price_1_feat5: "1 dashboard par client",
+                price_1_feat6: "Export CSV uniquement",
+                cta_start: "Réserver une démo",
+                popular_tag: "Populaire",
+                cumulative_growth: "Tout dans Starter, plus :",
+                price_2_feat1: "3 000 crédits/mois",
+                price_2_feat2: "Jusqu'à 10 clients",
+                price_2_feat3: "Dashboards white-label",
+                price_2_feat4: "Export CSV, GA4 et Looker Studio",
+                cta_growth: "Réserver une démo",
+                cumulative_agency: "Tout dans Growth, plus :",
+                price_3_feat1: "10 000 crédits/mois",
+                price_3_feat2: "Jusqu'à 50 clients",
+                price_3_feat3: "Support prioritaire",
+                cta_contact: "Réserver une démo",
+                pricing_footer: "Tous les plans incluent : Accès à tous les LLM majeurs (ChatGPT, Perplexity, Claude, Gemini) · Mises à jour auto",
+                faq_title: "Questions fréquentes",
+                faq_1_q: "Comment fonctionne le système de crédits ?",
+                faq_1_a: "Chaque crédit correspond à une analyse LLM pour une requête donnée. Par exemple, analyser la visibilité d'un client sur 10 requêtes stratégiques sur ChatGPT = 10 crédits. Vous contrôlez totalement l'utilisation.",
+                faq_2_q: "Quels LLM sont couverts par la plateforme ?",
+                faq_2_a: "Nous analysons les 4 principaux moteurs IA : ChatGPT (qui détient 60% du marché IA), Perplexity, Claude et Google Gemini.",
+                faq_3_q: "Puis-je personnaliser les dashboards avec mon branding ?",
+                faq_3_a: "Oui, les plans Growth et Agency incluent des dashboards white-label. Vous pouvez ajouter votre logo, vos couleurs et présenter les rapports comme s'ils provenaient directement de votre agence.",
+                faq_4_q: "Proposez-vous un essai gratuit ?",
+                faq_4_a: "Nous offrons une démo gratuite personnalisée où nous analysons 1-2 clients de votre choix en direct avec vous. C'est plus efficace qu'un essai autodidacte.",
+                final_cta_title: "Pendant que vos concurrents hésitent, prenez de l'avance",
+                final_cta_sub: "Les agences qui maîtriseront ce canal en premier captureront le marché. La question n'est pas \"si\", mais \"quand\".",
+                final_fud_1: "Setup en 1 minute",
+                final_fud_2: "Données réelles scrapées",
+                final_fud_3: "Dashboards White-label",
+                cta_see_pricing: "Voir les tarifs",
+                final_small: "Aucune CB requise · Analyse offerte d'un client",
+                footer_rights_2026: "© 2026 Sonar AI. Tous droits réservés.",
+                footer_legal: "Mentions Légales",
+                footer_cgv: "CGV",
+                still_here: "Encore ici ?",
+                cta_demo_footer: "Réserver une démo"
+            },
+            en: {
+                cta_demo: "Book a demo",
+                hero_badge: "Founded by ex-Google AI experts",
+                hero_title: "Give your clients the visibility they deserve on LLMs",
+                hero_subtitle: "Your clients ask where they stand on generative AI. Our platform analyzes their brand visibility in real-time on ChatGPT, Perplexity, and Claude — with the precision of ex-Google engineers.",
+                cta_demo_free: "Book a free demo",
+                hero_fuds: "✓ 1 min setup · ✓ Instant report",
+                metric_1: "LLM traffic growth",
+                metric_2: "Conversion vs SEO",
+                mockup_label: "AI VISIBILITY",
+                mockup_sentiment: "Positive Sentiment",
+                mockup_position: "Recommended Position",
+                prob_title: "The blind spot of your SEO audits",
+                prob_sub: "Traditional methods are blind to new search behaviors.",
+                prob_1_title: "No analytics tool",
+                prob_1_desc: "Impossible to measure presence on ChatGPT, Perplexity or Claude. You are flying blind.",
+                prob_2_title: "Demanding clients",
+                prob_2_desc: "Your clients know LLMs are the future. They ask for KPIs you cannot provide.",
+                prob_3_title: "Missed opportunity",
+                prob_3_desc: "Without visibility, your clients lose a channel converting 4.4x better than classic SEO.",
+                ben_title: "What Sonar transforms for your agency",
+                ben_sub: "Go from a simple SEO provider to an indispensable strategic partner.",
+                ben_1_head: "STAND OUT",
+                ben_1_sub: "Be the agency mastering the future of search",
+                ben_1_li1: "Analyze real-time LLM visibility",
+                ben_1_li2: "Outperform classic SEO (<strong>4.4x more conversions</strong>)",
+                ben_1_li3: "Position yourself as a visionary agency",
+                ben_2_head: "MULTIPLIED REVENUE",
+                ben_2_sub: "Turn audits into recurring premium services",
+                ben_2_li1: "Increase revenue per client by <strong>+30-50%</strong>",
+                ben_2_li2: "Monetize new services:",
+                ben_2_li3: "Monthly reports, Benchmarks, Strategic optimizations",
+                ben_3_head: "TOTAL ADAPTATION",
+                ben_3_sub: "One tool, all your clients — all sectors",
+                ben_3_li1: "Compatible with all sectors (E-commerce, SaaS, B2B)",
+                ben_3_li2: "Automatic adaptation: Products vs Brand",
+                ben_3_li3: "Segmentation by <strong>Persona & Location</strong>",
+                ben_4_head: "ZERO EXPERTISE REQUIRED",
+                ben_4_sub: "2 min setup = instant Sonar expertise",
+                ben_4_li1: "No technical hiring needed",
+                ben_4_li2: "Ultra-fast workflow:",
+                ben_4_li3: "1. Connect, 2. Analyze, 3. <strong>Export report</strong>",
+                ben_cta_text: "These benefits for your agency starting tomorrow?",
+                cta_demo_custom: "Book your custom demo",
+                sol_title: "Audit, analyze, optimize",
+                sol_sub: "The complete stack for LLM visibility.",
+                sol_1_title: "AUDIT",
+                sol_1_desc: "Get a complete diagnosis: where does your client appear on ChatGPT, Perplexity, Claude, and Gemini?",
+                sol_2_title: "ANALYZE",
+                sol_2_desc: "Compare with competitors. Identify gaps, opportunities, and threats.",
+                sol_3_title: "OPTIMIZE",
+                sol_3_desc: "Receive math-based recommendations to dominate results.",
+                logo_band_caption: "We analyze each of these LLMs via the apps directly, not APIs, which drastically changes the data results.",
+                diff_title: "What makes us different",
+                diff_col_1: "Criteria",
+                diff_col_2: "Competitors",
+                diff_row1_1: "Data Source",
+                diff_row1_2: "Official APIs (filtered/incomplete data)",
+                diff_row1_3: "Real web app scraping (User View)",
+                diff_row2_1: "Methodology",
+                diff_row2_2: "Based on manual prompts",
+                diff_row2_3: "Scientific approach (Google ML Engineers)",
+                diff_row3_1: "Granularity",
+                diff_row3_2: "Global brand analysis only",
+                diff_row3_3: "By product, persona, location, and intent",
+                diff_row4_1: "Interface",
+                diff_row4_2: "Raw data mass difficult to interpret",
+                diff_row4_3: "Clear, intuitive & actionable dashboard",
+                diff_row5_1: "Positioning",
+                diff_row5_2: "Designed for internal use",
+                diff_row5_3: "Optimized for agency reporting",
+                demo_title: "Sonar in action",
+                demo_tab_1: "ADD",
+                demo_tab_2: "AUDIT",
+                demo_tab_3: "ANALYZE",
+                founders_title: "Who are we?",
+                founder_1_quote: "\"At Google, I helped hundreds of French companies adopt AI and worked directly with the Gemini teams.\"",
+                founder_2_quote: "\"I worked directly on the Machine Learning aspects of Gemini models with research teams in the US and Switzerland.\"",
+                pricing_title: "Pricing",
+                pricing_sub: "Simple, transparent, scalable.",
+                price_1_feat1: "1,000 credits/month",
+                price_1_feat2: "Up to 3 clients",
+                price_1_feat3: "1-minute setup",
+                price_1_feat4: "Unlimited countries & personas",
+                price_1_feat5: "1 dashboard per client",
+                price_1_feat6: "CSV export only",
+                cta_start: "Book a demo",
+                popular_tag: "Popular",
+                cumulative_growth: "Everything in Starter, plus:",
+                price_2_feat1: "3,000 credits/month",
+                price_2_feat2: "Up to 10 clients",
+                price_2_feat3: "White-label dashboards",
+                price_2_feat4: "CSV, GA4, and Looker Studio export",
+                cta_growth: "Book a demo",
+                cumulative_agency: "Everything in Growth, plus:",
+                price_3_feat1: "10,000 credits/month",
+                price_3_feat2: "Up to 50 clients",
+                price_3_feat3: "Priority support",
+                cta_contact: "Book a demo",
+                pricing_footer: "All plans include: Access to all major LLMs (ChatGPT, Perplexity, Claude, Gemini) · Auto updates",
+                faq_title: "Frequently Asked Questions",
+                faq_1_q: "How does the credit system work?",
+                faq_1_a: "Each credit corresponds to one LLM analysis for a given query. For example, analyzing a client's visibility on 10 strategic queries on ChatGPT = 10 crédits. You have total control over usage.",
+                faq_2_q: "Which LLMs are covered by the platform?",
+                faq_2_a: "We analyze the 4 main AI engines: ChatGPT (holding 60% of the AI market), Perplexity, Claude, and Google Gemini.",
+                faq_3_q: "Can I customize dashboards with my branding?",
+                faq_3_a: "Yes, Growth and Agency plans include white-label dashboards. You can add your logo, colors, and present reports as if they came directly from your agency.",
+                faq_4_q: "Do you offer a free trial?",
+                faq_4_a: "We offer a personalized free demo where we analyze 1-2 clients of your choice live with you. It's more effective than a self-guided trial.",
+                final_cta_title: "While your competitors hesitate, get ahead",
+                final_cta_sub: "Agencies that master this channel first will capture the market. The question is not \"if\", but \"when\".",
+                final_fud_1: "1-minute Setup",
+                final_fud_2: "Real scraped data",
+                final_fud_3: "White-label Dashboards",
+                cta_see_pricing: "See pricing",
+                final_small: "No credit card required · Free client analysis",
+                footer_rights_2026: "© 2026 Sonar AI. All rights reserved.",
+                footer_legal: "Legal Notice",
+                footer_cgv: "Terms & Conditions",
+                still_here: "Still here?",
+                cta_demo_footer: "Book a demo"
+            }
+        };
+
+        // Language Toggle Logic
+        let currentLang = 'fr';
+
+        function toggleLanguage() {
+            const switchEl = document.querySelector('.lang-switch');
+            
+            if (currentLang === 'fr') {
+                currentLang = 'en';
+                switchEl.classList.add('en-active');
+            } else {
+                currentLang = 'fr';
+                switchEl.classList.remove('en-active');
+            }
+            
+            updateContent();
+        }
+
+        function updateContent() {
+            const elements = document.querySelectorAll('[data-i18n]');
+            elements.forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[currentLang][key]) {
+                    el.innerHTML = translations[currentLang][key]; // Use innerHTML to parse <strong> tags
+                }
+            });
+        }
+
+        // Reveal Animations on Scroll
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = `fadeUp 0.8s ease-out forwards`;
+                    entry.target.style.opacity = 1;
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.animate-on-scroll').forEach((el) => {
+            observer.observe(el);
+        });
+
+        // FAQ Logic
+        document.querySelectorAll('.faq-question').forEach(button => {
+            button.addEventListener('click', () => {
+                const faqItem = button.parentElement;
+                const isActive = faqItem.classList.contains('active');
+                
+                // Close all others
+                document.querySelectorAll('.faq-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+
+                // Toggle current
+                if (!isActive) {
+                    faqItem.classList.add('active');
+                }
+            });
+        });
+        
+        // Demo Switching Logic
+        function switchDemo(tabId) {
+            // Remove active class from all tabs
+            document.querySelectorAll('.demo-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            // Hide all videos
+            document.querySelectorAll('.demo-video').forEach(video => {
+                video.classList.remove('active');
+            });
+
+            // Activate clicked tab
+            const activeTab = document.querySelector(`.demo-tab[onclick="switchDemo('${tabId}')"]`);
+            if(activeTab) activeTab.classList.add('active');
+
+            // Show corresponding video
+            const activeVideo = document.getElementById(`video-${tabId}`);
+            if(activeVideo) activeVideo.classList.add('active');
+        }
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return; // Ignore empty anchors or handle specifically
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
