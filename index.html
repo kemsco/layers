@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sonar | Intelligence LLM pour Agences Marketing</title>
+    <title>Layers | Intelligence LLM pour Agences Marketing</title>
     <meta name="description" content="Analysez la visibilité de vos clients sur ChatGPT, Perplexity et Claude. La première plateforme d'audit LLM pour agences, fondée par des ex-Googlers.">
     
     <!-- Favicon -->
@@ -576,6 +576,8 @@
 
         footer { padding: 80px 0; border-top: 1px solid var(--border-color-v1); background: #050505; margin-top: 0; }
         .footer-flex { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
+        .socials a { color: #666; margin-left: 20px; font-size: 1.2rem; transition: 0.3s; }
+        .socials a:hover { color: #fff; }
         
         /* FOUNDERS REDESIGN - SIDE BY SIDE ON DESKTOP */
         .founders-grid { 
@@ -612,6 +614,25 @@
             border-color: #fff;
             transform: scale(1.05);
         }
+        
+        /* SOLUTION SECTION CUSTOM CLASSES (Replaces inline styles) */
+        .sol-container { display: flex; flex-direction: column; gap: 60px; }
+        .sol-card-wide { display: flex; gap: 40px; align-items: center; flex-wrap: wrap; }
+        .sol-grid-split { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+        .sol-content { flex: 1; min-width: 280px; }
+        .sol-visual { 
+            flex: 1; 
+            height: 200px; 
+            background: rgba(0,0,0,0.3); 
+            border-radius: 16px; 
+            border: 1px solid rgba(255,255,255,0.1); 
+            position: relative; 
+            overflow: hidden; 
+        }
+        /* Visual shapes */
+        .sol-shape-1 { position:absolute; top:20px; left:20px; right:20px; height:20px; background:rgba(255,255,255,0.1); border-radius:4px; }
+        .sol-shape-2 { position:absolute; top:50px; left:20px; right:60px; height:20px; background:rgba(255,255,255,0.05); border-radius:4px; }
+        .sol-shape-3 { position:absolute; bottom:-50px; right:-50px; width:150px; height:150px; background:radial-gradient(circle, rgba(255,255,255,0.1), transparent); filter:blur(20px); }
 
         /* --- MOBILE ADAPTATIONS (MAX-WIDTH: 992px) --- */
         @media (max-width: 992px) {
@@ -680,25 +701,24 @@
             .header-cta {
                 min-width: auto; /* Remove fixed width constraints */
                 padding: 8px 16px; /* Smaller button */
-        /* SOLUTION SECTION CUSTOM CLASSES (Replaces inline styles) */
-        .sol-container { display: flex; flex-direction: column; gap: 60px; }
-        .sol-card-wide { display: flex; gap: 40px; align-items: center; flex-wrap: wrap; }
-        .sol-grid-split { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
-        .sol-content { flex: 1; min-width: 280px; }
-        .sol-visual { 
-            flex: 1; 
-            height: 200px; 
-            background: rgba(0,0,0,0.3); 
-            border-radius: 16px; 
-            border: 1px solid rgba(255,255,255,0.1); 
-            position: relative; 
-            overflow: hidden; 
+                font-size: 0.75rem;
+                white-space: nowrap;
+            }
+            
+            /* Adjust Hero padding since header is smaller */
+            .hero {
+                padding-top: 140px;
+            }
+            
+            h1 { font-size: 2.2rem; } /* Smaller H1 */
+            h2 { font-size: 1.8rem; }
+            
+            /* Ensure Founders images are not huge on mobile (safety check) */
+            .founder-img {
+                width: 120px;
+                height: 120px;
+            }
         }
-        /* Visual shapes */
-        .sol-shape-1 { position:absolute; top:20px; left:20px; right:20px; height:20px; background:rgba(255,255,255,0.1); border-radius:4px; }
-        .sol-shape-2 { position:absolute; top:50px; left:20px; right:60px; height:20px; background:rgba(255,255,255,0.05); border-radius:4px; }
-        .sol-shape-3 { position:absolute; bottom:-50px; right:-50px; width:150px; height:150px; background:radial-gradient(circle, rgba(255,255,255,0.1), transparent); filter:blur(20px); }
-
     </style>
 </head>
 <body id="top">
@@ -710,7 +730,7 @@
     <header>
         <div class="header-inner">
             <a href="#top" class="logo-link">
-                <img src="https://i.ibb.co/Vc4jcr7k/Sonar-black.png" alt="Sonar" class="logo-main">
+                <img src="https://i.ibb.co/7LM46Dg/Layers-logo.png" alt="Layers" class="logo-main">
             </a>
             
             <div class="header-right">
@@ -833,7 +853,7 @@
     <section class="section-std" style="background-color: #0A0A0A;">
         <div class="container">
             <div class="text-center" style="margin-bottom: 60px;">
-                <h2 data-i18n="ben_title">Ce que Sonar transforme pour votre agence</h2>
+                <h2 data-i18n="ben_title">Ce que Layers transforme pour votre agence</h2>
                 <p data-i18n="ben_sub">Passez d'un simple prestataire SEO à un partenaire stratégique indispensable.</p>
             </div>
 
@@ -874,7 +894,7 @@
                 <!-- Card 4 -->
                 <div class="benefit-card animate-on-scroll" style="animation-delay: 0.4s;">
                     <h3><i class="fa-solid fa-bolt benefit-icon"></i> <span data-i18n="ben_4_head">ZÉRO EXPERTISE REQUISE</span></h3>
-                    <p class="subtitle" data-i18n="ben_4_sub">2 minutes de setup = expertise Sonar instantanée</p>
+                    <p class="subtitle" data-i18n="ben_4_sub">2 minutes de setup = expertise Layers instantanée</p>
                     <ul class="benefit-list">
                         <li data-i18n="ben_4_li1">Zéro recrutement technique nécessaire</li>
                         <li data-i18n="ben_4_li2">Workflow ultra-rapide :</li>
@@ -974,7 +994,7 @@
                         <tr>
                             <th style="width:25%" data-i18n="diff_col_1">Critère</th>
                             <th style="width:35%" data-i18n="diff_col_2">Concurrents</th>
-                            <th style="width:40%">Sonar Platform</th>
+                            <th style="width:40%">Layers Platform</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1013,7 +1033,7 @@
     <section class="section-std">
         <div class="container">
             <div class="text-center" style="margin-bottom: 60px;">
-                <h2 data-i18n="demo_title">Sonar en action</h2>
+                <h2 data-i18n="demo_title">Layers en action</h2>
             </div>
             
             <!-- Video Screen Mockup -->
@@ -1059,7 +1079,7 @@
             
             <div class="founders-grid">
                 <div class="card founder-card">
-                    <img src="https://media.licdn.com/dms/image/v2/D4E03AQEB18sWBIRQWg/profile-displayphoto-shrink_800_800/B4EZbPMZdhHIAc-/0/1747232856476?e=1772064000&v=beta&t=bhfGTVBHGCHzidHGtZ3jZmmjQ_-8SKiKeDtSPa3LsyI" alt="Clément" class="founder-img" width="150" height="150">
+                    <img src="https://media.licdn.com/dms/image/v2/D4E03AQEB18sWBIRQWg/profile-displayphoto-shrink_800_800/B4EZbPMZdhHIAc-/0/1747232856476?e=1772064000&v=beta&t=bhfGTVBHGCHzidHGtZ3jZmmjQ_-8SKiKeDtSPa3LsyI" alt="Clément" class="founder-img" width="120" height="120">
                     <div>
                         <h4>Clément</h4>
                         <p style="font-size:0.85rem; color:#888;">Ex-Sales Specialist Gen AI @ Google</p>
@@ -1067,7 +1087,7 @@
                     </div>
                 </div>
                 <div class="card founder-card">
-                    <img src="https://media.licdn.com/dms/image/v2/D4E03AQF2EWf3tOeKPA/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1680617800193?e=1772064000&v=beta&t=Xl-8yDVxct1P2xV7UXX0EZ5G8RrtCSILz9W_0gOgb2M" alt="Yacine" class="founder-img" width="150" height="150">
+                    <img src="https://media.licdn.com/dms/image/v2/D4E03AQF2EWf3tOeKPA/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1680617800193?e=1772064000&v=beta&t=Xl-8yDVxct1P2xV7UXX0EZ5G8RrtCSILz9W_0gOgb2M" alt="Yacine" class="founder-img" width="120" height="120">
                     <div>
                         <h4>Yacine</h4>
                         <p style="font-size:0.85rem; color:#888;">Ex-ML Engineer Gen AI @ Google</p>
@@ -1100,7 +1120,7 @@
                         <li><i class="fa-solid fa-check"></i> <span data-i18n="price_1_feat5">1 dashboard par client</span></li>
                         <li><i class="fa-solid fa-check"></i> <span data-i18n="price_1_feat6">Export CSV uniquement</span></li>
                     </ul>
-                    <a href="https://calendar.app.google/9VVpZhQHtdeW4LWW9" class="btn btn-secondary" style="width:100%; text-align:center; border-radius:8px;" data-i18n="cta_demo">Réserver une démo</a>
+                    <a href="https://calendar.app.google/9VVpZhQHtdeW4LWW9" class="btn btn-secondary" style="width:100%; text-align:center; border-radius:8px;" data-i18n="cta_start">Réserver une démo</a>
                 </div>
 
                 <!-- Growth -->
@@ -1116,7 +1136,7 @@
                         <li><i class="fa-solid fa-check"></i> <strong data-i18n="price_2_feat3">Dashboards white-label</strong></li>
                         <li><i class="fa-solid fa-check"></i> <span data-i18n="price_2_feat4">Export CSV, GA4 et Looker Studio</span></li>
                     </ul>
-                    <a href="https://calendar.app.google/9VVpZhQHtdeW4LWW9" class="btn btn-primary" style="width:100%; text-align:center; border-radius:8px;" data-i18n="cta_demo">Réserver une démo</a>
+                    <a href="https://calendar.app.google/9VVpZhQHtdeW4LWW9" class="btn btn-primary" style="width:100%; text-align:center; border-radius:8px;" data-i18n="cta_growth">Réserver une démo</a>
                 </div>
 
                 <!-- Agency -->
@@ -1129,7 +1149,7 @@
                         <li><i class="fa-solid fa-check"></i> <strong data-i18n="price_3_feat2">Jusqu'à 50 clients</strong></li>
                         <li><i class="fa-solid fa-check"></i> <span data-i18n="price_3_feat3">Support prioritaire</span></li>
                     </ul>
-                    <a href="https://calendar.app.google/9VVpZhQHtdeW4LWW9" class="btn btn-secondary" style="width:100%; text-align:center; border-radius:8px;" data-i18n="cta_demo">Réserver une démo</a>
+                    <a href="https://calendar.app.google/9VVpZhQHtdeW4LWW9" class="btn btn-secondary" style="width:100%; text-align:center; border-radius:8px;" data-i18n="cta_contact">Réserver une démo</a>
                 </div>
             </div>
             <p class="text-center" style="margin-top:40px; color:#666; font-size:0.9rem;" data-i18n="pricing_footer">
@@ -1212,7 +1232,7 @@
     <footer>
         <div class="container footer-flex">
             <div style="color:#444; font-size:0.9rem;">
-                <span data-i18n="footer_rights_2026">© 2026 Sonar AI. Tous droits réservés.</span><br>
+                <span data-i18n="footer_rights_2026">© 2026 Layers AI. Tous droits réservés.</span><br>
                 <a href="#" style="color:#444; text-decoration:none; margin-right:10px;" data-i18n="footer_legal">Mentions Légales</a>
                 <a href="#" style="color:#444; text-decoration:none;" data-i18n="footer_cgv">CGV</a>
             </div>
@@ -1248,7 +1268,7 @@
                 prob_2_desc: "Vos clients savent que les LLM sont l'avenir. Ils demandent des KPIs que vous ne pouvez pas fournir.",
                 prob_3_title: "Opportunité manquée",
                 prob_3_desc: "Sans visibilité, vos clients perdent un canal qui convertit 2 à 3x mieux que le SEO classique.",
-                ben_title: "Ce que Sonar transforme pour votre agence",
+                ben_title: "Ce que Layers transforme pour votre agence",
                 ben_sub: "Passez d'un simple prestataire SEO à un partenaire stratégique indispensable.",
                 ben_1_head: "DÉMARQUEZ-VOUS",
                 ben_1_sub: "Soyez l'agence qui maîtrise l'avenir du search",
@@ -1266,7 +1286,7 @@
                 ben_3_li2: "Adaptation automatique : Produits vs Marque",
                 ben_3_li3: "Segmentation par <strong>Persona & Localisation</strong>",
                 ben_4_head: "ZÉRO EXPERTISE REQUISE",
-                ben_4_sub: "2 minutes de setup = expertise Sonar instantanée",
+                ben_4_sub: "2 minutes de setup = expertise Layers instantanée",
                 ben_4_li1: "Zéro recrutement technique nécessaire",
                 ben_4_li2: "Workflow ultra-rapide :",
                 ben_4_li3: "1. Connectez, 2. Analysez, 3. <strong>Exportez le rapport</strong>",
@@ -1299,7 +1319,7 @@
                 diff_row5_1: "Positionnement",
                 diff_row5_2: "Conçu pour l'usage interne",
                 diff_row5_3: "Optimisé pour le reporting agence",
-                demo_title: "Sonar en action",
+                demo_title: "Layers en action",
                 demo_tab_1: "AJOUTER",
                 demo_tab_2: "AUDITER",
                 demo_tab_3: "ANALYSER",
@@ -1344,7 +1364,7 @@
                 final_fud_3: "Dashboards White-label",
                 cta_see_pricing: "Voir les tarifs",
                 final_small: "Aucune CB requise · Analyse offerte d'un client",
-                footer_rights_2026: "© 2026 Sonar AI. Tous droits réservés.",
+                footer_rights_2026: "© 2026 Layers AI. Tous droits réservés.",
                 footer_legal: "Mentions Légales",
                 footer_cgv: "CGV",
                 still_here: "Encore ici ?",
@@ -1370,7 +1390,7 @@
                 prob_2_desc: "Your clients know LLMs are the future. They ask for KPIs you cannot provide.",
                 prob_3_title: "Missed opportunity",
                 prob_3_desc: "Without visibility, your clients lose a channel converting 4.4x better than classic SEO.",
-                ben_title: "What Sonar transforms for your agency",
+                ben_title: "What Layers transforms for your agency",
                 ben_sub: "Go from a simple SEO provider to an indispensable strategic partner.",
                 ben_1_head: "STAND OUT",
                 ben_1_sub: "Be the agency mastering the future of search",
@@ -1388,7 +1408,7 @@
                 ben_3_li2: "Automatic adaptation: Products vs Brand",
                 ben_3_li3: "Segmentation by <strong>Persona & Location</strong>",
                 ben_4_head: "ZERO EXPERTISE REQUIRED",
-                ben_4_sub: "2 min setup = instant Sonar expertise",
+                ben_4_sub: "2 min setup = instant Layers expertise",
                 ben_4_li1: "No technical hiring needed",
                 ben_4_li2: "Ultra-fast workflow:",
                 ben_4_li3: "1. Connect, 2. Analyze, 3. <strong>Export report</strong>",
@@ -1421,7 +1441,7 @@
                 diff_row5_1: "Positioning",
                 diff_row5_2: "Designed for internal use",
                 diff_row5_3: "Optimized for agency reporting",
-                demo_title: "Sonar in action",
+                demo_title: "Layers in action",
                 demo_tab_1: "ADD",
                 demo_tab_2: "AUDIT",
                 demo_tab_3: "ANALYZE",
@@ -1452,7 +1472,7 @@
                 pricing_footer: "All plans include: Access to all major LLMs (ChatGPT, Perplexity, Claude, Gemini) · Auto updates",
                 faq_title: "Frequently Asked Questions",
                 faq_1_q: "How does the credit system work?",
-                faq_1_a: "Each credit corresponds to one LLM analysis for a given query. For example, analyzing a client's visibility on 10 strategic queries on ChatGPT = 10 crédits. You have total control over usage.",
+                faq_1_a: "Each credit corresponds to one LLM analysis for a given query. For example, analyzing a client's visibility on 10 strategic queries on ChatGPT = 10 credits. You have total control over usage.",
                 faq_2_q: "Which LLMs are covered by the platform?",
                 faq_2_a: "We analyze the 4 main AI engines: ChatGPT (holding 60% of the AI market), Perplexity, Claude, and Google Gemini.",
                 faq_3_q: "Can I customize dashboards with my branding?",
@@ -1466,7 +1486,7 @@
                 final_fud_3: "White-label Dashboards",
                 cta_see_pricing: "See pricing",
                 final_small: "No credit card required · Free client analysis",
-                footer_rights_2026: "© 2026 Sonar AI. All rights reserved.",
+                footer_rights_2026: "© 2026 Layers AI. All rights reserved.",
                 footer_legal: "Legal Notice",
                 footer_cgv: "Terms & Conditions",
                 still_here: "Still here?",
