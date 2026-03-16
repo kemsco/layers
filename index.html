@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Layers — GEO Platform pour Agences</title>
+  <meta name="description" content="Layers est la plateforme GEO conçue pour les agences marketing et SEO. Trackez et optimisez la présence de vos clients dans ChatGPT, Perplexity et Gemini." />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="./icone-layers.png" />
+  <link rel="apple-touch-icon" href="./icone-layers.png" />
+
+  <!-- Geist -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg:      #0E1010;
+      --surface: #2B2C2F;
+      --border:  #4E5052;
+      --muted:   #909091;
+      --subtle:  #B7B7B7;
+      --white:   #FFFFFF;
+      --font:    'Geist', 'Inter', sans-serif;
+      --ease:    cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: var(--font);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    /* Noise */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      pointer-events: none; opacity: 0.022;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 128px 128px;
+    }
+
+    /* Cursor glow */
+    .glow {
+      position: fixed; pointer-events: none; z-index: 9999;
+      width: 500px; height: 500px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 65%);
+      transform: translate(-50%, -50%);
+      will-change: left, top;
+    }
+
+    .container { max-width: 1160px; margin: 0 auto; padding: 0 2rem; }
+
+    /* Label */
+    .label {
+      display: inline-flex; align-items: center; gap: .625rem;
+      font-size: .7rem; font-weight: 500; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--muted);
+    }
+    .label::before {
+      content: ''; display: block;
+      width: 18px; height: 1px;
+      background: var(--border); flex-shrink: 0;
+    }
+
+    /* Badge */
+    .badge {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .375rem .875rem;
+      border: 1px solid var(--border); border-radius: 2px;
+      font-size: .7rem; font-weight: 500; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--muted);
+    }
+    .badge-dot {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--white);
+      animation: blink 2s ease-in-out infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .8125rem 1.625rem;
+      font-family: var(--font); font-size: .875rem; font-weight: 500;
+      letter-spacing: -.01em;
+      border: 1px solid transparent; border-radius: 2px;
+      cursor: pointer;
+      transition: background .2s ease, color .2s ease, border-color .2s ease, transform .2s var(--ease);
+      white-space: nowrap;
+    }
+    .btn-primary { background: var(--white); color: var(--bg); border-color: var(--white); }
+    .btn-primary:hover { background: transparent; color: var(--white); transform: translateY(-2px); }
+    .btn-ghost { background: transparent; color: var(--subtle); border-color: var(--border); }
+    .btn-ghost:hover { border-color: var(--subtle); color: var(--white); transform: translateY(-2px); }
+
+    /* ================================================
+       NAV
+    ================================================ */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      padding: 1.25rem 0;
+      transition: background .4s ease, padding .3s ease, border-color .4s ease;
+      border-bottom: 1px solid transparent;
+    }
+    nav.scrolled {
+      background: rgba(14,16,16,.9);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border-bottom-color: var(--border); padding: .875rem 0;
+    }
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; }
+
+    /* Logo image */
+    .nav-logo {
+      display: flex; align-items: center;
+      height: 28px;
+    }
+    .nav-logo img {
+      height: 100%; width: auto;
+      display: block;
+      /* Fallback : si l'image ne charge pas, le alt "Layers" s'affiche */
+    }
+    /* Fallback text style si image absente */
+    .nav-logo-fallback {
+      font-size: 1.1875rem; font-weight: 700;
+      letter-spacing: -.045em; color: var(--white);
+    }
+    .nav-logo-fallback span { color: var(--border); }
+
+    /* ================================================
+       HERO
+    ================================================ */
+    #hero {
+      position: relative; min-height: 100vh;
+      display: flex; flex-direction: column; justify-content: center;
+      overflow: hidden;
+      /* Tout sur le même fond --bg, aucune rupture */
+      background: var(--bg);
+    }
+    .hero-bg-fallback {
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, #0E1010 0%, #161818 50%, #1c1e1e 100%);
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background-image: url('./assets/hero.jpg');
+      background-size: cover; background-position: center;
+    }
+    .hero-bg::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(
+        180deg,
+        rgba(14,16,16,.65) 0%,
+        rgba(14,16,16,.8)  55%,
+        rgba(14,16,16,1)   100%
+      );
+    }
+    /* Grille animée */
+    .hero-grid {
+      position: absolute; inset: 0; z-index: 1;
+      background-image:
+        linear-gradient(rgba(255,255,255,.026) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.026) 1px, transparent 1px);
+      background-size: 72px 72px;
+      animation: gridDrift 24s linear infinite;
+      mask-image: radial-gradient(ellipse 85% 85% at 50% 50%, black 0%, transparent 100%);
+    }
+    @keyframes gridDrift { 0%{background-position:0 0} 100%{background-position:72px 72px} }
+
+    .hero-content { position: relative; z-index: 2; padding: 9rem 0 6rem; }
+    .hero-split { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; }
+
+    .hero-h1 {
+      font-size: clamp(2.75rem, 5.5vw, 4.5rem);
+      font-weight: 700; line-height: 1.04; letter-spacing: -.04em;
+      margin-bottom: 1.5rem;
+      animation: fadeUp .7s var(--ease) .25s both;
+    }
+    .hero-eyebrow { margin-bottom: 1.75rem; animation: fadeUp .7s var(--ease) .1s both; }
+    .hero-sub {
+      font-size: 1.0625rem; line-height: 1.65; color: var(--subtle);
+      max-width: 460px; margin-bottom: 2.25rem;
+      animation: fadeUp .7s var(--ease) .4s both;
+    }
+    .hero-cta-row {
+      display: flex; align-items: center; gap: .875rem; flex-wrap: wrap;
+      animation: fadeUp .7s var(--ease) .55s both;
+    }
+
+    /* Team cards */
+    .team-cards {
+      display: grid; grid-template-columns: 1fr 1fr; gap: .875rem;
+      animation: fadeUp .7s var(--ease) .7s both;
+    }
+    .team-card {
+      padding: 1.375rem 1.5rem;
+      border: 1px solid var(--border); border-radius: 4px;
+      background: rgba(43,44,47,.4);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      display: flex; flex-direction: column; gap: 1rem;
+      transition: background .2s ease, border-color .2s ease, transform .2s var(--ease);
+    }
+    .team-card:hover { background: rgba(43,44,47,.7); border-color: var(--subtle); transform: translateY(-2px); }
+    .team-card-top { display: flex; align-items: center; gap: .875rem; }
+    .team-photo {
+      width: 44px; height: 44px; border-radius: 50%;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      flex-shrink: 0; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .75rem; font-weight: 700; color: var(--white);
+      transition: border-color .2s ease;
+    }
+    .team-card:hover .team-photo { border-color: var(--subtle); }
+    .team-photo img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+    .team-name { font-size: .875rem; font-weight: 600; letter-spacing: -.02em; color: var(--white); line-height: 1.2; }
+    .team-role { font-size: .75rem; color: var(--muted); margin-top: .2rem; }
+    .team-badge {
+      display: inline-flex; align-items: center; gap: .35rem;
+      padding: .2rem .5rem; border: 1px solid var(--border); border-radius: 2px;
+      font-size: .62rem; font-weight: 500; letter-spacing: .08em;
+      text-transform: uppercase; color: var(--border); width: fit-content;
+    }
+    .team-desc { font-size: .8rem; color: var(--muted); line-height: 1.55; }
+
+    /* Stat cards */
+    .hero-right { display: flex; flex-direction: column; gap: .875rem; }
+    .stat-card {
+      padding: 1.5rem 1.75rem;
+      border: 1px solid var(--border); border-radius: 4px;
+      background: rgba(43,44,47,.3);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      transition: background .2s ease, transform .2s var(--ease), border-color .2s ease;
+      animation: fadeUp .7s var(--ease) .6s both;
+    }
+    .stat-card:hover { background: rgba(43,44,47,.65); transform: translateY(-2px); border-color: var(--subtle); }
+    .stat-num {
+      font-size: clamp(1.875rem, 3.5vw, 2.5rem); font-weight: 700;
+      letter-spacing: -.045em; color: var(--white); line-height: 1; margin-bottom: .5rem;
+    }
+    .stat-label { font-size: .8rem; color: var(--muted); line-height: 1.5; }
+
+    /* ================================================
+       REVEAL
+    ================================================ */
+    @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+    .reveal { opacity:0; transform:translateY(28px); transition: opacity .75s var(--ease), transform .75s var(--ease); }
+    .reveal.on { opacity:1; transform:translateY(0); }
+    .d1{transition-delay:.08s} .d2{transition-delay:.16s} .d3{transition-delay:.24s}
+
+    /* ================================================
+       MARQUEE DIVIDER
+    ================================================ */
+    .marquee-wrap {
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      overflow: hidden; padding: .875rem 0;
+      position: relative; z-index: 1;
+      background: var(--bg); /* même fond */
+    }
+    .marquee-track {
+      display: flex; gap: 2.5rem;
+      width: max-content;
+      animation: marquee 22s linear infinite;
+    }
+    .marquee-track span {
+      font-size: .68rem; font-weight: 500;
+      letter-spacing: .16em; text-transform: uppercase;
+      color: var(--border); white-space: nowrap;
+    }
+    @keyframes marquee { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+
+    /* ================================================
+       SECTIONS — FOND UNIFIÉ
+       Toutes les sections partagent --bg, seules les
+       cards / composants internes utilisent --surface.
+       La séparation visuelle vient des border-top 1px.
+    ================================================ */
+    section {
+      position: relative; z-index: 1;
+      background: var(--bg);
+    }
+
+    /* Section padding */
+    #value   { padding: 8rem 0; border-top: 1px solid var(--border); }
+    #booking { padding: 8rem 0; border-top: 1px solid var(--border); }
+    #waitlist{ padding: 8rem 0; border-top: 1px solid var(--border); }
+
+    /* ================================================
+       VALUE PROPOSITION
+    ================================================ */
+    .value-layout { display: grid; grid-template-columns: 300px 1fr; gap: 5rem; align-items: start; }
+    .value-heading-col .label { margin-bottom: 1.5rem; }
+    .value-heading-col h2 {
+      font-size: clamp(1.75rem, 3vw, 2.5rem); font-weight: 700;
+      letter-spacing: -.035em; line-height: 1.1; margin-bottom: 1.25rem;
+    }
+    .value-heading-col p { font-size: .9375rem; color: var(--muted); line-height: 1.7; margin-bottom: 2rem; }
+
+    .cards-col {
+      display: flex; flex-direction: column; gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border); border-radius: 4px; overflow: hidden;
+    }
+    .card {
+      background: var(--bg); padding: 2.25rem 2.5rem;
+      transition: background .2s ease, transform .2s var(--ease);
+      display: grid; grid-template-columns: 56px 1fr; gap: 1.5rem; align-items: start;
+    }
+    .card:hover { background: var(--surface); transform: translateY(-2px); }
+    .card-num { font-size: .6875rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--border); padding-top: .25rem; }
+    .card-title { font-size: .9375rem; font-weight: 600; letter-spacing: -.02em; margin-bottom: .625rem; color: var(--white); }
+    .card-desc { font-size: .875rem; line-height: 1.7; color: var(--muted); }
+    .card-tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .875rem; }
+    .card-tag {
+      display: inline-flex; align-items: center;
+      padding: .2rem .55rem;
+      border: 1px solid var(--border); border-radius: 2px;
+      font-size: .65rem; font-weight: 500; letter-spacing: .07em;
+      text-transform: uppercase; color: var(--muted);
+    }
+
+    /* ================================================
+       BOOKING
+    ================================================ */
+    .booking-layout { display: grid; grid-template-columns: 380px 1fr; gap: 5rem; align-items: start; }
+    .booking-left .label { margin-bottom: 1.5rem; }
+    .booking-left h2 {
+      font-size: clamp(1.75rem,3vw,2.5rem); font-weight: 700;
+      letter-spacing: -.035em; line-height: 1.1; margin-bottom: 1.25rem;
+    }
+    .booking-left p { font-size: .9375rem; color: var(--muted); line-height: 1.7; margin-bottom: 2.5rem; }
+    .booking-perks { list-style: none; display: flex; flex-direction: column; gap: .75rem; margin-bottom: 2.5rem; }
+    .booking-perks li { display: flex; align-items: center; gap: .75rem; font-size: .875rem; color: var(--subtle); }
+    .booking-perks li::before { content: ''; display: block; width: 3px; height: 3px; background: var(--white); flex-shrink: 0; }
+    .calendar-frame { border: 1px solid var(--border); border-radius: 4px; overflow: hidden; background: var(--surface); }
+    .calendar-frame iframe { display: block; filter: invert(1) hue-rotate(180deg); }
+
+    /* ================================================
+       WAITLIST
+    ================================================ */
+    .waitlist-layout { display: grid; grid-template-columns: 380px 1fr; gap: 5rem; align-items: start; }
+    .waitlist-left .label { margin-bottom: 1.5rem; }
+    .waitlist-left h2 {
+      font-size: clamp(1.75rem,3vw,2.5rem); font-weight: 700;
+      letter-spacing: -.035em; line-height: 1.1; margin-bottom: 1.25rem;
+    }
+    .waitlist-left p { font-size: .9375rem; color: var(--muted); line-height: 1.7; margin-bottom: 2rem; }
+    .waitlist-perks { list-style: none; display: flex; flex-direction: column; gap: .75rem; margin-bottom: 2.5rem; }
+    .waitlist-perks li { display: flex; align-items: center; gap: .75rem; font-size: .875rem; color: var(--subtle); }
+    .waitlist-perks li::before { content: ''; width: 3px; height: 3px; background: var(--white); flex-shrink: 0; }
+    .typeform-frame { border: 1px solid var(--border); border-radius: 4px; overflow: hidden; background: var(--surface); min-height: 520px; }
+
+    /* ================================================
+       FOOTER
+    ================================================ */
+    footer {
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+      padding: 1.75rem 0;
+      position: relative; z-index: 1;
+    }
+    .footer-inner { display: flex; align-items: center; justify-content: space-between; }
+    .footer-logo { display: flex; align-items: center; height: 22px; }
+    .footer-logo img { height: 100%; width: auto; opacity: .6; transition: opacity .2s ease; }
+    .footer-logo img:hover { opacity: 1; }
+    .footer-logo-fallback { font-size: .9rem; font-weight: 700; letter-spacing: -.04em; color: var(--muted); }
+    .footer-copy { font-size: .8125rem; color: var(--muted); }
+    .footer-mail { font-size: .8125rem; color: var(--muted); transition: color .2s ease; }
+    .footer-mail:hover { color: var(--white); }
+
+    /* ================================================
+       RESPONSIVE
+    ================================================ */
+    @media (max-width: 1024px) {
+      .hero-split { grid-template-columns: 1fr; gap: 3rem; }
+      .hero-right { display: none; }
+      .value-layout { grid-template-columns: 1fr; gap: 3rem; }
+      .booking-layout { grid-template-columns: 1fr; gap: 3.5rem; }
+      .waitlist-layout { grid-template-columns: 1fr; gap: 3.5rem; }
+    }
+    @media (max-width: 640px) {
+      .container { padding: 0 1.25rem; }
+      #value, #booking, #waitlist { padding: 5rem 0; }
+      .hero-content { padding: 7rem 0 4rem; }
+      .hero-h1 { font-size: 2.4rem; }
+      .hero-cta-row { flex-direction: column; align-items: flex-start; }
+      .team-cards { grid-template-columns: 1fr; }
+      .card { grid-template-columns: 1fr; gap: .75rem; }
+      .footer-inner { flex-direction: column; gap: .75rem; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="glow" id="glow"></div>
+
+<!-- ================================================
+     NAV
+================================================ -->
+<nav id="nav">
+  <div class="container">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo" aria-label="Layers">
+        <!--
+          Logo principal : ./logo-layers.png
+          L'attribut alt assure le fallback texte si l'image ne charge pas
+        -->
+        <img src="./logo-layers.png" alt="Layers" />
+      </a>
+      <a href="#booking" class="btn btn-primary">
+        Réserver une démo
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+          <path d="M1 6h10M7 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- ================================================
+     HERO
+================================================ -->
+<section id="hero">
+  <div class="hero-bg-fallback"></div>
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-split">
+
+        <div class="hero-left">
+          <div class="hero-eyebrow">
+            <div class="badge">
+              <span class="badge-dot"></span>
+              Early Access — Places limitées
+            </div>
+          </div>
+
+          <h1 class="hero-h1">
+            La visibilité IA<br>
+            de vos clients,<br>
+            sous contrôle.
+          </h1>
+
+          <p class="hero-sub">
+            Layers est la plateforme GEO conçue pour les agences.
+            Comprenez, mesurez et améliorez la présence de vos clients
+            dans ChatGPT, Perplexity et Gemini.
+          </p>
+
+          <div class="hero-cta-row">
+            <a href="#booking" class="btn btn-primary">
+              Voir la démo
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                <path d="M1 6h10M7 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <a href="#waitlist" class="btn btn-ghost">Rejoindre la waitlist</a>
+          </div>
+
+          <div class="team-cards" style="margin-top:2.5rem;">
+            <div class="team-card">
+              <div class="team-card-top">
+                <div class="team-photo">
+                  <!--
+                    Remplacer par : <img src="./assets/clement.jpg" alt="Clément" />
+                  -->
+                  C
+                </div>
+                <div>
+                  <div class="team-name">Clément</div>
+                  <div class="team-role">Co-fondateur &amp; CEO</div>
+                </div>
+              </div>
+              <div class="team-badge">ex · Google Sales</div>
+              <div class="team-desc">Développement commercial et go-to-market dans l'écosystème Google pendant plusieurs années.</div>
+            </div>
+
+            <div class="team-card">
+              <div class="team-card-top">
+                <div class="team-photo">
+                  <!--
+                    Remplacer par : <img src="./assets/yacine.jpg" alt="Yacine" />
+                  -->
+                  Y
+                </div>
+                <div>
+                  <div class="team-name">Yacine</div>
+                  <div class="team-role">Co-fondateur &amp; CTO</div>
+                </div>
+              </div>
+              <div class="team-badge">ex · Google ML Engineer</div>
+              <div class="team-desc">Ingénieur machine learning appliqué aux systèmes de recherche et de génération IA chez Google.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-right">
+          <div class="stat-card" style="animation-delay:.65s;">
+            <div class="stat-num">3+</div>
+            <div class="stat-label">Moteurs IA trackés<br>ChatGPT · Perplexity · Gemini</div>
+          </div>
+          <div class="stat-card" style="animation-delay:.75s;">
+            <div class="stat-num">100%</div>
+            <div class="stat-label">Réponses reproduites<br>à l'identique, en temps réel</div>
+          </div>
+          <div class="stat-card" style="animation-delay:.85s;">
+            <div class="stat-num">1 mois</div>
+            <div class="stat-label">Pour lancer votre<br>offre GEO avec nous</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track" aria-hidden="true">
+    <span>GEO — Generative Engine Optimization</span>
+    <span>·</span><span>ChatGPT</span>
+    <span>·</span><span>Perplexity</span>
+    <span>·</span><span>Gemini</span>
+    <span>·</span><span>Tracking de précision</span>
+    <span>·</span><span>Conçu pour les agences</span>
+    <span>·</span><span>Accompagnement partenaire</span>
+    <span>·</span>
+    <span>GEO — Generative Engine Optimization</span>
+    <span>·</span><span>ChatGPT</span>
+    <span>·</span><span>Perplexity</span>
+    <span>·</span><span>Gemini</span>
+    <span>·</span><span>Tracking de précision</span>
+    <span>·</span><span>Conçu pour les agences</span>
+    <span>·</span><span>Accompagnement partenaire</span>
+    <span>·</span>
+  </div>
+</div>
+
+<!-- ================================================
+     VALUE PROPOSITION
+================================================ -->
+<section id="value">
+  <div class="container">
+    <div class="value-layout">
+
+      <div class="value-heading-col reveal">
+        <span class="label">Pourquoi Layers</span>
+        <h2 style="margin-top:1.25rem;">
+          Construit<br>
+          pour les agences<br>
+          qui avancent.
+        </h2>
+        <p>
+          Les moteurs IA répondent à des millions de requêtes chaque jour.
+          Layers vous donne la visibilité et les outils pour que
+          vos clients soient présents dans ces réponses.
+        </p>
+        <a href="#booking" class="btn btn-ghost">
+          Voir la démo
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+            <path d="M1 6h10M7 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </div>
+
+      <div class="cards-col">
+        <div class="card reveal d1">
+          <div class="card-num">01</div>
+          <div class="card-body">
+            <div class="card-title">Tracking ultra-granulaire</div>
+            <div class="card-desc">
+              Voyez exactement ce que ChatGPT, Perplexity et Gemini répondent sur vos clients,
+              leurs concurrents et leurs marchés. Nos algorithmes reproduisent fidèlement chaque
+              réponse générée — marques, produits, services — avec une précision que les autres
+              outils n'atteignent pas.
+            </div>
+          </div>
+        </div>
+        <div class="card reveal d2">
+          <div class="card-num">02</div>
+          <div class="card-body">
+            <div class="card-title">Conçu pour les agences</div>
+            <div class="card-desc">
+              Dashboard multi-clients, rapports en marque blanche, alertes automatiques.
+              Layers s'intègre nativement à vos outils existants — GA4, Looker Studio —
+              et vous permet de créer des dashboards personnalisés en ligne pour chacun
+              de vos clients. Scalable dès le premier jour.
+            </div>
+            <div class="card-tags">
+              <span class="card-tag">GA4</span>
+              <span class="card-tag">Looker Studio</span>
+              <span class="card-tag">Marque blanche</span>
+              <span class="card-tag">Multi-clients</span>
+            </div>
+          </div>
+        </div>
+        <div class="card reveal d3">
+          <div class="card-num">03</div>
+          <div class="card-body">
+            <div class="card-title">Partenaire, pas juste un outil</div>
+            <div class="card-desc">
+              Chaque mois, notre équipe travaille avec vous pour structurer votre offre,
+              former vos équipes et décrocher vos premiers clients GEO.
+              Clément et Yacine sont directement disponibles — pas derrière un ticket support.
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ================================================
+     BOOKING
+================================================ -->
+<section id="booking">
+  <div class="container">
+    <div class="booking-layout">
+
+      <div class="booking-left reveal">
+        <span class="label">Prendre rendez-vous</span>
+        <h2 style="margin-top:1.25rem;">
+          On s'est croisés.<br>
+          La suite<br>
+          se passe ici.
+        </h2>
+        <p>
+          30 minutes pour découvrir Layers en conditions réelles.
+          Une démo du produit, des questions sans engagement,
+          et un retour concret sur votre contexte.
+        </p>
+        <ul class="booking-perks">
+          <li>Démo live du produit</li>
+          <li>Présentation de l'architecture de tracking</li>
+          <li>Vue des intégrations GA4 &amp; Looker</li>
+          <li>Aucun engagement — 30 min chrono</li>
+        </ul>
+        <a href="#booking" class="btn btn-primary">
+          Choisir un créneau
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+            <path d="M1 6h10M7 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </div>
+
+      <div class="calendar-frame reveal d1">
+        <!-- Google Calendar Appointment Scheduling begin -->
+        <iframe
+          src="https://calendar.google.com/calendar/appointments/schedules/AcZssZ27G1FIYJvsF_fbk6Ggbdsl9IDTry7ThgzJO2UJJx5cRhFOAS1S99E19d5KqBMYunEvbC1wmV9j?gv=true"
+          style="border:0" width="100%" height="600"
+          frameborder="0" loading="lazy"
+          title="Réserver une démo Layers">
+        </iframe>
+        <!-- end Google Calendar Appointment Scheduling -->
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ================================================
+     WAITLIST
+================================================ -->
+<section id="waitlist">
+  <div class="container">
+    <div class="waitlist-layout">
+
+      <div class="waitlist-left reveal">
+        <span class="label">Accès anticipé</span>
+        <h2 style="margin-top:1.25rem;">
+          Rejoignez<br>
+          les premières<br>
+          agences Layers.
+        </h2>
+        <p>
+          Le produit est en cours de finalisation.
+          Inscrivez-vous maintenant pour obtenir un accès gratuit
+          à la bêta et des crédits offerts dès le lancement.
+        </p>
+        <ul class="waitlist-perks">
+          <li>Accès gratuit pendant toute la phase bêta</li>
+          <li>Crédits offerts à l'ouverture publique</li>
+          <li>Onboarding personnalisé avec l'équipe</li>
+          <li>Tarif early adopter — garanti à vie</li>
+        </ul>
+      </div>
+
+      <div class="typeform-frame reveal d1">
+        <!--
+          TYPEFORM EMBED
+          Remplacer YOUR_TYPEFORM_ID par votre ID Typeform réel
+        -->
+        <div data-tf-live="YOUR_TYPEFORM_ID" style="width:100%;height:520px;"></div>
+        <script src="//embed.typeform.com/next/embed.js" defer></script>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <a href="#" class="footer-logo" aria-label="Layers">
+        <!--
+          Logo footer : ./logo-layers.png (même fichier, taille réduite)
+        -->
+        <img src="./logo-layers.png" alt="Layers" />
+      </a>
+      <p class="footer-copy">© 2025 Layers — Tous droits réservés</p>
+      <a href="mailto:hello@layers.so" class="footer-mail">hello@layers.so</a>
+    </div>
+  </div>
+</footer>
+
+<!-- JS -->
+<script>
+  /* Navbar */
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 60);
+  }, { passive: true });
+
+  /* Cursor glow */
+  const glowEl = document.getElementById('glow');
+  let mx=0,my=0,gx=0,gy=0;
+  document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; }, { passive: true });
+  (function loop() {
+    gx += (mx-gx)*.07; gy += (my-gy)*.07;
+    glowEl.style.left = gx+'px'; glowEl.style.top = gy+'px';
+    requestAnimationFrame(loop);
+  })();
+
+  /* Scroll reveal */
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('on'); io.unobserve(e.target); }
+    });
+  }, { threshold:.1, rootMargin:'0px 0px -60px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  /* Smooth scroll */
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const t = document.querySelector(a.getAttribute('href'));
+      if (t) { e.preventDefault(); t.scrollIntoView({ behavior:'smooth', block:'start' }); }
+    });
+  });
+
+  /* Hero bg fallback */
+  const heroBg = document.querySelector('.hero-bg');
+  const img = new Image();
+  img.src = './assets/hero.jpg';
+  img.onerror = () => { heroBg.style.opacity='0'; };
+</script>
+
+</body>
+</html>
