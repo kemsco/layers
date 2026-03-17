@@ -172,46 +172,90 @@
       transform: translateY(-2px); 
     }
 
-    /* ===== NAV ===== */
-    nav {
+    /* ===== NAV (Liquid Glass 2026) ===== */
+    #nav {
       position: fixed; 
-      top: 0; 
-      left: 0; 
-      right: 0; 
+      top: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
       z-index: 200;
-      /* Significantly increased top padding to give the logo more breathing room */
-      padding: 2.5rem 0 1rem;
-      transition: background .4s ease, padding .3s ease, border-color .4s ease;
-      border-bottom: 1px solid transparent;
+      width: calc(100% - 2.5rem);
+      max-width: 1000px;
+      transition: top 0.4s var(--ease), width 0.4s var(--ease);
     }
     
-    nav.scrolled { 
-      background: rgba(14,16,16,.92); 
-      backdrop-filter: blur(20px); 
-      -webkit-backdrop-filter: blur(20px); 
-      border-bottom-color: var(--border); 
-      /* Shrink padding down upon scrolling for a compact sticky header */
-      padding: 1rem 0; 
+    #nav.scrolled { 
+      top: 1rem;
+      width: calc(100% - 2rem);
     }
     
     .nav-inner { 
       display: flex; 
       align-items: center; 
       justify-content: space-between; 
+      padding: 0.5rem 0.5rem 0.5rem 1.5rem;
+      background: rgba(22, 24, 24, 0.45); 
+      backdrop-filter: blur(24px) saturate(200%); 
+      -webkit-backdrop-filter: blur(24px) saturate(200%); 
+      border: 1px solid rgba(255, 255, 255, 0.08); 
+      border-radius: 100px; /* Floating Pill */
+      box-shadow: 0 16px 40px -10px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+      transition: background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+    }
+
+    #nav.scrolled .nav-inner {
+      background: rgba(14, 16, 16, 0.75);
+      border-color: rgba(255, 255, 255, 0.12);
+      box-shadow: 0 16px 40px -10px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05);
     }
     
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 2.5rem;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .nav-link {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--subtle);
+      transition: color 0.2s ease, text-shadow 0.2s ease;
+      letter-spacing: -0.01em;
+    }
+
+    .nav-link:hover {
+      color: var(--white);
+      text-shadow: 0 0 12px rgba(255,255,255,0.3);
+    }
+
     .nav-logo { 
       display: flex; 
       align-items: center; 
-      height: 32px;
-      /* A slight top margin ensures the visual weight is perfectly centered */
-      margin-top: 4px; 
+      z-index: 2;
     }
     
     .nav-logo img { 
-      height: 500%; 
+      height: 24px; 
       width: auto; 
       display: block; 
+    }
+
+    .nav-cta {
+      z-index: 2;
+    }
+    
+    .nav-cta .btn {
+      padding: 0.65rem 1.25rem;
+      border-radius: 100px; /* Match the pill shape */
+    }
+
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .nav-inner { padding: 0.5rem 0.5rem 0.5rem 1.25rem; }
+      #nav { top: 1rem; width: calc(100% - 1.5rem); }
     }
 
     /* ===== HERO ===== */
@@ -713,13 +757,20 @@
 
 <!-- NAV -->
 <header id="nav">
-  <div class="container">
-    <div class="nav-inner">
-      <a href="#" class="nav-logo" aria-label="Layers">
-        <img src="./logo-layers.png" alt="Layers" />
-      </a>
+  <div class="nav-inner">
+    <a href="#" class="nav-logo" aria-label="Layers">
+      <img src="./logo-layers.png" alt="Layers" />
+    </a>
+    
+    <nav class="nav-links" aria-label="Navigation principale">
+      <a href="#value" class="nav-link">Avantages</a>
+      <a href="#booking" class="nav-link">Cas d'usage</a>
+      <a href="#booking" class="nav-link">Contact</a>
+    </nav>
+
+    <div class="nav-cta">
       <a href="#booking" class="btn btn-primary">
-        Réserver une démo
+        Réserver
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
           <path d="M1 6h10M7 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
