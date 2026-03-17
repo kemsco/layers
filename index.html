@@ -172,63 +172,32 @@
       transform: translateY(-2px); 
     }
 
-    /* ===== NAV (Liquid Glass 2026) ===== */
+    /* ===== NAV ===== */
     #nav {
       position: fixed; 
-      top: 1.5rem;
-      left: 50%;
-      transform: translateX(-50%);
+      top: 0;
+      left: 0;
+      right: 0;
       z-index: 200;
-      width: calc(100% - 2.5rem);
-      max-width: 1000px;
-      transition: top 0.4s var(--ease), width 0.4s var(--ease);
+      padding: 1.75rem 0; /* Espacement aéré au top */
+      background: transparent;
+      border-bottom: 1px solid transparent;
+      transition: background 0.4s ease, padding 0.4s ease, border-color 0.4s ease;
     }
     
     #nav.scrolled { 
-      top: 1rem;
-      width: calc(100% - 2rem);
+      padding: 1rem 0; /* Se rétrécit naturellement au scroll */
+      background: rgba(14, 16, 16, 0.85); /* Légèrement visible */
+      backdrop-filter: blur(16px); 
+      -webkit-backdrop-filter: blur(16px); 
+      border-bottom-color: rgba(255, 255, 255, 0.06); /* Bordure très subtile */
     }
     
     .nav-inner { 
       display: flex; 
       align-items: center; 
-      justify-content: space-between; 
-      padding: 0.5rem 0.5rem 0.5rem 1.5rem;
-      background: rgba(22, 24, 24, 0.45); 
-      backdrop-filter: blur(24px) saturate(200%); 
-      -webkit-backdrop-filter: blur(24px) saturate(200%); 
-      border: 1px solid rgba(255, 255, 255, 0.08); 
-      border-radius: 100px; /* Floating Pill */
-      box-shadow: 0 16px 40px -10px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
-      transition: background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
-    }
-
-    #nav.scrolled .nav-inner {
-      background: rgba(14, 16, 16, 0.75);
-      border-color: rgba(255, 255, 255, 0.12);
-      box-shadow: 0 16px 40px -10px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05);
-    }
-    
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 2.5rem;
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-    }
-
-    .nav-link {
-      font-size: 0.875rem;
-      font-weight: 500;
-      color: var(--subtle);
-      transition: color 0.2s ease, text-shadow 0.2s ease;
-      letter-spacing: -0.01em;
-    }
-
-    .nav-link:hover {
-      color: var(--white);
-      text-shadow: 0 0 12px rgba(255,255,255,0.3);
+      justify-content: space-between;
+      width: 100%;
     }
 
     .nav-logo { 
@@ -238,24 +207,15 @@
     }
     
     .nav-logo img { 
-      height: 24px; 
+      height: 32px; 
       width: auto; 
       display: block; 
     }
 
-    .nav-cta {
-      z-index: 2;
-    }
-    
-    .nav-cta .btn {
-      padding: 0.65rem 1.25rem;
-      border-radius: 100px; /* Match the pill shape */
-    }
-
     @media (max-width: 768px) {
-      .nav-links { display: none; }
-      .nav-inner { padding: 0.5rem 0.5rem 0.5rem 1.25rem; }
-      #nav { top: 1rem; width: calc(100% - 1.5rem); }
+      #nav { padding: 1.25rem 0; }
+      #nav.scrolled { padding: 0.875rem 0; }
+      .nav-logo img { height: 24px; }
     }
 
     /* ===== HERO ===== */
@@ -359,7 +319,6 @@
       gap: .75rem;
       width: 100%; 
       max-width: 540px;
-      animation: fadeUp .7s var(--ease) .7s both;
     }
     
     .team-card {
@@ -427,15 +386,17 @@
     
     .team-badge {
       display: inline-flex; 
-      padding: .2rem .5rem; 
+      padding: .25rem .5rem; 
       border: 1px solid var(--border); 
       border-radius: 2px;
-      font-size: .6rem; 
+      font-size: .55rem; 
       font-weight: 500; 
-      letter-spacing: .08em; 
+      letter-spacing: .06em; 
       text-transform: uppercase; 
       color: var(--border2); 
       width: fit-content;
+      text-align: left;
+      line-height: 1.4;
     }
 
     /* ===== REVEAL ANIMATIONS ===== */
@@ -691,12 +652,12 @@
     .footer-logo { 
       display: flex; 
       align-items: center; 
-      height: 22px; 
     }
     
     .footer-logo img { 
-      height: 400%; 
+      height: 24px; 
       width: auto; 
+      display: block;
       opacity: .5; 
       transition: opacity .2s ease; 
     }
@@ -757,24 +718,20 @@
 
 <!-- NAV -->
 <header id="nav">
-  <div class="nav-inner">
-    <a href="#" class="nav-logo" aria-label="Layers">
-      <img src="./logo-layers.png" alt="Layers" />
-    </a>
-    
-    <nav class="nav-links" aria-label="Navigation principale">
-      <a href="#value" class="nav-link">Avantages</a>
-      <a href="#booking" class="nav-link">Cas d'usage</a>
-      <a href="#booking" class="nav-link">Contact</a>
-    </nav>
-
-    <div class="nav-cta">
-      <a href="#booking" class="btn btn-primary">
-        Réserver
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-          <path d="M1 6h10M7 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo" aria-label="Layers">
+        <img src="./logo-layers.png" alt="Layers" />
       </a>
+
+      <div class="nav-cta">
+        <a href="#booking" class="btn btn-primary">
+          Réserver une démo
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+            <path d="M1 6h10M7 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </div>
     </div>
   </div>
 </header>
@@ -803,8 +760,7 @@
         </h1>
 
         <p class="hero-sub">
-          Comprenez, mesurez et améliorez la présence de vos clients
-          dans ChatGPT, Perplexity et Gemini.
+          Mesurez et améliorez la présence de vos clients sur ChatGPT, Perplexity et Gemini. Dans une interface pensée pour vous faire gagner du temps et des nouveaux contrats GEO.
         </p>
 
         <div class="hero-cta-row">
@@ -814,34 +770,6 @@
               <path d="M1 6h10M7 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </a>
-        </div>
-
-        <div class="team-cards">
-          <div class="team-card">
-            <div class="team-card-top">
-              <div class="team-photo">
-                <img src="./clement.png" alt="Clément" />
-              </div>
-              <div>
-                <div class="team-name">Clément</div>
-                <div class="team-role">Co-fondateur &amp; CEO</div>
-              </div>
-            </div>
-            <div class="team-badge">ex · Google Sales</div>
-          </div>
-
-          <div class="team-card">
-            <div class="team-card-top">
-              <div class="team-photo">
-                <img src="./yacine.png" alt="Yacine" />
-              </div>
-              <div>
-                <div class="team-name">Yacine</div>
-                <div class="team-role">Co-fondateur &amp; CTO</div>
-              </div>
-            </div>
-            <div class="team-badge">ex · Google ML Engineer</div>
-          </div>
         </div>
 
       </div>
@@ -889,11 +817,42 @@
             vos clients soient présents dans ces réponses.
           </p>
           <a href="#booking" class="btn btn-ghost">
-            Voir la démo
+            Je veux développer des services GEO
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
               <path d="M1 6h10M7 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </a>
+          
+          <div class="reveal d1" style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border);">
+            <span class="label" style="margin-bottom: 1.5rem;">Meet the team</span>
+            <div class="team-cards" style="margin: 0; max-width: 100%;">
+              <div class="team-card">
+                <div class="team-card-top">
+                  <div class="team-photo">
+                    <img src="./clement.png" alt="Clément" />
+                  </div>
+                  <div>
+                    <div class="team-name">Clément</div>
+                    <div class="team-role">CEO</div>
+                  </div>
+                </div>
+                <div class="team-badge">Ex Sales Specialist AI @Google</div>
+              </div>
+
+              <div class="team-card">
+                <div class="team-card-top">
+                  <div class="team-photo">
+                    <img src="./yacine.png" alt="Yacine" />
+                  </div>
+                  <div>
+                    <div class="team-name">Yacine</div>
+                    <div class="team-role">CTO</div>
+                  </div>
+                </div>
+                <div class="team-badge">Ex ML Engineer AI @Google</div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="split-content">
@@ -980,8 +939,7 @@
           <h2 style="margin-top:1.25rem;">
             On s'est croisés<br>
             à All 4 Customers.<br>
-            La suite<br>
-            se passe ici.
+            La suite se passe ici.
           </h2>
           <p>
             30 minutes pour découvrir Layers en conditions réelles.
@@ -993,12 +951,6 @@
             <li>Vue des intégrations GA4 &amp; Looker</li>
             <li>Aucun engagement — 30 min chrono</li>
           </ul>
-          <a href="#booking" class="btn btn-primary">
-            Choisir un créneau
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-              <path d="M1 6h10M7 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </a>
         </div>
 
       </div>
