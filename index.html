@@ -748,16 +748,17 @@
     
     @media (max-width: 768px) {
       .container { padding: 0 1.5rem; }
-      #value, #booking { padding: 5rem 0; }
-      .hero-content { padding: 7.5rem 0 4rem; }
+      #value, #booking { padding: 4rem 0; } /* Espacements des sections harmonisés et réduits */
+      .hero-content { padding: 7.5rem 0 2rem; } /* Espace vide sous le hero fortement réduit */
       .hero-h1 { font-size: clamp(2.2rem, 8vw, 3rem); letter-spacing: -.04em; }
       .hero-sub { font-size: 1rem; }
-      .hero-cta-row { flex-direction: column; align-items: center; width: 100%; }
+      .hero-cta-row { flex-direction: column; align-items: center; width: 100%; margin-bottom: 1.5rem; } /* Rapproche le CTA de la ligne défilante */
       .hero-cta-row .btn { width: 100%; justify-content: center; }
       .team-cards { grid-template-columns: 1fr; max-width: 360px; }
       .card { grid-template-columns: 1fr; gap: .625rem; padding: 1.5rem 1.5rem; }
       .split-text h2 { font-size: clamp(1.6rem, 6vw, 2rem); }
-      .footer-inner { flex-direction: column; gap: .75rem; text-align: center; }
+      .footer-inner { flex-direction: column; gap: 1.5rem; text-align: center; } /* Gap augmenté pour le grand logo */
+      .footer-logo img { height: 96px; } /* Logo 4x plus grand sur mobile */
       .marquee-wrap { padding: .65rem 0; }
       
       .calendar-frame { height: 900px; } 
@@ -814,7 +815,7 @@
         <div class="hero-eyebrow">
           <div class="badge">
             <span class="badge-dot"></span>
-            Plateforme GEO conçue pour les agences
+            Outil GEO conçu pour les agences
           </div>
         </div>
 
