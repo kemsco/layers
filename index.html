@@ -621,6 +621,26 @@
       color: var(--subtle); 
     }
 
+    /* ===== REASSURANCE TAGS (Booking) ===== */
+    .reassurance-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-bottom: 2.5rem;
+    }
+    
+    .reassurance-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.5rem 0.85rem;
+      background: rgba(22, 24, 24, 0.45);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--white);
+    }
+
     /* ===== CALENDAR ===== */
     .calendar-frame { 
       border: 1px solid var(--border); 
@@ -777,23 +797,22 @@
         <div class="hero-eyebrow">
           <div class="badge">
             <span class="badge-dot"></span>
-            Early Access — Places limitées
+            Conçu pour les agences
           </div>
         </div>
 
         <h1 class="hero-h1">
-          L'outil GEO conçu<br>
-          exclusivement pour<br>
-          les agences.
+          Bien rentré du<br>
+          All 4 Customers Paris ?
         </h1>
 
         <p class="hero-sub">
-          Mesurez et améliorez la présence de vos clients sur ChatGPT, Perplexity et Gemini dans une interface pensée pour vous faire gagner du temps.
+          On vous fait un recap : Layers c'est un outil GEO qui vous permet de mesurer et améliorer la présence de vos clients sur les IA, sans expertise.
         </p>
 
         <div class="hero-cta-row">
           <a href="#booking" class="btn btn-primary">
-            Réserver une démo
+            Je veux développer une nouvelle offre GEO
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
               <path d="M1 6h10M7 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -840,9 +859,7 @@
             sans frictions.
           </h2>
           <p>
-            Les moteurs IA répondent à des millions de requêtes chaque jour.
-            Layers vous donne la visibilité et les outils pour que
-            vos clients soient présents dans ces réponses.
+            Vos clients vous demandent où ils apparaissent sur ChatGPT ou Gemini et vous ne pouvez pas leur répondre ? C’est une offre supplémentaire que vous laissez échapper sur la table.
           </p>
           <a href="#booking" class="btn btn-ghost">
             Je veux développer des services GEO
@@ -880,6 +897,9 @@
                 <div class="team-badge">Ex ML Engineer AI @Google</div>
               </div>
             </div>
+            <p style="font-size:.875rem; color:var(--muted); margin-top:1.5rem; line-height:1.6;">
+              On accompagne les agences à transformer le GEO en levier de revenu réel, avec un outil de précision et un accompagnement mensuel pour que ce virage inévitable se prenne sereinement.
+            </p>
           </div>
         </div>
 
@@ -888,24 +908,6 @@
 
             <div class="card reveal d1">
               <div class="card-num">01</div>
-              <div>
-                <div class="card-title">Tracking ultra-granulaire</div>
-                <div class="card-desc">
-                  Voyez exactement ce que les IA génèrent sur vos clients —
-                  marques, concurrents, marchés. Une précision que les autres
-                  outils n'atteignent pas.
-                </div>
-                <div class="mini-tags">
-                  <span class="mini-tag">Localisation</span>
-                  <span class="mini-tag">Personas</span>
-                  <span class="mini-tag">Services</span>
-                  <span class="mini-tag">Produits</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="card reveal d2">
-              <div class="card-num">02</div>
               <div>
                 <div class="card-title">Conçu pour les agences</div>
                 <div class="card-desc">
@@ -922,13 +924,29 @@
               </div>
             </div>
 
+            <div class="card reveal d2">
+              <div class="card-num">02</div>
+              <div>
+                <div class="card-title">Tracking ultra-granulaire</div>
+                <div class="card-desc">
+                  Voyez exactement ce que les IA génèrent sur vos clients :
+                  marques, concurrents, marchés. D'une marque nationale à une boutique locale.
+                </div>
+                <div class="mini-tags">
+                  <span class="mini-tag">Localisation</span>
+                  <span class="mini-tag">Personas</span>
+                  <span class="mini-tag">Services</span>
+                  <span class="mini-tag">Produits</span>
+                </div>
+              </div>
+            </div>
+
             <div class="card reveal d3">
               <div class="card-num">03</div>
               <div>
                 <div class="card-title">Partenaire, pas juste un outil</div>
                 <div class="card-desc">
-                  Clément et Yacine travaillent directement avec vous chaque mois
-                  pour structurer votre offre et décrocher vos premiers clients GEO.
+                  On travaille directement avec vous chaque mois pour structurer votre offre GEO, maîtriser l’outil et accompagner vos clients.
                 </div>
                 <div class="pill-tags">
                   <span class="pill-tag">Sales assets</span>
@@ -985,15 +1003,13 @@
             La suite se passe ici.
           </h2>
           <p>
-            30 minutes pour découvrir Layers en conditions réelles.
-            Une démo du produit, des questions sans engagement.
+            Pas une démo générique. En 30 minutes : on part de votre situation, vos clients, vos offres, vos questions sur le GEO et on vous montre exactement ce que Layers peut faire pour vous.
           </p>
-          <ul class="perks">
-            <li>Démo live du produit</li>
-            <li>Architecture de tracking présentée</li>
-            <li>Vue des intégrations GA4 &amp; Looker</li>
-            <li>Aucun engagement — 30 min chrono</li>
-          </ul>
+          <div class="reassurance-tags">
+            <span class="reassurance-tag">Sans engagement</span>
+            <span class="reassurance-tag">30mn chrono</span>
+            <span class="reassurance-tag">Repartez avec des insights actionnables</span>
+          </div>
         </div>
 
       </div>
