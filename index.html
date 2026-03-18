@@ -627,7 +627,18 @@
       border-radius: 4px; 
       overflow: hidden; 
       background: var(--card); 
-      height: 720px; /* Hauteur augmentée pour que le calendrier rentre en entier */
+      height: 620px; /* Hauteur réduite pour gagner de l'espace global */
+      position: relative;
+    }
+
+    .cal-scale-wrap {
+      width: 118%; /* Élargit virtuellement le cadre */
+      height: 125%; /* Donne suffisamment d'espace pour afficher tous les jours */
+      transform: scale(0.85); /* Rétrécit les éléments internes de 15% */
+      transform-origin: top left;
+      position: absolute;
+      top: 0;
+      left: 0;
     }
 
     /* ===== FOOTER ===== */
@@ -699,6 +710,15 @@
       .split-text h2 { font-size: clamp(1.6rem, 6vw, 2rem); }
       .footer-inner { flex-direction: column; gap: .75rem; text-align: center; }
       .marquee-wrap { padding: .65rem 0; }
+      
+      /* Annule le rétrécissement sur mobile pour garder l'agenda lisible */
+      .calendar-frame { height: 700px; }
+      .cal-scale-wrap { 
+        width: 100%; 
+        height: 100%; 
+        transform: none; 
+        position: relative; 
+      }
     }
     
     @media (max-width: 480px) {
@@ -921,22 +941,24 @@
         <!-- Calendrier à gauche (order 1 via .reverse) -->
         <div class="split-content">
           <div class="calendar-frame">
-            <!-- Cal inline embed code begins -->
-            <div style="width:100%;height:100%;overflow:hidden" id="my-cal-inline-developper-votre-offre-geo-avec-layers"></div>
-            <script type="text/javascript">
-              (function (C, A, L) { let p = function (a, ar) { a.q.push(ar); }; let d = C.document; C.Cal = C.Cal || function () { let cal = C.Cal; let ar = arguments; if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; d.head.appendChild(d.createElement("script")).src = A; cal.loaded = true; } if (ar[0] === L) { const api = function () { p(api, arguments); }; const namespace = ar[1]; api.q = api.q || []; if(typeof namespace === "string"){cal.ns[namespace] = cal.ns[namespace] || api;p(cal.ns[namespace], ar);p(cal, ["initNamespace", namespace]);} else p(cal, ar); return;} p(cal, ar); }; })(window, "https://app.cal.eu/embed/embed.js", "init");
-              Cal("init", "developper-votre-offre-geo-avec-layers", {origin:"https://app.cal.eu"});
+            <div class="cal-scale-wrap">
+              <!-- Cal inline embed code begins -->
+              <div style="width:100%;height:100%;overflow:hidden" id="my-cal-inline-developper-votre-offre-geo-avec-layers"></div>
+              <script type="text/javascript">
+                (function (C, A, L) { let p = function (a, ar) { a.q.push(ar); }; let d = C.document; C.Cal = C.Cal || function () { let cal = C.Cal; let ar = arguments; if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; d.head.appendChild(d.createElement("script")).src = A; cal.loaded = true; } if (ar[0] === L) { const api = function () { p(api, arguments); }; const namespace = ar[1]; api.q = api.q || []; if(typeof namespace === "string"){cal.ns[namespace] = cal.ns[namespace] || api;p(cal.ns[namespace], ar);p(cal, ["initNamespace", namespace]);} else p(cal, ar); return;} p(cal, ar); }; })(window, "https://app.cal.eu/embed/embed.js", "init");
+                Cal("init", "developper-votre-offre-geo-avec-layers", {origin:"https://app.cal.eu"});
 
-              Cal.ns["developper-votre-offre-geo-avec-layers"]("inline", {
-                elementOrSelector:"#my-cal-inline-developper-votre-offre-geo-avec-layers",
-                config: {"layout":"month_view","useSlotsViewOnSmallScreen":"true"},
-                calLink: "layers/developper-votre-offre-geo-avec-layers",
-              });
+                Cal.ns["developper-votre-offre-geo-avec-layers"]("inline", {
+                  elementOrSelector:"#my-cal-inline-developper-votre-offre-geo-avec-layers",
+                  config: {"layout":"month_view","useSlotsViewOnSmallScreen":"true"},
+                  calLink: "layers/developper-votre-offre-geo-avec-layers",
+                });
 
-              /* Note : Ajout de "theme":"dark" pour forcer le design sombre natif */
-              Cal.ns["developper-votre-offre-geo-avec-layers"]("ui", {"theme":"dark", "cssVarsPerTheme":{"light":{"cal-brand":"#111313"},"dark":{"cal-brand":"#FFFFFF"}},"hideEventTypeDetails":false,"layout":"month_view"});
-            </script>
-            <!-- Cal inline embed code ends -->
+                /* Note : Ajout de "theme":"dark" pour forcer le design sombre natif */
+                Cal.ns["developper-votre-offre-geo-avec-layers"]("ui", {"theme":"dark", "cssVarsPerTheme":{"light":{"cal-brand":"#111313"},"dark":{"cal-brand":"#FFFFFF"}},"hideEventTypeDetails":false,"layout":"month_view"});
+              </script>
+              <!-- Cal inline embed code ends -->
+            </div>
           </div>
         </div>
 
