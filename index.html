@@ -875,6 +875,7 @@
     <div class="container">
       <div class="split split-50 reveal">
 
+        <!-- 1. Le Texte et le CTA -->
         <div class="split-text">
           <span class="label">Pourquoi Layers</span>
           <h2 style="margin-top:1.25rem;">
@@ -892,50 +893,9 @@
               <path d="M1 6h10M7 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </a>
-          
-          <div class="reveal d1" style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border);">
-            <span class="label" style="margin-bottom: 1.5rem;">Rencontrez l'équipe</span>
-            <div class="team-cards" style="margin: 0; max-width: 100%;">
-              <div class="team-card">
-                <div class="team-card-top">
-                  <div class="team-photo">
-                    <!-- Lazy loading appliqué aux images secondaires -->
-                    <img src="./clement.webp" alt="Clément" loading="lazy" decoding="async" />
-                  </div>
-                  <div>
-                    <div class="team-name">Clément</div>
-                    <div class="team-role">Co-fondateur</div>
-                  </div>
-                </div>
-                <div class="team-badge">Ex Sales Specialist AI @Google</div>
-                <!-- "margin: 0;" annule l'espace fantôme de Webflow en bas, et on ajoute l'italique -->
-                <p style="font-size: 0.75rem; color: var(--subtle); margin: 0; line-height: 1.4; font-style: italic;">J'ai accompagné +80 startups françaises dans leur transition à l'IA.</p>
-              </div>
-
-              <div class="team-card">
-                <div class="team-card-top">
-                  <div class="team-photo">
-                    <!-- Lazy loading appliqué aux images secondaires -->
-                    <img src="./yacine.webp" alt="Yacine" loading="lazy" decoding="async" />
-                  </div>
-                  <div>
-                    <div class="team-name">Yacine</div>
-                    <div class="team-role">Co-fondateur</div>
-                  </div>
-                </div>
-                <div class="team-badge">Ex ML Engineer AI @Google</div>
-                <!-- "margin: 0;" annule l'espace fantôme de Webflow en bas, et on ajoute l'italique -->
-                <p style="font-size: 0.75rem; color: var(--subtle); margin: 0; line-height: 1.4; font-style: italic;">J'ai contribué à la construction de Gemini au sein des équipes de machine learning françaises.</p>
-              </div>
-            </div>
-            <!-- Ajout de la bordure blanche, retrait de l'italique et de "Notre vision :" -->
-            <p style="font-size:.875rem; color:var(--muted); margin-top:1.5rem; margin-bottom:0; line-height:1.6; border-left: 2px solid var(--white); padding-left: 1rem;">
-              "On accompagne les agences à transformer le GEO en levier de revenu réel, avec un outil de précision et un accompagnement mensuel pour que ce virage inévitable se prenne sereinement."
-            </p>
-          </div>
         </div>
 
-        <!-- Ajout de la classe d'alignement bureau -->
+        <!-- 2. Les 3 arguments (S'affichent en 2ème sur mobile, mais à droite sur Desktop) -->
         <div class="split-content align-with-h2">
           <div class="cards-col">
 
@@ -990,6 +950,43 @@
             </div>
 
           </div>
+        </div>
+
+        <!-- 3. L'équipe (S'affiche en dernier sur mobile, et sous le texte sur Desktop) -->
+        <div class="team-section reveal d1" style="padding-top: 2rem; border-top: 1px solid var(--border);">
+          <span class="label" style="margin-bottom: 1.5rem;">Rencontrez l'équipe</span>
+          <div class="team-cards" style="margin: 0; max-width: 100%;">
+            <div class="team-card">
+              <div class="team-card-top">
+                <div class="team-photo">
+                  <img src="./clement.webp" alt="Clément" loading="lazy" decoding="async" />
+                </div>
+                <div>
+                  <div class="team-name">Clément</div>
+                  <div class="team-role">Co-fondateur</div>
+                </div>
+              </div>
+              <div class="team-badge">Ex Sales Specialist AI @Google</div>
+              <p style="font-size: 0.75rem; color: var(--subtle); margin: 0; line-height: 1.4; font-style: italic;">J'ai accompagné +80 startups françaises dans leur transition à l'IA.</p>
+            </div>
+
+            <div class="team-card">
+              <div class="team-card-top">
+                <div class="team-photo">
+                  <img src="./yacine.webp" alt="Yacine" loading="lazy" decoding="async" />
+                </div>
+                <div>
+                  <div class="team-name">Yacine</div>
+                  <div class="team-role">Co-fondateur</div>
+                </div>
+              </div>
+              <div class="team-badge">Ex ML Engineer AI @Google</div>
+              <p style="font-size: 0.75rem; color: var(--subtle); margin: 0; line-height: 1.4; font-style: italic;">J'ai contribué à la construction de Gemini au sein des équipes de machine learning françaises.</p>
+            </div>
+          </div>
+          <p style="font-size:.875rem; color:var(--muted); margin-top:1.5rem; margin-bottom:0; line-height:1.6; border-left: 2px solid var(--white); padding-left: 1rem;">
+            "On accompagne les agences à transformer le GEO en levier de revenu réel, avec un outil de précision et un accompagnement mensuel pour que ce virage inévitable se prenne sereinement."
+          </p>
         </div>
 
       </div>
