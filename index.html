@@ -755,17 +755,18 @@
     
     @media (max-width: 768px) {
       .container { padding: 0 1.5rem; }
-      #value, #booking { padding: 4rem 0; } /* Espacements des sections harmonisés et réduits */
-      .hero-content { padding: 7.5rem 0 2rem; } /* Espace vide sous le hero fortement réduit */
-      .hero-h1 { font-size: clamp(2.2rem, 8vw, 3rem); letter-spacing: -.04em; }
+      #value, #booking { padding: 4rem 0; } 
+      .hero-content { padding: 7.5rem 0 2rem; } 
+      /* H1 poussé au maximum de sa taille relative */
+      .hero-h1 { font-size: clamp(3rem, 12vw, 4rem); letter-spacing: -.04em; }
       .hero-sub { font-size: 1rem; }
-      .hero-cta-row { flex-direction: column; align-items: center; width: 100%; margin-bottom: 1.5rem; } /* Rapproche le CTA de la ligne défilante */
+      .hero-cta-row { flex-direction: column; align-items: center; width: 100%; margin-bottom: 1.5rem; } 
       .hero-cta-row .btn { width: 100%; justify-content: center; }
       .team-cards { grid-template-columns: 1fr; max-width: 360px; }
       .card { grid-template-columns: 1fr; gap: .625rem; padding: 1.5rem 1.5rem; }
       .split-text h2 { font-size: clamp(1.6rem, 6vw, 2rem); }
-      .footer-inner { flex-direction: column; gap: 1.5rem; text-align: center; } /* Gap augmenté pour le grand logo */
-      .footer-logo img { height: 96px; } /* Logo 4x plus grand sur mobile */
+      .footer-inner { flex-direction: column; gap: 1.5rem; text-align: center; } 
+      .footer-logo img { height: 96px; } 
       .marquee-wrap { padding: .65rem 0; }
       
       .calendar-frame { height: 900px; } 
@@ -779,7 +780,8 @@
     
     @media (max-width: 480px) {
       .container { padding: 0 1.125rem; }
-      .hero-h1 { font-size: 2rem; }
+      /* H1 massif pour mobile, ajusté pour que le mot "Customers" ne saute pas à la ligne cassée */
+      .hero-h1 { font-size: 3.2rem; line-height: 1.05; }
       .mini-tags, .pill-tags { gap: .35rem; }
     }
   </style>
@@ -827,12 +829,12 @@
         </div>
 
         <h1 class="hero-h1">
-          Bien rentré du<br>
-          All 4 Customers Paris ?
+          Vous avez scanné,<br>
+          bonne décision.
         </h1>
 
         <p class="hero-sub">
-          On vous fait un recap : Layers c'est un outil GEO qui vous permet de mesurer et améliorer la présence de vos clients sur les IA, sans expertise.
+          On s'est donc croisé au All 4 Customers, pour vous faire le recap : Layers est un outil GEO qui vous permet de mesurer et améliorer la présence de vos clients sur les IA, sans expertise.
         </p>
 
         <div class="hero-cta-row">
