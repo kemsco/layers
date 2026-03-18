@@ -179,14 +179,14 @@
       left: 0;
       right: 0;
       z-index: 200;
-      padding: 1.75rem 0; 
+      padding: 1.25rem 0; /* Espacement réduit sur ordinateur */
       background: transparent;
       border-bottom: 1px solid transparent;
       transition: background 0.4s ease, padding 0.4s ease, border-color 0.4s ease;
     }
     
     #nav.scrolled { 
-      padding: 1rem 0; 
+      padding: 0.75rem 0; /* Plus fin au scroll */
       background: rgba(14, 16, 16, 0.85); 
       backdrop-filter: blur(16px); 
       -webkit-backdrop-filter: blur(16px); 
@@ -207,15 +207,21 @@
     }
     
     .nav-logo img { 
-      height: 80px; 
+      height: 48px; /* Logo réduit sur desktop pour un rendu plus sleek */
       width: auto; 
       display: block; 
+    }
+
+    .nav-cta .btn {
+      padding: 0.65rem 1.25rem; /* CTA proportionnel à la nouvelle barre */
+      font-size: 0.8rem;
     }
 
     @media (max-width: 768px) {
       #nav { padding: 1.25rem 0; }
       #nav.scrolled { padding: 0.875rem 0; }
-      .nav-logo img { height: 60px; }
+      .nav-logo img { height: 60px; } /* Conservé selon ta demande */
+      .nav-cta .btn { padding: .875rem 1.75rem; font-size: .875rem; } /* Rétabli la taille d'origine sur mobile */
     }
 
     /* ===== HERO ===== */
@@ -647,7 +653,7 @@
       border-radius: 4px; 
       overflow: hidden; 
       background: #111111; /* Couleur de fond par défaut du thème dark Cal.com */
-      height: 560px; /* Ajusté au millimètre pour supprimer l'espace vide en bas */
+      height: 680px; /* Hauteur augmentée pour afficher plus d'éléments sans scroller */
       position: relative;
     }
 
@@ -667,7 +673,7 @@
       bottom: 0;
       left: 0;
       right: 0;
-      height: 52px; /* Recouvre exactement le footer de Cal.com */
+      height: 65px; /* Augmenté pour être sûr de recouvrir totalement le filigrane */
       background: #111111; /* Se fond parfaitement dans le thème sombre */
       z-index: 10;
       pointer-events: none;
@@ -744,7 +750,7 @@
       .marquee-wrap { padding: .65rem 0; }
       
       /* Annule le rétrécissement sur mobile pour garder l'agenda lisible */
-      .calendar-frame { height: 640px; }
+      .calendar-frame { height: 900px; } /* Très grande hauteur sur mobile pour éviter de bloquer */
       .cal-scale-wrap { 
         width: 100%; 
         height: 100%; 
@@ -797,7 +803,7 @@
         <div class="hero-eyebrow">
           <div class="badge">
             <span class="badge-dot"></span>
-            Outil GEO conçu pour les agences
+            Conçu pour les agences
           </div>
         </div>
 
@@ -869,7 +875,7 @@
           </a>
           
           <div class="reveal d1" style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border);">
-            <span class="label" style="margin-bottom: 1.5rem;">Meet the team</span>
+            <span class="label" style="margin-bottom: 1.5rem;">Rencontrez l'équipe</span>
             <div class="team-cards" style="margin: 0; max-width: 100%;">
               <div class="team-card">
                 <div class="team-card-top">
@@ -878,10 +884,11 @@
                   </div>
                   <div>
                     <div class="team-name">Clément</div>
-                    <div class="team-role">CEO</div>
+                    <div class="team-role">Co-fondateur</div>
                   </div>
                 </div>
                 <div class="team-badge">Ex Sales Specialist AI @Google</div>
+                <p style="font-size: 0.75rem; color: var(--subtle); margin-top: 0.75rem; line-height: 1.5;">J'ai accompagné +80 startups françaises dans leur transition à l'IA.</p>
               </div>
 
               <div class="team-card">
@@ -891,14 +898,15 @@
                   </div>
                   <div>
                     <div class="team-name">Yacine</div>
-                    <div class="team-role">CTO</div>
+                    <div class="team-role">Co-fondateur</div>
                   </div>
                 </div>
                 <div class="team-badge">Ex ML Engineer AI @Google</div>
+                <p style="font-size: 0.75rem; color: var(--subtle); margin-top: 0.75rem; line-height: 1.5;">J'ai contribué à la construction de Gemini au sein des équipes de machine learning françaises.</p>
               </div>
             </div>
-            <p style="font-size:.875rem; color:var(--muted); margin-top:1.5rem; line-height:1.6;">
-              On accompagne les agences à transformer le GEO en levier de revenu réel, avec un outil de précision et un accompagnement mensuel pour que ce virage inévitable se prenne sereinement.
+            <p style="font-size:.875rem; color:var(--muted); margin-top:1.5rem; line-height:1.6; font-style: italic;">
+              <strong>Notre vision :</strong> "On accompagne les agences à transformer le GEO en levier de revenu réel, avec un outil de précision et un accompagnement mensuel pour que ce virage inévitable se prenne sereinement."
             </p>
           </div>
         </div>
@@ -973,7 +981,8 @@
           <div class="calendar-frame">
             <div class="cal-scale-wrap">
               <!-- Cal inline embed code begins -->
-              <div style="width:100%;height:100%;overflow:hidden" id="my-cal-inline-developper-votre-offre-geo-avec-layers"></div>
+              <!-- Note : Le overflow est passé à "auto" pour réactiver le scroll de secours -->
+              <div style="width:100%;height:100%;overflow:auto" id="my-cal-inline-developper-votre-offre-geo-avec-layers"></div>
               <script type="text/javascript">
                 (function (C, A, L) { let p = function (a, ar) { a.q.push(ar); }; let d = C.document; C.Cal = C.Cal || function () { let cal = C.Cal; let ar = arguments; if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; d.head.appendChild(d.createElement("script")).src = A; cal.loaded = true; } if (ar[0] === L) { const api = function () { p(api, arguments); }; const namespace = ar[1]; api.q = api.q || []; if(typeof namespace === "string"){cal.ns[namespace] = cal.ns[namespace] || api;p(cal.ns[namespace], ar);p(cal, ["initNamespace", namespace]);} else p(cal, ar); return;} p(cal, ar); }; })(window, "https://app.cal.eu/embed/embed.js", "init");
                 Cal("init", "developper-votre-offre-geo-avec-layers", {origin:"https://app.cal.eu"});
