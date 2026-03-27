@@ -1,915 +1,893 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portail Agence SEO</title>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- React & ReactDOM -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    
-    <!-- CORRECTIF IMPORTANT : La version UMD de lucide-react cherche "window.react" (en minuscules) au lieu de "window.React" -->
-    <script>window.react = window.React;</script>
-    
-    <!-- Babel (pour transpiler le JSX dans le navigateur) -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
-    <!-- Lucide Icons pour React -->
-    <script src="https://unpkg.com/lucide-react@0.292.0/dist/umd/lucide-react.min.js"></script>
-
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        body { 
-            font-family: 'Inter', sans-serif; 
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-        }
-        /* Scrollbar personnalisée */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Agence SEO Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <style>
+    * { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    .sidebar-transition { transition: width 0.3s ease; }
+    .fade-in { animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .toggle-thumb { transition: transform 0.3s ease; }
+    [data-view] { display: none; }
+    [data-view].active { display: flex; flex-direction: column; flex: 1; overflow-y: auto; }
+    .dropdown-menu { display: none; }
+    .dropdown-menu.open { display: block; }
+  </style>
 </head>
-<body>
-    <div id="root"></div>
+<body class="bg-slate-50 text-slate-900 overflow-hidden">
 
-    <script type="text/babel">
-        const { useState, useEffect } = React;
-        const { 
-          Home, Inbox, Settings, 
-          Eye, Radio, Users, MessageSquare, FileText, 
-          Globe, HelpCircle, ChevronDown,
-          Sun, Building2, Share2, 
-          ChevronRight, Calendar, Play,
-          TrendingUp, Activity, Info, MoreHorizontal,
-          LayoutDashboard, BarChart2, LogOut, ChevronLeft,
-          MapPin, ArrowUpRight, CheckCircle2, Map: MapIcon, Folder, ArrowLeft,
-          X, Link, Copy, Filter, CheckCheck
-        } = window.lucideReact;
+<div class="flex h-screen w-full overflow-hidden relative" id="app">
 
-        const SidebarItem = ({ icon: Icon, label, active, collapsed, onClick }) => {
-          return (
-            <div 
-              onClick={onClick}
-              title={collapsed ? label : undefined}
-              className={`flex items-center py-2 my-0.5 rounded-md cursor-pointer transition-colors text-sm
-              ${collapsed ? 'justify-center px-0' : 'px-3'}
-              ${active 
-                ? 'bg-slate-200/60 text-slate-900 font-medium' 
-                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-              }`}
-            >
-              <Icon className={`w-4 h-4 ${collapsed ? '' : 'mr-3'} ${active ? 'text-slate-700' : 'text-slate-500'}`} strokeWidth={active ? 2.5 : 2} />
-              {!collapsed && <span>{label}</span>}
+  <!-- MODAL CLIENT SETTINGS -->
+  <div id="client-modal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col">
+      <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+        <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+          <i data-lucide="globe" class="w-5 h-5 text-blue-600"></i>
+          Paramètres Client : <span id="modal-client-name"></span>
+        </h2>
+        <button onclick="closeModal()" class="text-slate-400 hover:text-slate-700 bg-white border border-slate-200 rounded-md p-1.5">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <div class="p-6 space-y-6">
+        <!-- Link Section -->
+        <div>
+          <label class="text-sm font-bold text-slate-700 mb-2 block">Lien unique du portail</label>
+          <div class="flex items-center space-x-2">
+            <div class="relative flex-1">
+              <i data-lucide="link" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+              <input id="client-link-input" readonly
+                class="w-full bg-slate-50 border border-slate-200 rounded-lg pl-9 pr-3 py-2 text-sm text-blue-600 font-medium outline-none focus:border-blue-400"/>
             </div>
-          );
-        };
+            <button id="copy-btn" onclick="handleCopyLink()"
+              class="flex items-center px-4 py-2 rounded-lg text-sm font-bold bg-slate-900 text-white hover:bg-slate-800 transition-colors gap-1.5">
+              <i data-lucide="copy" class="w-4 h-4"></i> Copier
+            </button>
+          </div>
+          <p class="text-xs text-slate-500 mt-2">Ce lien donne accès uniquement aux rapports que vous avez activés ci-dessous.</p>
+        </div>
+        <!-- Reports toggle -->
+        <div>
+          <label class="text-sm font-bold text-slate-700 mb-3 block">Rapports publiés sur le portail</label>
+          <div id="modal-reports-list" class="space-y-2 border border-slate-100 rounded-xl p-2 bg-slate-50/50 max-h-64 overflow-y-auto"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-        const CardWrapper = ({ id, title, colSpan = 1, borderClass = "", isClientView, clientCards, setClientCards, children }) => {
-          const [menuOpen, setMenuOpen] = useState(false);
-          const isAdded = clientCards.includes(id);
+  <!-- SIDEBAR -->
+  <div id="sidebar" class="sidebar-transition w-[240px] flex-shrink-0 bg-white border-r border-slate-200 flex flex-col justify-between relative z-50 shadow-sm">
+    
+    <button id="sidebar-toggle" onclick="toggleSidebar()"
+      class="absolute -right-3 top-6 bg-white border border-slate-200 rounded-full p-1 shadow-sm z-50 hover:bg-slate-50 text-slate-500">
+      <i data-lucide="chevron-left" id="toggle-icon" class="w-3.5 h-3.5"></i>
+    </button>
 
-          const toggleClientView = () => {
-            if (isAdded) {
-              setClientCards(clientCards.filter(cardId => cardId !== id));
-            } else {
-              setClientCards([...clientCards, id]);
-            }
-            setMenuOpen(false);
-          };
+    <div class="flex-1 overflow-y-auto">
+      <div class="h-16 flex items-center px-4 border-b border-slate-100 cursor-pointer overflow-hidden whitespace-nowrap">
+        <i data-lucide="building-2" class="w-6 h-6 text-blue-600 flex-shrink-0 mr-3"></i>
+        <span id="brand-label" class="font-bold text-slate-800 text-base">Agence SEO</span>
+      </div>
+      <div class="p-3 mt-2">
+        <div class="mb-6">
+          <div id="menu-label" class="px-3 text-xs font-bold text-slate-400 mb-3 tracking-wider uppercase">Menu</div>
+          <div class="sidebar-item" onclick="navigate('dashboard')" data-nav="dashboard">
+            <i data-lucide="layout-dashboard" class="w-4 h-4 icon"></i>
+            <span class="label">Dashboard</span>
+          </div>
+          <div class="sidebar-item active" onclick="navigate('reports')" data-nav="reports">
+            <i data-lucide="bar-chart-2" class="w-4 h-4 icon"></i>
+            <span class="label">Reports</span>
+          </div>
+          <div class="sidebar-item" onclick="navigate('inbox')" data-nav="inbox">
+            <i data-lucide="inbox" class="w-4 h-4 icon"></i>
+            <span class="label">Inbox</span>
+          </div>
+        </div>
+      </div>
+    </div>
 
-          const colSpanClass = colSpan === 2 ? 'col-span-2' : 'col-span-1';
+    <!-- Sidebar Footer -->
+    <div class="p-3 border-t border-slate-100">
+      <div class="sidebar-item">
+        <i data-lucide="sun" class="w-4 h-4 icon"></i>
+        <span class="label">Mode Clair</span>
+      </div>
+      <div class="relative mt-2">
+        <div id="user-menu" class="hidden absolute bottom-full left-0 mb-2 w-full px-2 z-50">
+          <div class="bg-white border border-slate-200 rounded-lg shadow-xl py-1 min-w-[180px]">
+            <div class="px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 cursor-pointer flex items-center gap-2"><i data-lucide="settings" class="w-4 h-4"></i> Settings</div>
+            <div class="px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 cursor-pointer flex items-center gap-2"><i data-lucide="help-circle" class="w-4 h-4"></i> Help & Methodology</div>
+            <div class="px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 cursor-pointer flex items-center gap-2"><i data-lucide="globe" class="w-4 h-4"></i> English</div>
+            <div class="border-t border-slate-100 my-1"></div>
+            <div class="px-3 py-2 text-sm text-red-600 hover:bg-red-50 cursor-pointer flex items-center gap-2 font-medium"><i data-lucide="log-out" class="w-4 h-4"></i> Se déconnecter</div>
+          </div>
+        </div>
+        <div onclick="toggleUserMenu()" id="user-trigger"
+          class="flex items-center justify-between px-3 py-2 cursor-pointer hover:bg-slate-50 rounded-md transition-colors border border-transparent hover:border-slate-200">
+          <div class="flex items-center">
+            <div class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0 shadow-sm">JD</div>
+            <span id="user-label" class="text-sm font-semibold text-slate-700 ml-3 whitespace-nowrap">John Doe</span>
+          </div>
+          <i data-lucide="more-horizontal" id="user-more-icon" class="w-4 h-4 text-slate-400"></i>
+        </div>
+      </div>
+    </div>
+  </div>
 
-          return (
-            <div className={`bg-white p-5 border border-slate-200 rounded-xl shadow-sm relative ${colSpanClass} ${borderClass}`}>
-              <div className="flex justify-between items-start mb-2">
-                <div className="text-xs text-slate-500 font-semibold uppercase tracking-wider">{title}</div>
-                <div className="relative">
-                  <button onClick={() => setMenuOpen(!menuOpen)} className="text-slate-400 hover:text-slate-600 p-1 rounded hover:bg-slate-100 transition-colors">
-                    <MoreHorizontal className="w-4 h-4" />
-                  </button>
-                  
-                  {menuOpen && (
-                    <div className="absolute right-0 top-6 w-48 bg-white border border-slate-200 rounded-lg shadow-xl z-20 py-1 animate-in fade-in slide-in-from-top-2 duration-200">
-                      <div 
-                        className={`px-3 py-2 text-xs font-medium cursor-pointer transition-colors ${
-                          (isClientView || isAdded) 
-                            ? 'text-red-600 hover:bg-red-50' 
-                            : 'text-emerald-600 hover:bg-emerald-50'
-                        }`}
-                        onClick={toggleClientView}
-                      >
-                        {isClientView ? "Enlever de la vue client" : (isAdded ? "Retirer de la vue client" : "Ajouter à la vue client")}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-              {children}
+  <!-- MAIN CONTENT -->
+  <div class="flex-1 flex flex-col bg-[#fcfcfd] overflow-hidden relative z-10">
+
+    <!-- DASHBOARD VIEW -->
+    <div data-view="dashboard" class="flex-1 overflow-y-auto p-10 fade-in">
+      <div class="max-w-7xl mx-auto">
+        <div class="mb-6">
+          <h1 class="text-3xl font-bold text-slate-900 mb-2">Dashboard Agence SEO</h1>
+          <p class="text-slate-500 text-base">Suivi global des audits géolocalisés et performances de visibilité de votre portefeuille clients.</p>
+        </div>
+
+        <!-- Filters Bar -->
+        <div class="flex justify-end items-center mb-8 space-x-3 flex-wrap gap-2">
+          <div class="flex items-center bg-white border border-slate-200 rounded-md px-3 py-1.5 shadow-sm cursor-pointer hover:bg-slate-50">
+            <i data-lucide="users" class="w-4 h-4 text-slate-400 mr-2"></i>
+            <span class="text-sm font-medium mr-2">Tous les clients</span>
+            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+          </div>
+          <div class="flex items-center bg-white border border-slate-200 rounded-md px-3 py-1.5 shadow-sm cursor-pointer hover:bg-slate-50">
+            <i data-lucide="map" class="w-4 h-4 text-slate-400 mr-2"></i>
+            <span class="text-sm font-medium mr-2">Google Business Profile</span>
+            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+          </div>
+          <div class="flex items-center bg-white border border-slate-200 rounded-md px-3 py-1.5 shadow-sm cursor-pointer hover:bg-slate-50">
+            <i data-lucide="calendar" class="w-4 h-4 text-slate-400 mr-2"></i>
+            <span class="text-sm font-medium mr-2">Ce mois-ci</span>
+            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+          </div>
+          <div class="w-px h-6 bg-slate-200 mx-2"></div>
+          <span class="text-xs font-medium text-slate-400 flex items-center">Mis à jour à l'instant</span>
+          <button class="flex items-center bg-slate-900 text-white rounded-md px-4 py-1.5 shadow-sm hover:bg-slate-800 text-sm font-semibold transition-colors gap-2">
+            <i data-lucide="play" class="w-4 h-4"></i> Nouveau Rapport
+          </button>
+        </div>
+
+        <!-- KPI Grid -->
+        <div class="grid grid-cols-4 gap-5 mb-10">
+          <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+            <div class="flex items-center text-slate-500 mb-4 gap-2"><i data-lucide="users" class="w-4 h-4"></i><span class="text-xs font-bold tracking-wider uppercase">Clients Actifs</span></div>
+            <div class="text-xs text-slate-500 mb-1">Total du portefeuille</div>
+            <div class="flex items-end justify-between mb-2">
+              <span class="text-4xl font-semibold text-slate-800">42</span>
+              <span class="flex items-center text-sm font-medium text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded gap-1"><i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>+3</span>
             </div>
-          );
-        };
+            <div class="text-[10px] text-slate-400 font-medium mt-4">Nouveaux clients ce mois-ci</div>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+            <div class="flex items-center text-slate-500 mb-4 gap-2"><i data-lucide="file-text" class="w-4 h-4"></i><span class="text-xs font-bold tracking-wider uppercase">Audits GEO en cours</span></div>
+            <div class="text-xs text-slate-500 mb-1">Rapports en génération</div>
+            <div class="flex items-end justify-between mb-2">
+              <div class="flex items-baseline gap-1"><span class="text-4xl font-semibold text-blue-500">15</span><span class="text-sm text-slate-400">/ 42</span></div>
+              <span class="text-sm font-medium text-blue-500">Actifs</span>
+            </div>
+            <div class="mt-4"><div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-blue-500 rounded-full" style="width:35%"></div></div></div>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+            <div class="flex items-center text-slate-500 mb-4 gap-2"><i data-lucide="trending-up" class="w-4 h-4"></i><span class="text-xs font-bold tracking-wider uppercase">Visibilité Globale</span></div>
+            <div class="text-xs text-slate-500 mb-1">Croissance moyenne (30j)</div>
+            <div class="flex items-end justify-between mb-2">
+              <div class="flex items-baseline"><span class="text-4xl font-semibold text-emerald-500">+34</span><span class="text-lg font-semibold text-emerald-500">%</span></div>
+              <span class="text-sm font-medium text-emerald-500">Excellente</span>
+            </div>
+            <div class="mt-4 flex items-center text-[11px] text-slate-500 font-medium gap-1"><i data-lucide="arrow-up-right" class="w-3.5 h-3.5 text-emerald-500"></i><span class="text-slate-700">+8%</span> par rapport au mois dernier</div>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+            <div class="flex items-center text-slate-500 mb-4 gap-2"><i data-lucide="map-pin" class="w-4 h-4"></i><span class="text-xs font-bold tracking-wider uppercase">Mots-clés Top 3</span></div>
+            <div class="text-xs text-slate-500 mb-1">Positions locales acquises</div>
+            <div class="flex items-end justify-between mb-2">
+              <span class="text-4xl font-semibold text-slate-800">1,254</span>
+              <span class="flex items-center text-sm font-medium text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded gap-1"><i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>12%</span>
+            </div>
+            <div class="mt-4 flex justify-between text-[10px] text-slate-400 font-medium"><span>Sur 42 clients</span><span>Moy. 30/client</span></div>
+          </div>
+        </div>
 
-        function App() {
-          const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-          const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+        <!-- Charts Section -->
+        <div class="mb-4 flex items-center gap-2">
+          <div class="w-1 h-4 bg-emerald-500 rounded-sm"></div>
+          <h2 class="text-lg font-bold text-slate-800">Performances du mois</h2>
+        </div>
 
-          const [currentView, setCurrentView] = useState('reports'); 
-          const [selectedClient, setSelectedClient] = useState('all');
-          const [selectedProduct, setSelectedProduct] = useState('all');
-          const [inboxSelectedClient, setInboxSelectedClient] = useState('all');
-          
-          const [activeDetailTab, setActiveDetailTab] = useState('global'); 
-          const [clientCards, setClientCards] = useState(['health', 'top3']); 
-          const [settingsOpen, setSettingsOpen] = useState(false);
-          const [reportTemporality, setReportTemporality] = useState('monthly');
-
-          const [isClientSettingsModalOpen, setIsClientSettingsModalOpen] = useState(false);
-          const [copied, setCopied] = useState(false);
-          const [publishedReports, setPublishedReports] = useState(['g1', 'g2', 'm1', 't1']); 
-
-          const toggleReportPublished = (id) => {
-            if (publishedReports.includes(id)) {
-              setPublishedReports(publishedReports.filter(r => r !== id));
-            } else {
-              setPublishedReports([...publishedReports, id]);
-            }
-          };
-
-          const handleCopyLink = () => {
-            const input = document.getElementById('client-link-input');
-            if (input) {
-              input.select();
-              document.execCommand('copy');
-              setCopied(true);
-              setTimeout(() => setCopied(false), 2000);
-            }
-          };
-
-          const reportCategories = [
-            { id: 'presence', name: 'Présence & Technique', icon: Radio },
-            { id: 'competitive', name: 'Competitive Landscape', icon: Users },
-            { id: 'sources', name: 'Sources & Backlinks', icon: FileText },
-            { id: 'narratives', name: 'Narratives & Mentions', icon: MessageSquare },
-          ];
-
-          const cardDefinitions = {
-            'health': { category: 'presence', title: 'Score Santé Global', colSpan: 1, content: () => (
-              <React.Fragment><div className="text-3xl font-bold text-emerald-500 mt-2">92/100</div>
-              <div className="text-xs text-slate-400 mt-2 flex items-center"><ArrowUpRight className="w-3 h-3 text-emerald-500 mr-1"/> +2pts vs mois précédent</div></React.Fragment>
-            )},
-            'indexation': { category: 'presence', title: 'Indexation Domaines', colSpan: 1, content: () => (
-              <React.Fragment><div className="text-3xl font-bold text-slate-800 mt-2">14,205</div>
-              <div className="text-xs text-emerald-600 font-medium mt-2 bg-emerald-50 inline-block px-2 py-0.5 rounded">99.8% couverture sitemap</div></React.Fragment>
-            )},
-            'dns': { category: 'presence', title: 'Erreurs DNS / MX', colSpan: 1, borderClass: "border-l-4 border-l-amber-500", content: () => (
-              <React.Fragment><div className="text-3xl font-bold text-amber-500 mt-2">3</div>
-              <div className="text-xs text-slate-400 mt-2 font-medium">À corriger sur Instantly / Namecheap</div></React.Fragment>
-            )},
-            'sov': { category: 'competitive', title: 'Part de Voix (Share of Voice) SEO', colSpan: 2, content: () => (
-              <React.Fragment><div className="h-4 w-full rounded-full overflow-hidden flex mb-3 mt-4">
-                <div className="bg-blue-600 h-full" style={{width: '45%'}}></div>
-                <div className="bg-slate-300 h-full" style={{width: '30%'}}></div>
-                <div className="bg-slate-200 h-full" style={{width: '15%'}}></div>
-                <div className="bg-slate-100 h-full" style={{width: '10%'}}></div>
+        <div class="grid grid-cols-3 gap-4 mb-8">
+          <!-- Line Chart -->
+          <div class="col-span-2 bg-white border border-slate-200 rounded-xl p-6 shadow-sm flex flex-col min-h-[320px]">
+            <div class="flex justify-between items-start mb-6">
+              <div>
+                <h3 class="text-base font-semibold text-slate-800">Évolution de la Visibilité Client</h3>
+                <p class="text-sm text-slate-500">Croissance des impressions sur Google Maps (Moyenne Globale)</p>
               </div>
-              <div className="flex text-xs font-medium text-slate-500 space-x-4">
-                <span className="flex items-center"><span className="w-2 h-2 rounded-full bg-blue-600 mr-1.5"></span> Notre Marque (45%)</span>
-                <span className="flex items-center"><span className="w-2 h-2 rounded-full bg-slate-300 mr-1.5"></span> Microsoft (30%)</span>
-              </div></React.Fragment>
-            )},
-            'top3': { category: 'competitive', title: 'Mots-clés en Top 3', colSpan: 1, content: () => (
-              <React.Fragment><div className="text-3xl font-bold text-slate-800 mt-2">842</div>
-              <div className="text-xs text-slate-400 mt-2 flex items-center"><ArrowUpRight className="w-3 h-3 text-emerald-500 mr-1"/> +12% vs concurrent</div></React.Fragment>
-            )},
-            'domains': { category: 'sources', title: 'Nouveaux Domaines', colSpan: 1, content: () => (
-              <div className="text-3xl font-bold text-slate-800 mt-2">+124</div>
-            )},
-            'toxic': { category: 'sources', title: 'Liens Toxiques', colSpan: 1, borderClass: "border-l-4 border-l-red-500", content: () => (
-              <React.Fragment><div className="text-3xl font-bold text-red-500 mt-2">12</div>
-              <div className="text-xs mt-2 font-medium text-red-400">Fichier Disavow requis</div></React.Fragment>
-            )},
-            'anchors': { category: 'sources', title: 'Top Ancre de Lien', colSpan: 2, content: () => (
-              <div className="flex flex-col space-y-2.5 mt-2">
-                <div className="flex justify-between text-sm items-center"><span className="font-medium text-slate-700">"Solutions collaboratives cloud"</span><span className="text-slate-500 font-semibold bg-slate-100 px-2 py-0.5 rounded">42%</span></div>
-                <div className="flex justify-between text-sm items-center"><span className="font-medium text-slate-700">"Alternative Office"</span><span className="text-slate-500 font-semibold bg-slate-100 px-2 py-0.5 rounded">18%</span></div>
-              </div>
-            )},
-            'sentiment': { category: 'narratives', title: 'Sentiment Positif Dominant', colSpan: 1, content: () => (
-              <div className="flex items-center mt-2">
-                <div className="w-12 h-12 rounded-full border-4 border-emerald-100 flex items-center justify-center mr-4 flex-shrink-0">
-                  <span className="text-sm font-bold text-emerald-600">85%</span>
-                </div>
-                <div className="text-xs text-slate-500 leading-relaxed">Intention de recherche majoritairement transactionnelle sur le web.</div>
-              </div>
-            )},
-            'trends': { category: 'narratives', title: 'Sujets en forte tendance (30j)', colSpan: 1, content: () => (
-              <div className="flex flex-wrap gap-2 mt-2">
-                <span className="px-2.5 py-1 bg-slate-100 text-slate-700 text-[10px] rounded-md font-medium uppercase tracking-wider">Sécurité des données</span>
-                <span className="px-2.5 py-1 bg-slate-100 text-slate-700 text-[10px] rounded-md font-medium uppercase tracking-wider">Intégration IA</span>
-                <span className="px-2.5 py-1 bg-slate-100 text-slate-700 text-[10px] rounded-md font-medium uppercase tracking-wider">Migration Webflow</span>
-              </div>
-            )}
-          };
-
-          const mockDB = {
-            'Google': {
-              products: ['Google Ads', 'Google Workspace', 'Google Cloud'],
-              reports: [
-                { id: 'g1', title: 'Audit SEO Mensuel', product: 'Google Workspace', date: '25 Mars 2026', status: 'Terminé' },
-                { id: 'g2', title: 'Campagne d\'acquisition Q2', product: 'Google Ads', date: '20 Mars 2026', status: 'En cours' },
-                { id: 'g3', title: 'Optimisation Infra', product: 'Google Cloud', date: '15 Mars 2026', status: 'Planifié' }
-              ]
-            },
-            'Meta': {
-              products: ['Facebook Ads', 'Instagram Shopping'],
-              reports: [
-                { id: 'm1', title: 'Bilan de campagne FB', product: 'Facebook Ads', date: '26 Mars 2026', status: 'Terminé' }
-              ]
-            },
-            'Tesla': {
-              products: ['Solar Panels', 'Superchargers'],
-              reports: [
-                { id: 't1', title: 'Audit de trafic organique', product: 'Solar Panels', date: '22 Mars 2026', status: 'En cours' }
-              ]
-            }
-          };
-
-          const inboxNotifications = [
-            { id: 1, client: 'Google', title: 'Significant visibility increase detected', desc: 'Brand presence in AI responses increased 24% across enterprise contexts in the last 48 hours.', time: '2h ago', isUnread: true, tag: 'Critical', icon: TrendingUp, stat: '+24%', context: 'Enterprise contexts' },
-            { id: 2, client: 'Tesla', title: 'New competitor frequently co-mentioned', desc: 'A new alternative appears in 18% of comparison queries where your brand is mentioned.', time: '4h ago', isUnread: true, tag: 'High', icon: Eye, stat: '+18%', context: 'Comparison queries' },
-            { id: 3, client: 'Meta', title: 'Experiment #2847 completed', desc: 'Enterprise buyer persona analysis finished. Results show 12% attribution improvement.', time: '6h ago', isUnread: true, tag: 'High', icon: Activity, stat: '+12%', context: 'Attribution improvement' },
-            { id: 4, client: 'Google', title: 'Pricing narrative shift detected', desc: 'AI systems now emphasize "value-based" framing over "premium" in 67% of pricing contexts.', time: 'Yesterday', isUnread: false, icon: MessageSquare, stat: '+67%', context: 'Pricing contexts' },
-            { id: 5, client: 'Tesla', title: 'New high-influence source identified', desc: 'TechCrunch article from 3 days ago now appears in 34% of AI attribution chains.', time: 'Yesterday', isUnread: false, icon: Globe, stat: 'Top 3', context: 'TechCrunch chains' },
-            { id: 6, client: 'Google', title: 'DNS configuration warning', desc: 'Domain on Namecheap is expiring in less than 30 days. Please renew to avoid disruptions.', time: '2 days ago', isUnread: false, tag: 'Critical', icon: Radio, stat: 'Action required', context: 'Namecheap', isWarning: true },
-            { id: 7, client: 'Meta', title: 'Webflow structure issue', desc: 'Recent changes on Webflow site have caused a drop in rich snippet generations.', time: '3 days ago', isUnread: false, tag: 'Medium', icon: FileText, stat: '-15%', context: 'Rich snippets', isWarning: true },
-            { id: 8, client: 'Tesla', title: 'Email deliverability alert', desc: 'Instantly outreach campaigns are experiencing higher bounce rates. Check MX records.', time: '1 week ago', isUnread: false, icon: Inbox, stat: 'Review needed', context: 'Instantly / DNS' },
-          ];
-
-          const filteredNotifications = inboxSelectedClient === 'all' 
-            ? inboxNotifications 
-            : inboxNotifications.filter(n => n.client === inboxSelectedClient);
-
-          const currentReportObj = (selectedClient !== 'all' && mockDB[selectedClient]) 
-            ? mockDB[selectedClient].reports.find(r => r.product === selectedProduct) 
-            : null;
-          const isCurrentReportPublished = currentReportObj ? publishedReports.includes(currentReportObj.id) : false;
-
-          const renderCardGrid = (category, cardsToRender, isClientView = false) => {
-            const cardsInCategory = Object.entries(cardDefinitions)
-              .filter(([id, def]) => def.category === category.id && cardsToRender.includes(id));
-              
-            if (cardsInCategory.length === 0) return null;
-
-            return (
-              <section key={category.id} className="mb-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4 flex items-center">
-                  <category.icon className="w-4 h-4 mr-2 text-slate-500" /> {category.name}
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {cardsInCategory.map(([id, def]) => (
-                    <CardWrapper 
-                      key={id} id={id} title={def.title} colSpan={def.colSpan} borderClass={def.borderClass}
-                      isClientView={isClientView} clientCards={clientCards} setClientCards={setClientCards}
-                    >
-                      {def.content()}
-                    </CardWrapper>
-                  ))}
-                </div>
-              </section>
-            );
-          };
-
-          return (
-            <div className="flex h-screen w-full bg-slate-50 font-sans text-slate-900 overflow-hidden relative">
-              
-              {/* MODALE GLOBALE : PARAMÈTRES DU CLIENT */}
-              {isClientSettingsModalOpen && selectedClient !== 'all' && (
-                <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
-                  <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col scale-in-95 duration-200">
-                    <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                      <h2 className="text-lg font-bold text-slate-800 flex items-center">
-                        <Globe className="w-5 h-5 mr-2 text-blue-600"/> Paramètres Client : {selectedClient}
-                      </h2>
-                      <button onClick={() => setIsClientSettingsModalOpen(false)} className="text-slate-400 hover:text-slate-700 bg-white border border-slate-200 rounded-md p-1.5 transition-colors">
-                        <X className="w-4 h-4"/>
-                      </button>
-                    </div>
-                    <div className="p-6 space-y-6">
-                      
-                      {/* Section Lien */}
-                      <div>
-                        <label className="text-sm font-bold text-slate-700 mb-2 block">Lien unique du portail</label>
-                        <div className="flex items-center space-x-2">
-                          <div className="relative flex-1">
-                            <Link className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-                            <input 
-                              id="client-link-input"
-                              value={`https://agence-seo.com/portail/${selectedClient.toLowerCase().replace(/\s+/g, '-')}`} 
-                              readOnly 
-                              className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-9 pr-3 py-2 text-sm text-blue-600 font-medium outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400" 
-                            />
-                          </div>
-                          <button onClick={handleCopyLink} className={`flex items-center px-4 py-2 rounded-lg text-sm font-bold transition-colors ${copied ? 'bg-emerald-500 text-white hover:bg-emerald-600' : 'bg-slate-900 text-white hover:bg-slate-800'}`}>
-                            {copied ? <CheckCircle2 className="w-4 h-4 mr-1.5" /> : <Copy className="w-4 h-4 mr-1.5" />}
-                            {copied ? 'Copié' : 'Copier'}
-                          </button>
-                        </div>
-                        <p className="text-xs text-slate-500 mt-2">Ce lien donne accès uniquement aux rapports que vous avez activés ci-dessous.</p>
-                      </div>
-                      
-                      {/* Section Visibilité des rapports */}
-                      <div>
-                        <label className="text-sm font-bold text-slate-700 mb-3 block">Rapports publiés sur le portail</label>
-                        <div className="space-y-2 border border-slate-100 rounded-xl p-2 bg-slate-50/50 max-h-64 overflow-y-auto">
-                          {mockDB[selectedClient].reports.map(r => (
-                            <div key={r.id} className="flex items-center justify-between p-3 bg-white border border-slate-100 rounded-lg shadow-sm hover:border-slate-200 transition-colors">
-                              <div>
-                                <div className="font-bold text-slate-800 text-sm">{r.title}</div>
-                                <div className="text-xs text-slate-500 mt-0.5">{r.product}</div>
-                              </div>
-                              <button 
-                                onClick={() => toggleReportPublished(r.id)} 
-                                className={`w-11 h-6 rounded-full relative transition-colors duration-300 focus:outline-none ${publishedReports.includes(r.id) ? 'bg-emerald-500' : 'bg-slate-300'}`}
-                              >
-                                <div className={`w-4 h-4 bg-white rounded-full absolute top-1 shadow-sm transition-transform duration-300 ${publishedReports.includes(r.id) ? 'translate-x-6' : 'translate-x-1'}`}></div>
-                              </button>
-                            </div>
-                          ))}
-                          {mockDB[selectedClient].reports.length === 0 && (
-                             <div className="text-sm text-slate-500 text-center py-4">Aucun rapport pour ce client.</div>
-                          )}
-                        </div>
-                      </div>
-
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* SIDEBAR */}
-              <div className={`${isSidebarCollapsed ? 'w-[72px]' : 'w-[240px]'} flex-shrink-0 bg-white border-r border-slate-200 flex flex-col justify-between relative transition-all duration-300 z-50 shadow-sm`}>
-                
-                <button 
-                  onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                  className="absolute -right-3 top-6 bg-white border border-slate-200 rounded-full p-1 shadow-sm z-50 hover:bg-slate-50 text-slate-500"
-                >
-                  {isSidebarCollapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
-                </button>
-
-                <div className="flex-1 overflow-y-auto">
-                  <div className="h-16 flex items-center px-4 border-b border-slate-100 cursor-pointer overflow-hidden whitespace-nowrap">
-                    <Building2 className="w-6 h-6 text-blue-600 flex-shrink-0 mr-3" />
-                    {!isSidebarCollapsed && <span className="font-bold text-slate-800 text-base">Agence SEO</span>}
-                  </div>
-
-                  <div className="p-3 mt-2">
-                    <div className="mb-6">
-                      {!isSidebarCollapsed && <div className="px-3 text-xs font-bold text-slate-400 mb-3 tracking-wider uppercase">Menu</div>}
-                      <SidebarItem onClick={() => setCurrentView('dashboard')} icon={LayoutDashboard} label="Dashboard" active={currentView === 'dashboard'} collapsed={isSidebarCollapsed} />
-                      <SidebarItem onClick={() => setCurrentView('reports')} icon={BarChart2} label="Reports" active={currentView === 'reports' || currentView === 'report-detail'} collapsed={isSidebarCollapsed} />
-                      <SidebarItem onClick={() => setCurrentView('inbox')} icon={Inbox} label="Inbox" active={currentView === 'inbox'} collapsed={isSidebarCollapsed} />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Sidebar Footer */}
-                <div className="p-3 border-t border-slate-100">
-                  <SidebarItem icon={Sun} label="Mode Clair" collapsed={isSidebarCollapsed} />
-                  
-                  <div className="relative mt-2">
-                    {isUserMenuOpen && (
-                      <div className="absolute bottom-full left-0 mb-2 w-full px-2 z-50">
-                        <div className="bg-white border border-slate-200 rounded-lg shadow-xl py-1 w-full min-w-[180px]">
-                          <div className="px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 cursor-pointer flex items-center"><Settings className="w-4 h-4 mr-2" /> Settings</div>
-                          <div className="px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 cursor-pointer flex items-center"><HelpCircle className="w-4 h-4 mr-2" /> Help & Methodology</div>
-                          <div className="px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 cursor-pointer flex items-center"><Globe className="w-4 h-4 mr-2" /> English</div>
-                          <div className="border-t border-slate-100 my-1"></div>
-                          <div className="px-3 py-2 text-sm text-red-600 hover:bg-red-50 cursor-pointer flex items-center font-medium"><LogOut className="w-4 h-4 mr-2" /> Se déconnecter</div>
-                        </div>
-                      </div>
-                    )}
-                    <div 
-                      onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                      className={`flex items-center ${isSidebarCollapsed ? 'justify-center px-0' : 'justify-between px-3'} py-2 cursor-pointer hover:bg-slate-50 rounded-md transition-colors border border-transparent hover:border-slate-200`}
-                    >
-                      <div className="flex items-center">
-                        <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0 shadow-sm">JD</div>
-                        {!isSidebarCollapsed && <span className="text-sm font-semibold text-slate-700 ml-3 whitespace-nowrap">John Doe</span>}
-                      </div>
-                      {!isSidebarCollapsed && <MoreHorizontal className="w-4 h-4 text-slate-400" />}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* MAIN CONTENT AREA */}
-              <div className="flex-1 flex flex-col bg-[#fcfcfd] overflow-hidden relative z-10">
-                
-                {currentView === 'dashboard' && (
-                  <div className="flex-1 overflow-y-auto p-10 animate-in fade-in duration-300">
-                    <div className="max-w-7xl mx-auto">
-                      
-                      {/* Header Area */}
-                      <div className="mb-6">
-                        <h1 className="text-3xl font-bold text-slate-900 mb-2">Dashboard Agence SEO</h1>
-                        <p className="text-slate-500 text-base">Suivi global des audits géolocalisés et performances de visibilité de votre portefeuille clients.</p>
-                      </div>
-
-                      {/* Filters Bar */}
-                      <div className="flex justify-end items-center mb-8 space-x-3">
-                        <div className="flex items-center bg-white border border-slate-200 rounded-md px-3 py-1.5 shadow-sm cursor-pointer hover:bg-slate-50">
-                          <Users className="w-4 h-4 text-slate-400 mr-2" />
-                          <span className="text-sm font-medium mr-2">Tous les clients</span>
-                          <ChevronDown className="w-4 h-4 text-slate-400" />
-                        </div>
-                        <div className="flex items-center bg-white border border-slate-200 rounded-md px-3 py-1.5 shadow-sm cursor-pointer hover:bg-slate-50">
-                          <MapIcon className="w-4 h-4 text-slate-400 mr-2" />
-                          <span className="text-sm font-medium mr-2">Google Business Profile</span>
-                          <ChevronDown className="w-4 h-4 text-slate-400" />
-                        </div>
-                        <div className="flex items-center bg-white border border-slate-200 rounded-md px-3 py-1.5 shadow-sm cursor-pointer hover:bg-slate-50">
-                          <Calendar className="w-4 h-4 text-slate-400 mr-2" />
-                          <span className="text-sm font-medium mr-2">Ce mois-ci</span>
-                          <ChevronDown className="w-4 h-4 text-slate-400" />
-                        </div>
-                        
-                        <div className="w-px h-6 bg-slate-200 mx-2"></div>
-                        
-                        <span className="text-xs font-medium text-slate-400 mx-2 flex items-center">
-                           Mis à jour à l'instant
-                        </span>
-                        <button className="flex items-center bg-slate-900 text-white border border-slate-900 rounded-md px-4 py-1.5 shadow-sm hover:bg-slate-800 text-sm font-semibold transition-colors">
-                          <Play className="w-4 h-4 mr-2" />
-                          Nouveau Rapport
-                        </button>
-                      </div>
-
-                      {/* KPI Cards Grid */}
-                      <div className="grid grid-cols-4 gap-5 mb-10">
-                        {/* Card 1 */}
-                        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
-                          <div className="flex items-center text-slate-500 mb-4">
-                            <Users className="w-4 h-4 mr-2" />
-                            <span className="text-xs font-bold tracking-wider uppercase">Clients Actifs</span>
-                          </div>
-                          <div className="text-xs text-slate-500 mb-1">Total du portefeuille</div>
-                          <div className="flex items-end justify-between mb-2">
-                            <div className="flex items-baseline">
-                              <span className="text-4xl font-semibold text-slate-800">42</span>
-                            </div>
-                            <span className="flex items-center text-sm font-medium text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded">
-                              <ArrowUpRight className="w-3.5 h-3.5 mr-1" />
-                              +3
-                            </span>
-                          </div>
-                          <div className="text-[10px] text-slate-400 font-medium mt-4">Nouveaux clients ce mois-ci</div>
-                        </div>
-
-                        {/* Card 2 */}
-                        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
-                          <div className="flex items-center text-slate-500 mb-4">
-                            <FileText className="w-4 h-4 mr-2" />
-                            <span className="text-xs font-bold tracking-wider uppercase">Audits GEO en cours</span>
-                          </div>
-                          <div className="text-xs text-slate-500 mb-1">Rapports en génération</div>
-                          <div className="flex items-end justify-between mb-2">
-                            <div className="flex items-baseline">
-                              <span className="text-4xl font-semibold text-blue-500">15</span>
-                              <span className="text-sm text-slate-400 ml-1">/ 42</span>
-                            </div>
-                            <span className="text-sm font-medium text-blue-500">Actifs</span>
-                          </div>
-                          <div className="mt-4">
-                            <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                              <div className="h-full bg-blue-500 rounded-full" style={{ width: '35%' }}></div>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Card 3 */}
-                        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
-                          <div className="flex items-center text-slate-500 mb-4">
-                            <TrendingUp className="w-4 h-4 mr-2" />
-                            <span className="text-xs font-bold tracking-wider uppercase">Visibilité Globale</span>
-                          </div>
-                          <div className="text-xs text-slate-500 mb-1">Croissance moyenne (30j)</div>
-                          <div className="flex items-end justify-between mb-2">
-                            <div className="flex items-baseline">
-                              <span className="text-4xl font-semibold text-emerald-500">+34</span>
-                              <span className="text-lg font-semibold text-emerald-500">%</span>
-                            </div>
-                            <span className="text-sm font-medium text-emerald-500">Excellente</span>
-                          </div>
-                          <div className="mt-4 flex items-center text-[11px] text-slate-500 font-medium">
-                            <ArrowUpRight className="w-3.5 h-3.5 mr-1 text-emerald-500" />
-                            <span className="text-slate-700 mr-1">+8%</span> par rapport au mois dernier
-                          </div>
-                        </div>
-
-                        {/* Card 4 */}
-                        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
-                          <div className="flex items-center text-slate-500 mb-4">
-                            <MapPin className="w-4 h-4 mr-2" />
-                            <span className="text-xs font-bold tracking-wider uppercase">Mots-clés Top 3</span>
-                          </div>
-                          <div className="text-xs text-slate-500 mb-1">Positions locales acquises</div>
-                          <div className="flex items-end justify-between mb-2">
-                            <div className="flex items-baseline">
-                              <span className="text-4xl font-semibold text-slate-800">1,254</span>
-                            </div>
-                            <span className="flex items-center text-sm font-medium text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded">
-                              <ArrowUpRight className="w-3.5 h-3.5 mr-1" />
-                              12%
-                            </span>
-                          </div>
-                          <div className="mt-4 flex justify-between text-[10px] text-slate-400 font-medium">
-                            <span>Sur 42 clients</span>
-                            <span>Moy. 30/client</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Main Charts Section */}
-                      <div className="mb-4 flex items-center">
-                        <div className="w-1 h-4 bg-emerald-500 rounded-sm mr-2"></div>
-                        <h2 className="text-lg font-bold text-slate-800">Performances du mois</h2>
-                      </div>
-
-                      <div className="grid grid-cols-3 gap-4 mb-8">
-                        {/* Line Chart Area */}
-                        <div className="col-span-2 bg-white border border-slate-200 rounded-xl p-6 shadow-sm relative flex flex-col min-h-[320px]">
-                          <div className="flex justify-between items-start mb-6">
-                            <div>
-                              <h3 className="text-base font-semibold text-slate-800">Évolution de la Visibilité Client</h3>
-                              <p className="text-sm text-slate-500">Croissance des impressions sur Google Maps (Moyenne Globale)</p>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <div className="flex items-center">
-                                <div className="w-3 h-3 rounded-full bg-emerald-500 mr-2"></div>
-                                <span className="text-xs text-slate-600 font-medium">Ce mois</span>
-                              </div>
-                              <div className="flex items-center ml-4">
-                                <div className="w-3 h-3 rounded-full bg-slate-200 mr-2"></div>
-                                <span className="text-xs text-slate-600 font-medium">Mois prec.</span>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          {/* SVG Line Chart */}
-                          <div className="flex-1 w-full relative">
-                            <div className="absolute left-0 top-0 bottom-6 flex flex-col justify-between text-[10px] font-medium text-slate-400">
-                              <span>+40%</span><span>+20%</span><span>0%</span>
-                            </div>
-                            
-                            <div className="absolute left-10 right-0 top-2 bottom-6">
-                              <div className="absolute w-full top-0 border-t border-dashed border-slate-200"></div>
-                              <div className="absolute w-full top-1/2 border-t border-dashed border-slate-200"></div>
-                              <div className="absolute w-full bottom-0 border-t border-slate-300"></div>
-                              
-                              <svg viewBox="0 0 500 150" className="w-full h-full overflow-visible" preserveAspectRatio="none">
-                                <defs>
-                                  <linearGradient id="emeraldGradient" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.2}/>
-                                    <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                                  </linearGradient>
-                                </defs>
-                                <path d="M 0 120 C 100 110, 200 130, 300 115 S 400 125, 500 110" fill="none" stroke="#e2e8f0" strokeWidth="2" strokeDasharray="4 4" />
-                                <path d="M 0 100 C 50 90, 150 110, 200 70 S 350 40, 400 30 S 450 10, 500 5" fill="none" stroke="#10b981" strokeWidth="3" />
-                                <path d="M 0 100 C 50 90, 150 110, 200 70 S 350 40, 400 30 S 450 10, 500 5 L 500 150 L 0 150 Z" fill="url(#emeraldGradient)" />
-                                <circle cx="200" cy="70" r="4" fill="white" stroke="#10b981" strokeWidth="2" />
-                                <circle cx="400" cy="30" r="4" fill="white" stroke="#10b981" strokeWidth="2" />
-                                <circle cx="500" cy="5" r="5" fill="#10b981" />
-                              </svg>
-                            </div>
-
-                            <div className="absolute left-10 right-0 bottom-0 flex justify-between text-[10px] font-medium text-slate-400">
-                              <span>Sem 1</span><span>Sem 2</span><span>Sem 3</span><span>Sem 4</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Top Clients Insight Card */}
-                        <div className="col-span-1 bg-white border border-slate-200 rounded-xl p-0 shadow-sm flex flex-col">
-                          <div className="p-5 border-b border-slate-100">
-                            <h3 className="text-base font-semibold text-slate-800">Top Croissance Clients</h3>
-                            <p className="text-xs text-slate-500 mt-1">Les plus fortes hausses de visibilité</p>
-                          </div>
-                          
-                          <div className="flex flex-col flex-1 p-2">
-                            <div className="flex items-center justify-between p-3 hover:bg-slate-50 rounded-lg cursor-pointer transition-colors">
-                              <div className="flex items-center">
-                                <div className="w-8 h-8 rounded bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs mr-3">PE</div>
-                                <div><div className="text-sm font-semibold text-slate-800">Plomberie Express</div><div className="text-xs text-slate-500">Paris 11e</div></div>
-                              </div>
-                              <div className="flex items-center text-emerald-600 text-sm font-bold bg-emerald-50 px-2 py-1 rounded"><ArrowUpRight className="w-3 h-3 mr-1" /> 45%</div>
-                            </div>
-
-                            <div className="flex items-center justify-between p-3 hover:bg-slate-50 rounded-lg cursor-pointer transition-colors">
-                              <div className="flex items-center">
-                                <div className="w-8 h-8 rounded bg-purple-100 text-purple-600 flex items-center justify-center font-bold text-xs mr-3">GA</div>
-                                <div><div className="text-sm font-semibold text-slate-800">Garage Auto Lyon</div><div className="text-xs text-slate-500">Lyon Part-Dieu</div></div>
-                              </div>
-                              <div className="flex items-center text-emerald-600 text-sm font-bold bg-emerald-50 px-2 py-1 rounded"><ArrowUpRight className="w-3 h-3 mr-1" /> 28%</div>
-                            </div>
-
-                            <div className="flex items-center justify-between p-3 hover:bg-slate-50 rounded-lg cursor-pointer transition-colors">
-                              <div className="flex items-center">
-                                <div className="w-8 h-8 rounded bg-amber-100 text-amber-600 flex items-center justify-center font-bold text-xs mr-3">CD</div>
-                                <div><div className="text-sm font-semibold text-slate-800">Cabinet Dentaire</div><div className="text-xs text-slate-500">Bordeaux Centre</div></div>
-                              </div>
-                              <div className="flex items-center text-emerald-600 text-sm font-bold bg-emerald-50 px-2 py-1 rounded"><ArrowUpRight className="w-3 h-3 mr-1" /> 22%</div>
-                            </div>
-                          </div>
-                          
-                          <div className="p-3 border-t border-slate-100 text-center"><span className="text-xs font-medium text-blue-600 hover:text-blue-800 cursor-pointer">Voir le classement complet</span></div>
-                        </div>
-                      </div>
-
-                      {/* Bottom Table Section */}
-                      <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-                        <div className="px-6 py-5 border-b border-slate-200 flex justify-between items-center">
-                          <div>
-                            <h3 className="text-base font-semibold text-slate-800">Statut des rapports et audits</h3>
-                            <p className="text-sm text-slate-500 mt-1">Gérez vos audits en cours et envoyez les rapports terminés.</p>
-                          </div>
-                          <button className="text-sm font-medium text-slate-600 bg-white border border-slate-200 px-3 py-1.5 rounded-md hover:bg-slate-50">Voir tout</button>
-                        </div>
-                        <div className="overflow-x-auto">
-                          <table className="w-full text-left text-sm text-slate-600">
-                            <thead className="bg-slate-50 text-xs uppercase font-semibold text-slate-500">
-                              <tr><th className="px-6 py-3">Client</th><th className="px-6 py-3">Type d'audit</th><th className="px-6 py-3">Progression</th><th className="px-6 py-3">Statut</th><th className="px-6 py-3 text-right">Action</th></tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100">
-                              <tr className="hover:bg-slate-50 transition-colors">
-                                <td className="px-6 py-4 font-medium text-slate-900">Boutique Mode Nantes</td><td className="px-6 py-4">Audit de Citations Locales</td>
-                                <td className="px-6 py-4"><div className="flex items-center"><div className="w-full bg-slate-200 rounded-full h-1.5 mr-2 max-w-[100px]"><div className="bg-emerald-500 h-1.5 rounded-full" style={{ width: '100%' }}></div></div><span className="text-xs font-medium">100%</span></div></td>
-                                <td className="px-6 py-4"><span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700"><CheckCircle2 className="w-3 h-3 mr-1" /> Terminé</span></td>
-                                <td className="px-6 py-4 text-right"><button className="text-blue-600 hover:text-blue-800 font-medium">Envoyer</button></td>
-                              </tr>
-                              <tr className="hover:bg-slate-50 transition-colors">
-                                <td className="px-6 py-4 font-medium text-slate-900">Restaurant Le Chef</td><td className="px-6 py-4">Optimisation GMB</td>
-                                <td className="px-6 py-4"><div className="flex items-center"><div className="w-full bg-slate-200 rounded-full h-1.5 mr-2 max-w-[100px]"><div className="bg-blue-500 h-1.5 rounded-full" style={{ width: '60%' }}></div></div><span className="text-xs font-medium">60%</span></div></td>
-                                <td className="px-6 py-4"><span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700"><Activity className="w-3 h-3 mr-1" /> En cours</span></td>
-                                <td className="px-6 py-4 text-right"><button className="text-slate-400 hover:text-slate-600 font-medium">Éditer</button></td>
-                              </tr>
-                              <tr className="hover:bg-slate-50 transition-colors">
-                                <td className="px-6 py-4 font-medium text-slate-900">Serrurier Paris 15</td><td className="px-6 py-4">Audit Concurrentiel GEO</td>
-                                <td className="px-6 py-4"><div className="flex items-center"><div className="w-full bg-slate-200 rounded-full h-1.5 mr-2 max-w-[100px]"><div className="bg-slate-400 h-1.5 rounded-full" style={{ width: '10%' }}></div></div><span className="text-xs font-medium">10%</span></div></td>
-                                <td className="px-6 py-4"><span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600"><Calendar className="w-3 h-3 mr-1" /> Planifié</span></td>
-                                <td className="px-6 py-4 text-right"><button className="text-slate-400 hover:text-slate-600 font-medium">Éditer</button></td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-
-                    </div>
-                  </div>
-                )}
-
-                {currentView === 'reports' && (
-                  <div className="flex-1 overflow-y-auto p-10 animate-in fade-in duration-300">
-                    <div className="max-w-6xl mx-auto">
-                      
-                      <div className="mb-8 flex justify-between items-end">
-                        <div>
-                          <h1 className="text-3xl font-bold text-slate-900 mb-2">{selectedClient === 'all' ? 'Tous les rapports' : `Rapports : ${selectedClient}`}</h1>
-                          <p className="text-slate-500 text-base">Gérez et consultez les rapports générés pour vos clients.</p>
-                        </div>
-                        {selectedClient !== 'all' && (
-                          <button onClick={() => setIsClientSettingsModalOpen(true)} className="flex items-center bg-white border border-slate-200 text-slate-800 rounded-lg px-4 py-2 shadow-sm hover:bg-slate-50 text-sm font-bold transition-colors">
-                            <Settings className="w-4 h-4 mr-2" /> Paramètres du client
-                          </button>
-                        )}
-                      </div>
-
-                      <div className="flex space-x-4 mb-8">
-                        <select className="bg-white border border-slate-200 text-slate-800 font-medium py-2 px-4 rounded-lg shadow-sm outline-none cursor-pointer w-64" value={selectedClient} onChange={(e) => { setSelectedClient(e.target.value); setSelectedProduct('all'); }}>
-                          <option value="all">Tous les clients</option>
-                          {Object.keys(mockDB).map(c => <option key={c} value={c}>{c}</option>)}
-                        </select>
-                        <select className={`bg-white border border-slate-200 text-slate-800 font-medium py-2 px-4 rounded-lg shadow-sm outline-none cursor-pointer w-64 ${selectedClient === 'all' ? 'opacity-50 pointer-events-none' : ''}`} value={selectedProduct} onChange={(e) => setSelectedProduct(e.target.value)}>
-                          <option value="all">Tous les produits</option>
-                          {selectedClient !== 'all' && mockDB[selectedClient].products.map(p => <option key={p} value={p}>{p}</option>)}
-                        </select>
-                      </div>
-
-                      {selectedClient === 'all' ? (
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                          {Object.entries(mockDB).map(([clientName, data]) => (
-                            <div key={clientName} onClick={() => setSelectedClient(clientName)} className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm cursor-pointer hover:border-blue-300 hover:shadow-md transition-all group">
-                              <div className="w-14 h-14 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl font-bold mb-4">{clientName.charAt(0)}</div>
-                              <h3 className="text-xl font-bold text-slate-800">{clientName}</h3>
-                              <p className="text-sm font-medium text-slate-500 mt-2">{data.reports.length} rapports disponibles</p>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-                          <table className="w-full text-left text-sm text-slate-600">
-                            <thead className="bg-slate-50 text-xs uppercase font-bold text-slate-500 border-b border-slate-200">
-                              <tr><th className="px-6 py-4">Nom du rapport</th><th className="px-6 py-4">Service</th><th className="px-6 py-4">Statut</th><th className="px-6 py-4 text-right">Action</th></tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100">
-                              {mockDB[selectedClient].reports.filter(r => selectedProduct === 'all' || r.product === selectedProduct).map((report) => (
-                                <tr key={report.id} onClick={() => { setSelectedProduct(report.product); setCurrentView('report-detail'); setActiveDetailTab('global'); }} className="hover:bg-slate-50 transition-colors cursor-pointer group">
-                                  <td className="px-6 py-4 font-bold text-slate-900">{report.title}</td>
-                                  <td className="px-6 py-4"><span className="bg-slate-100 text-slate-700 px-3 py-1 rounded-md text-xs font-bold">{report.product}</span></td>
-                                  <td className="px-6 py-4">
-                                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${report.status === 'Terminé' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'}`}>
-                                      {report.status === 'Terminé' ? <CheckCircle2 className="w-3.5 h-3.5 mr-1" /> : <Activity className="w-3.5 h-3.5 mr-1" />}{report.status}
-                                    </span>
-                                  </td>
-                                  <td className="px-6 py-4 text-right"><button className="text-blue-600 font-bold opacity-0 group-hover:opacity-100 transition-opacity">Ouvrir →</button></td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {currentView === 'report-detail' && selectedClient !== 'all' && (
-                  <div className="flex-1 flex flex-col bg-[#fcfcfd] overflow-hidden animate-in fade-in duration-300">
-                    
-                    <div className="px-8 py-4 border-b border-slate-200 bg-white flex items-center justify-between flex-shrink-0 z-20 shadow-sm">
-                      <div className="flex items-center space-x-3">
-                        <button onClick={() => setCurrentView('reports')} className="p-1.5 text-slate-400 hover:text-slate-800 hover:bg-slate-100 rounded-md transition-colors"><ArrowLeft className="w-4 h-4" /></button>
-                        <div className="w-px h-5 bg-slate-200 mx-2"></div>
-                        <button onClick={() => { setCurrentView('reports'); setSelectedClient('all'); setSelectedProduct('all'); }} className="text-sm font-semibold text-slate-500 hover:text-blue-600 transition-colors whitespace-nowrap">Tous les rapports</button>
-                        <span className="text-slate-300 font-bold text-lg">/</span>
-
-                        <select className="bg-transparent font-bold text-slate-900 text-lg cursor-pointer outline-none hover:text-blue-600 appearance-none pr-5" style={{ backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right center', backgroundSize: '10px auto' }} value={selectedClient} onChange={(e) => setSelectedClient(e.target.value)}>
-                          {Object.keys(mockDB).map(c => <option key={c} value={c}>{c}</option>)}
-                        </select>
-                        <span className="text-slate-300 font-bold text-lg">/</span>
-                        <select className="bg-transparent font-semibold text-slate-500 text-base cursor-pointer outline-none hover:text-blue-600 appearance-none pr-5" style={{ backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right center', backgroundSize: '10px auto' }} value={selectedProduct} onChange={(e) => setSelectedProduct(e.target.value)}>
-                          {mockDB[selectedClient].products.map(p => <option key={p} value={p}>{p}</option>)}
-                        </select>
-                      </div>
-
-                      <div className="flex items-center space-x-3 relative">
-                        <button onClick={() => setIsClientSettingsModalOpen(true)} className="flex items-center text-sm font-bold border px-3 py-2 rounded-lg transition-colors shadow-sm bg-white border-slate-200 text-slate-800 hover:bg-slate-50">
-                          <Globe className="w-4 h-4 mr-2 text-blue-600" /> Paramètres du client
-                        </button>
-                        <button onClick={() => setSettingsOpen(!settingsOpen)} className={`flex items-center text-sm font-bold border px-3 py-2 rounded-lg transition-colors shadow-sm ${settingsOpen ? 'bg-slate-100 border-slate-300 text-slate-900' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`}>
-                          <Settings className="w-4 h-4 mr-2" /> Paramètres pour ce rapport
-                        </button>
-
-                        {settingsOpen && currentReportObj && (
-                          <div className="absolute right-0 top-12 w-72 bg-white border border-slate-200 rounded-xl shadow-2xl z-50 p-5 animate-in slide-in-from-top-2 duration-200">
-                            <h4 className="font-bold text-slate-800 text-base mb-4 border-b border-slate-100 pb-2">Paramètres du Rapport</h4>
-                            
-                            <div className="mb-5">
-                              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">Temporalité</label>
-                              <select value={reportTemporality} onChange={(e) => setReportTemporality(e.target.value)} className="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-md px-3 py-2 text-sm font-medium outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 cursor-pointer">
-                                <option value="monthly">Mois par mois</option>
-                                <option value="weekly">Semaine par semaine</option>
-                                <option value="daily">Jour par jour</option>
-                              </select>
-                            </div>
-
-                            <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-                              <div><div className="text-sm font-bold text-slate-800">Visibilité Client</div><div className="text-xs text-slate-500 mt-0.5 max-w-[150px] leading-tight">Activer ce rapport spécifique sur le portail.</div></div>
-                              <button onClick={() => toggleReportPublished(currentReportObj.id)} className={`w-12 h-6 rounded-full relative transition-colors duration-300 focus:outline-none ${isCurrentReportPublished ? 'bg-emerald-500' : 'bg-slate-300'}`}>
-                                <div className={`w-4 h-4 bg-white rounded-full absolute top-1 shadow-sm transition-transform duration-300 ${isCurrentReportPublished ? 'translate-x-7' : 'translate-x-1'}`}></div>
-                              </button>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="px-8 border-b border-slate-200 bg-white flex space-x-8 flex-shrink-0 relative z-10">
-                      <button onClick={() => setActiveDetailTab('global')} className={`py-4 border-b-2 text-sm transition-colors ${activeDetailTab === 'global' ? 'border-slate-800 text-slate-900 font-bold' : 'border-transparent text-slate-500 hover:text-slate-800 font-medium'}`}>
-                        Rapport Global (Consultant)
-                      </button>
-                      <button onClick={() => setActiveDetailTab('client')} className={`py-4 border-b-2 text-sm transition-colors flex items-center ${activeDetailTab === 'client' ? 'border-blue-600 text-blue-700 font-bold' : 'border-transparent text-slate-500 hover:text-blue-600 font-medium'}`}>
-                        Vue du client
-                        {clientCards.length > 0 && <span className={`ml-2 px-1.5 py-0.5 rounded-md text-[10px] font-bold ${activeDetailTab === 'client' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-500'}`}>{clientCards.length}</span>}
-                      </button>
-                    </div>
-
-                    <div className="flex-1 overflow-y-auto p-10">
-                      <div className="max-w-6xl mx-auto">
-                        {activeDetailTab === 'global' ? (
-                          <div className="space-y-2">
-                            {reportCategories.map(cat => renderCardGrid(cat, Object.keys(cardDefinitions), false))}
-                          </div>
-                        ) : (
-                          <div className="space-y-2">
-                            {clientCards.length === 0 ? (
-                              <div className="flex flex-col items-center justify-center h-[60vh] border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50/50 animate-in fade-in duration-300">
-                                <div className="w-16 h-16 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mb-4 shadow-sm"><Eye className="w-8 h-8" /></div>
-                                <h3 className="text-xl font-bold text-slate-800 mb-2">La vue client est vide</h3>
-                                <p className="text-slate-500 text-base max-w-md text-center mb-8 leading-relaxed">
-                                  Ajoutez des modules à cet espace depuis l'onglet <strong>Rapport Global</strong> en cliquant sur les <MoreHorizontal className="w-4 h-4 inline text-slate-400 mx-1" /> des cartes souhaitées.
-                                </p>
-                                <button onClick={() => setActiveDetailTab('global')} className="bg-white border border-slate-200 text-slate-800 font-bold px-6 py-2.5 rounded-lg shadow-sm hover:bg-slate-50 transition-colors">Retourner au rapport</button>
-                              </div>
-                            ) : (
-                              <div className="animate-in fade-in duration-300">
-                                <div className="mb-8 p-4 bg-blue-50 border border-blue-100 rounded-xl flex items-start">
-                                  <Info className="w-5 h-5 text-blue-500 mt-0.5 mr-3 flex-shrink-0" />
-                                  <div>
-                                    <h4 className="text-sm font-bold text-blue-900">Aperçu du Dashboard Client</h4>
-                                    <p className="text-xs text-blue-700 mt-1">Voici exactement ce que verra le client sur son lien unique. Vous pouvez retirer des modules via le menu des cartes.</p>
-                                  </div>
-                                </div>
-                                {reportCategories.map(cat => renderCardGrid(cat, clientCards, true))}
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* VUE INBOX */}
-                {currentView === 'inbox' && (
-                  <div className="flex-1 overflow-y-auto p-10 bg-[#fcfcfd] animate-in fade-in duration-300">
-                    <div className="max-w-5xl mx-auto">
-                      
-                      <div className="flex justify-between items-start mb-8">
-                        <div>
-                          <h1 className="text-3xl font-bold text-slate-900 mb-2">Inbox</h1>
-                          <p className="text-slate-500 text-base">Signaux d'intelligence générés par le système et alertes SEO.</p>
-                        </div>
-                        <div className="flex items-center space-x-3">
-                          <select className="bg-white border border-slate-200 text-slate-800 font-medium py-2 px-4 rounded-lg shadow-sm outline-none cursor-pointer w-48" value={inboxSelectedClient} onChange={(e) => setInboxSelectedClient(e.target.value)}>
-                            <option value="all">Tous les clients</option>
-                            {Object.keys(mockDB).map(c => <option key={c} value={c}>{c}</option>)}
-                          </select>
-                          <button className="flex items-center bg-white border border-slate-200 text-slate-700 rounded-lg px-4 py-2 shadow-sm hover:bg-slate-50 font-medium transition-colors"><Filter className="w-4 h-4 mr-2" /> Filtrer</button>
-                          <button className="flex items-center bg-white border border-slate-200 text-slate-700 rounded-lg px-4 py-2 shadow-sm hover:bg-slate-50 font-medium transition-colors"><CheckCheck className="w-4 h-4 mr-2" /> Tout marquer comme lu</button>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center bg-white border border-slate-200 rounded-xl p-2 mb-6 w-fit shadow-sm">
-                        <div className="px-4 py-1.5 flex items-center border-r border-slate-100"><span className="text-xs font-bold text-slate-500 uppercase tracking-wider mr-3">Unread</span><span className="text-sm font-bold text-slate-800">3</span></div>
-                        <div className="px-4 py-1.5 flex items-center border-r border-slate-100"><span className="text-xs font-bold text-slate-500 uppercase tracking-wider mr-3">Critical</span><div className="w-2 h-2 rounded-full bg-orange-500 mr-2"></div><span className="text-sm font-bold text-orange-600">1</span></div>
-                        <div className="px-4 py-1.5 flex items-center"><div className="w-2 h-2 rounded-full bg-emerald-500 mr-2"></div><span className="text-xs font-bold text-slate-600">Active monitoring</span></div>
-                      </div>
-
-                      <div className="flex items-center space-x-1 mb-6 bg-slate-100 p-1 rounded-lg w-fit">
-                        <button className="px-4 py-1.5 bg-white text-slate-800 font-semibold text-sm rounded-md shadow-sm">All <span className="text-slate-500 ml-1 font-normal">7</span></button>
-                        <button className="px-4 py-1.5 text-slate-600 hover:text-slate-800 font-medium text-sm rounded-md">Unread <span className="text-emerald-500 ml-1">3</span></button>
-                        <button className="px-4 py-1.5 text-slate-600 hover:text-slate-800 font-medium text-sm rounded-md">Archived</button>
-                      </div>
-
-                      <div className="space-y-3">
-                        {filteredNotifications.map((notif) => (
-                          <div key={notif.id} className="bg-white border border-slate-200 rounded-xl p-5 flex items-start shadow-sm hover:border-slate-300 transition-colors cursor-pointer relative group">
-                            <div className="flex items-center pt-1 w-12 flex-shrink-0">
-                              <div className={`w-2 h-2 rounded-full mr-4 ${notif.isUnread ? 'bg-emerald-500' : 'bg-transparent'}`}></div>
-                              <notif.icon className={`w-5 h-5 ${notif.isWarning ? 'text-amber-500' : 'text-slate-400'}`} />
-                            </div>
-                            <div className="flex-1 pr-6">
-                              <div className="flex items-center flex-wrap gap-2 mb-1.5">
-                                <h4 className="text-sm font-bold text-slate-800">{notif.title}</h4>
-                                {notif.tag && (
-                                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wide border ${notif.tag === 'Critical' ? 'bg-orange-50 text-orange-600 border-orange-200' : notif.tag === 'High' ? 'bg-slate-100 text-slate-700 border-slate-200' : 'bg-blue-50 text-blue-600 border-blue-200'}`}>{notif.tag}</span>
-                                )}
-                                <span className="text-xs font-semibold text-slate-400 bg-slate-100 px-2 py-0.5 rounded ml-2">Client: {notif.client}</span>
-                              </div>
-                              <p className="text-sm text-slate-600 leading-relaxed">{notif.desc}</p>
-                              <div className="flex items-center mt-3 text-xs">
-                                <span className={`font-bold mr-2 ${notif.isWarning ? 'text-amber-600' : 'text-emerald-500'}`}>{notif.stat}</span>
-                                <span className="text-slate-400 font-medium">· {notif.context}</span>
-                              </div>
-                            </div>
-                            <div className="text-xs font-medium text-slate-400 whitespace-nowrap pt-1">{notif.time}</div>
-                          </div>
-                        ))}
-                        {filteredNotifications.length === 0 && (
-                          <div className="text-center py-12 text-slate-500 bg-white border border-slate-200 rounded-xl">
-                            <Inbox className="w-8 h-8 mx-auto mb-3 opacity-50" />
-                            <p className="font-medium">Aucune notification pour {inboxSelectedClient}.</p>
-                          </div>
-                        )}
-                      </div>
-
-                    </div>
-                  </div>
-                )}
-
+              <div class="flex items-center space-x-4">
+                <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-emerald-500"></div><span class="text-xs text-slate-600 font-medium">Ce mois</span></div>
+                <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-slate-200"></div><span class="text-xs text-slate-600 font-medium">Mois prec.</span></div>
               </div>
             </div>
-          );
+            <div class="flex-1 w-full relative" style="min-height:180px">
+              <div class="absolute left-0 top-0 bottom-6 flex flex-col justify-between text-[10px] font-medium text-slate-400">
+                <span>+40%</span><span>+20%</span><span>0%</span>
+              </div>
+              <div class="absolute left-10 right-0 top-2 bottom-6">
+                <div class="absolute w-full top-0 border-t border-dashed border-slate-200"></div>
+                <div class="absolute w-full top-1/2 border-t border-dashed border-slate-200"></div>
+                <div class="absolute w-full bottom-0 border-t border-slate-300"></div>
+                <svg viewBox="0 0 500 150" class="w-full h-full overflow-visible" preserveAspectRatio="none">
+                  <defs>
+                    <linearGradient id="emeraldGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stop-color="#10b981" stop-opacity="0.2"/>
+                      <stop offset="95%" stop-color="#10b981" stop-opacity="0"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M 0 120 C 100 110, 200 130, 300 115 S 400 125, 500 110" fill="none" stroke="#e2e8f0" stroke-width="2" stroke-dasharray="4 4"/>
+                  <path d="M 0 100 C 50 90, 150 110, 200 70 S 350 40, 400 30 S 450 10, 500 5" fill="none" stroke="#10b981" stroke-width="3"/>
+                  <path d="M 0 100 C 50 90, 150 110, 200 70 S 350 40, 400 30 S 450 10, 500 5 L 500 150 L 0 150 Z" fill="url(#emeraldGradient)"/>
+                  <circle cx="200" cy="70" r="4" fill="white" stroke="#10b981" stroke-width="2"/>
+                  <circle cx="400" cy="30" r="4" fill="white" stroke="#10b981" stroke-width="2"/>
+                  <circle cx="500" cy="5" r="5" fill="#10b981"/>
+                </svg>
+              </div>
+              <div class="absolute left-10 right-0 bottom-0 flex justify-between text-[10px] font-medium text-slate-400">
+                <span>Sem 1</span><span>Sem 2</span><span>Sem 3</span><span>Sem 4</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Top Clients -->
+          <div class="col-span-1 bg-white border border-slate-200 rounded-xl shadow-sm flex flex-col">
+            <div class="p-5 border-b border-slate-100">
+              <h3 class="text-base font-semibold text-slate-800">Top Croissance Clients</h3>
+              <p class="text-xs text-slate-500 mt-1">Les plus fortes hausses de visibilité</p>
+            </div>
+            <div class="flex flex-col flex-1 p-2">
+              <div class="flex items-center justify-between p-3 hover:bg-slate-50 rounded-lg cursor-pointer transition-colors">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs">PE</div>
+                  <div><div class="text-sm font-semibold text-slate-800">Plomberie Express</div><div class="text-xs text-slate-500">Paris 11e</div></div>
+                </div>
+                <div class="flex items-center text-emerald-600 text-sm font-bold bg-emerald-50 px-2 py-1 rounded gap-1"><i data-lucide="arrow-up-right" class="w-3 h-3"></i>45%</div>
+              </div>
+              <div class="flex items-center justify-between p-3 hover:bg-slate-50 rounded-lg cursor-pointer transition-colors">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded bg-purple-100 text-purple-600 flex items-center justify-center font-bold text-xs">GA</div>
+                  <div><div class="text-sm font-semibold text-slate-800">Garage Auto Lyon</div><div class="text-xs text-slate-500">Lyon Part-Dieu</div></div>
+                </div>
+                <div class="flex items-center text-emerald-600 text-sm font-bold bg-emerald-50 px-2 py-1 rounded gap-1"><i data-lucide="arrow-up-right" class="w-3 h-3"></i>28%</div>
+              </div>
+              <div class="flex items-center justify-between p-3 hover:bg-slate-50 rounded-lg cursor-pointer transition-colors">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded bg-amber-100 text-amber-600 flex items-center justify-center font-bold text-xs">CD</div>
+                  <div><div class="text-sm font-semibold text-slate-800">Cabinet Dentaire</div><div class="text-xs text-slate-500">Bordeaux Centre</div></div>
+                </div>
+                <div class="flex items-center text-emerald-600 text-sm font-bold bg-emerald-50 px-2 py-1 rounded gap-1"><i data-lucide="arrow-up-right" class="w-3 h-3"></i>22%</div>
+              </div>
+            </div>
+            <div class="p-3 border-t border-slate-100 text-center">
+              <span class="text-xs font-medium text-blue-600 hover:text-blue-800 cursor-pointer">Voir le classement complet</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reports Table -->
+        <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+          <div class="px-6 py-5 border-b border-slate-200 flex justify-between items-center">
+            <div>
+              <h3 class="text-base font-semibold text-slate-800">Statut des rapports et audits</h3>
+              <p class="text-sm text-slate-500 mt-1">Gérez vos audits en cours et envoyez les rapports terminés.</p>
+            </div>
+            <button class="text-sm font-medium text-slate-600 bg-white border border-slate-200 px-3 py-1.5 rounded-md hover:bg-slate-50">Voir tout</button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm text-slate-600">
+              <thead class="bg-slate-50 text-xs uppercase font-semibold text-slate-500">
+                <tr>
+                  <th class="px-6 py-3">Client</th>
+                  <th class="px-6 py-3">Rapport</th>
+                  <th class="px-6 py-3">Produit</th>
+                  <th class="px-6 py-3">Date</th>
+                  <th class="px-6 py-3">Statut</th>
+                </tr>
+              </thead>
+              <tbody id="dashboard-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REPORTS VIEW -->
+    <div data-view="reports" class="active fade-in">
+      <!-- Top Bar -->
+      <div class="border-b border-slate-200 bg-white px-8 py-4 flex items-center justify-between flex-shrink-0">
+        <div class="flex items-center gap-4">
+          <select id="client-select" onchange="onClientChange(this.value)"
+            class="bg-white border border-slate-200 rounded-md px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm outline-none focus:border-blue-400">
+            <option value="all">Tous les clients</option>
+          </select>
+          <select id="product-select" onchange="onProductChange(this.value)"
+            class="bg-white border border-slate-200 rounded-md px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm outline-none focus:border-blue-400 hidden">
+            <option value="all">Tous les produits</option>
+          </select>
+        </div>
+        <div class="flex items-center gap-3">
+          <button id="client-settings-btn" onclick="openModal()" class="hidden flex items-center gap-2 text-sm font-medium bg-white border border-slate-200 px-3 py-1.5 rounded-md hover:bg-slate-50 shadow-sm transition-colors">
+            <i data-lucide="settings" class="w-4 h-4 text-slate-500"></i> Paramètres client
+          </button>
+          <button onclick="navigate('report-detail')" class="flex items-center gap-2 text-sm font-bold bg-slate-900 text-white px-4 py-1.5 rounded-md hover:bg-slate-800 shadow-sm transition-colors">
+            <i data-lucide="play" class="w-4 h-4"></i> Voir le rapport
+          </button>
+        </div>
+      </div>
+
+      <!-- Reports Table -->
+      <div class="flex-1 overflow-y-auto p-8">
+        <div class="max-w-6xl mx-auto">
+          <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+            <div class="px-6 py-5 border-b border-slate-200">
+              <h3 class="text-base font-semibold text-slate-800">Tous les rapports</h3>
+              <p class="text-sm text-slate-500 mt-1">Gérez et consultez les rapports de vos clients.</p>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm text-slate-600">
+                <thead class="bg-slate-50 text-xs uppercase font-semibold text-slate-500">
+                  <tr>
+                    <th class="px-6 py-3">Client</th>
+                    <th class="px-6 py-3">Rapport</th>
+                    <th class="px-6 py-3">Produit</th>
+                    <th class="px-6 py-3">Date</th>
+                    <th class="px-6 py-3">Statut</th>
+                    <th class="px-6 py-3">Portail</th>
+                    <th class="px-6 py-3"></th>
+                  </tr>
+                </thead>
+                <tbody id="reports-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REPORT DETAIL VIEW -->
+    <div data-view="report-detail" class="fade-in">
+      <!-- Detail Top Bar -->
+      <div class="border-b border-slate-200 bg-white px-8 py-4 flex items-center justify-between flex-shrink-0">
+        <div class="flex items-center gap-4">
+          <button onclick="navigate('reports')" class="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i> Retour
+          </button>
+          <div class="w-px h-5 bg-slate-200"></div>
+          <h2 class="text-base font-bold text-slate-800" id="detail-report-title">Rapport</h2>
+          <div id="published-badge" class="hidden flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">
+            <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> Publié
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="flex items-center bg-slate-100 rounded-lg p-1 gap-1">
+          <button onclick="setDetailTab('global')" id="tab-global"
+            class="detail-tab active px-4 py-1.5 rounded-md text-sm font-medium transition-colors bg-white text-slate-800 shadow-sm">
+            Vue Globale
+          </button>
+          <button onclick="setDetailTab('client')" id="tab-client"
+            class="detail-tab px-4 py-1.5 rounded-md text-sm font-medium transition-colors text-slate-500 hover:text-slate-700">
+            Vue Client
+          </button>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <select id="temporality-select" onchange="setTemporality(this.value)"
+            class="bg-white border border-slate-200 rounded-md px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm outline-none">
+            <option value="monthly">Mensuel</option>
+            <option value="weekly">Hebdomadaire</option>
+            <option value="quarterly">Trimestriel</option>
+          </select>
+          <button onclick="openModal()" class="flex items-center gap-2 text-sm font-medium bg-white border border-slate-200 px-3 py-1.5 rounded-md hover:bg-slate-50 shadow-sm">
+            <i data-lucide="share-2" class="w-4 h-4 text-slate-500"></i> Partager
+          </button>
+        </div>
+      </div>
+
+      <!-- Detail Content -->
+      <div class="flex-1 overflow-y-auto p-8">
+        <div class="max-w-6xl mx-auto" id="detail-content"></div>
+      </div>
+    </div>
+
+    <!-- INBOX VIEW -->
+    <div data-view="inbox" class="fade-in">
+      <div class="border-b border-slate-200 bg-white px-8 py-4 flex items-center justify-between flex-shrink-0">
+        <div>
+          <h1 class="text-xl font-bold text-slate-900">Inbox</h1>
+          <p class="text-sm text-slate-500 mt-0.5">Alertes et insights automatiques de vos clients.</p>
+        </div>
+        <select id="inbox-client-select" onchange="filterInbox(this.value)"
+          class="bg-white border border-slate-200 rounded-md px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm outline-none">
+          <option value="all">Tous les clients</option>
+        </select>
+      </div>
+      <div class="flex-1 overflow-y-auto p-8">
+        <div class="max-w-4xl mx-auto space-y-3" id="inbox-list"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<style>
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    margin: 2px 0;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    font-size: 14px;
+    color: #475569;
+  }
+  .sidebar-item:hover { background: #f1f5f9; color: #0f172a; }
+  .sidebar-item.active { background: rgba(148,163,184,0.25); color: #0f172a; font-weight: 500; }
+  .sidebar-item .icon { width: 16px; height: 16px; margin-right: 12px; flex-shrink: 0; }
+  .sidebar-item.active .icon { color: #334155; }
+  .sidebar-item:not(.active) .icon { color: #64748b; }
+  body.collapsed .sidebar-item { justify-content: center; padding: 8px 0; }
+  body.collapsed .sidebar-item .icon { margin-right: 0; }
+  body.collapsed .sidebar-item .label { display: none; }
+  body.collapsed #brand-label, body.collapsed #menu-label, body.collapsed #user-label, body.collapsed #user-more-icon { display: none; }
+  body.collapsed #user-trigger { justify-content: center; padding: 8px 0; }
+  .detail-tab { transition: all 0.15s; }
+  .detail-tab.active { background: white; color: #1e293b; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+  .card-menu { display: none; }
+  .card-menu.open { display: block; }
+  .toggle-on { background: #10b981; }
+  .toggle-off { background: #cbd5e1; }
+</style>
+
+<script>
+  // ===================== STATE =====================
+  const state = {
+    sidebarCollapsed: false,
+    currentView: 'reports',
+    selectedClient: 'all',
+    selectedProduct: 'all',
+    inboxSelectedClient: 'all',
+    activeDetailTab: 'global',
+    clientCards: ['health', 'top3'],
+    publishedReports: ['g1', 'g2', 'm1', 't1'],
+    userMenuOpen: false,
+    copied: false,
+  };
+
+  // ===================== DATA =====================
+  const mockDB = {
+    'Google': {
+      products: ['Google Ads', 'Google Workspace', 'Google Cloud'],
+      reports: [
+        { id: 'g1', title: 'Audit SEO Mensuel', product: 'Google Workspace', date: '25 Mars 2026', status: 'Terminé' },
+        { id: 'g2', title: "Campagne d'acquisition Q2", product: 'Google Ads', date: '20 Mars 2026', status: 'En cours' },
+        { id: 'g3', title: 'Optimisation Infra', product: 'Google Cloud', date: '15 Mars 2026', status: 'Planifié' }
+      ]
+    },
+    'Meta': {
+      products: ['Facebook Ads', 'Instagram Shopping'],
+      reports: [
+        { id: 'm1', title: 'Bilan de campagne FB', product: 'Facebook Ads', date: '26 Mars 2026', status: 'Terminé' }
+      ]
+    },
+    'Tesla': {
+      products: ['Solar Panels', 'Superchargers'],
+      reports: [
+        { id: 't1', title: 'Audit de trafic organique', product: 'Solar Panels', date: '22 Mars 2026', status: 'En cours' }
+      ]
+    }
+  };
+
+  const inboxNotifications = [
+    { id: 1, client: 'Google', title: 'Significant visibility increase detected', desc: 'Brand presence in AI responses increased 24% across enterprise contexts in the last 48 hours.', time: '2h ago', isUnread: true, tag: 'Critical', icon: 'trending-up', stat: '+24%', context: 'Enterprise contexts' },
+    { id: 2, client: 'Tesla', title: 'New competitor frequently co-mentioned', desc: 'A new alternative appears in 18% of comparison queries where your brand is mentioned.', time: '4h ago', isUnread: true, tag: 'High', icon: 'eye', stat: '+18%', context: 'Comparison queries' },
+    { id: 3, client: 'Meta', title: 'Experiment #2847 completed', desc: 'Enterprise buyer persona analysis finished. Results show 12% attribution improvement.', time: '6h ago', isUnread: true, tag: 'High', icon: 'activity', stat: '+12%', context: 'Attribution improvement' },
+    { id: 4, client: 'Google', title: 'Pricing narrative shift detected', desc: 'AI systems now emphasize "value-based" framing over "premium" in 67% of pricing contexts.', time: 'Yesterday', isUnread: false, icon: 'message-square', stat: '+67%', context: 'Pricing contexts' },
+    { id: 5, client: 'Tesla', title: 'New high-influence source identified', desc: 'TechCrunch article from 3 days ago now appears in 34% of AI attribution chains.', time: 'Yesterday', isUnread: false, icon: 'globe', stat: 'Top 3', context: 'TechCrunch chains' },
+    { id: 6, client: 'Google', title: 'DNS configuration warning', desc: 'Domain on Namecheap is expiring in less than 30 days. Please renew to avoid disruptions.', time: '2 days ago', isUnread: false, tag: 'Critical', icon: 'radio', stat: 'Action required', context: 'Namecheap', isWarning: true },
+    { id: 7, client: 'Meta', title: 'Webflow structure issue', desc: 'Recent changes on Webflow site have caused a drop in rich snippet generations.', time: '3 days ago', isUnread: false, tag: 'Medium', icon: 'file-text', stat: '-15%', context: 'Rich snippets', isWarning: true },
+    { id: 8, client: 'Tesla', title: 'Email deliverability alert', desc: 'Instantly outreach campaigns are experiencing higher bounce rates. Check MX records.', time: '1 week ago', isUnread: false, icon: 'inbox', stat: 'Review needed', context: 'Instantly / DNS' },
+  ];
+
+  const cardDefinitions = {
+    health: { category: 'presence', title: 'Score Santé Global', colSpan: 1, html: () => `<div class="text-3xl font-bold text-emerald-500 mt-2">92/100</div><div class="text-xs text-slate-400 mt-2 flex items-center gap-1"><i data-lucide="arrow-up-right" class="w-3 h-3 text-emerald-500"></i>+2pts vs mois précédent</div>` },
+    indexation: { category: 'presence', title: 'Indexation Domaines', colSpan: 1, html: () => `<div class="text-3xl font-bold text-slate-800 mt-2">14,205</div><div class="text-xs text-emerald-600 font-medium mt-2 bg-emerald-50 inline-block px-2 py-0.5 rounded">99.8% couverture sitemap</div>` },
+    dns: { category: 'presence', title: 'Erreurs DNS / MX', colSpan: 1, borderClass: 'border-l-4 border-l-amber-500', html: () => `<div class="text-3xl font-bold text-amber-500 mt-2">3</div><div class="text-xs text-slate-400 mt-2 font-medium">À corriger sur Instantly / Namecheap</div>` },
+    sov: { category: 'competitive', title: 'Part de Voix (Share of Voice) SEO', colSpan: 2, html: () => `<div class="h-4 w-full rounded-full overflow-hidden flex mb-3 mt-4"><div class="bg-blue-600 h-full" style="width:45%"></div><div class="bg-slate-300 h-full" style="width:30%"></div><div class="bg-slate-200 h-full" style="width:15%"></div><div class="bg-slate-100 h-full" style="width:10%"></div></div><div class="flex text-xs font-medium text-slate-500 space-x-4"><span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-blue-600 inline-block"></span>Notre Marque (45%)</span><span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-slate-300 inline-block"></span>Microsoft (30%)</span></div>` },
+    top3: { category: 'competitive', title: 'Mots-clés en Top 3', colSpan: 1, html: () => `<div class="text-3xl font-bold text-slate-800 mt-2">842</div><div class="text-xs text-slate-400 mt-2 flex items-center gap-1"><i data-lucide="arrow-up-right" class="w-3 h-3 text-emerald-500"></i>+12% vs concurrent</div>` },
+    domains: { category: 'sources', title: 'Nouveaux Domaines', colSpan: 1, html: () => `<div class="text-3xl font-bold text-slate-800 mt-2">+124</div>` },
+    toxic: { category: 'sources', title: 'Liens Toxiques', colSpan: 1, borderClass: 'border-l-4 border-l-red-500', html: () => `<div class="text-3xl font-bold text-red-500 mt-2">12</div><div class="text-xs mt-2 font-medium text-red-400">Fichier Disavow requis</div>` },
+    anchors: { category: 'sources', title: 'Top Ancre de Lien', colSpan: 2, html: () => `<div class="flex flex-col space-y-2.5 mt-2"><div class="flex justify-between text-sm items-center"><span class="font-medium text-slate-700">"Solutions collaboratives cloud"</span><span class="text-slate-500 font-semibold bg-slate-100 px-2 py-0.5 rounded">42%</span></div><div class="flex justify-between text-sm items-center"><span class="font-medium text-slate-700">"Alternative Office"</span><span class="text-slate-500 font-semibold bg-slate-100 px-2 py-0.5 rounded">18%</span></div></div>` },
+    sentiment: { category: 'narratives', title: 'Sentiment Positif Dominant', colSpan: 1, html: () => `<div class="flex items-center mt-2"><div class="w-12 h-12 rounded-full border-4 border-emerald-100 flex items-center justify-center mr-4 flex-shrink-0"><span class="text-sm font-bold text-emerald-600">85%</span></div><div class="text-xs text-slate-500 leading-relaxed">Intention de recherche majoritairement transactionnelle sur le web.</div></div>` },
+    trends: { category: 'narratives', title: 'Sujets en forte tendance (30j)', colSpan: 1, html: () => `<div class="flex flex-wrap gap-2 mt-2"><span class="px-2.5 py-1 bg-slate-100 text-slate-700 text-[10px] rounded-md font-medium uppercase tracking-wider">Sécurité des données</span><span class="px-2.5 py-1 bg-slate-100 text-slate-700 text-[10px] rounded-md font-medium uppercase tracking-wider">Intégration IA</span><span class="px-2.5 py-1 bg-slate-100 text-slate-700 text-[10px] rounded-md font-medium uppercase tracking-wider">Migration Webflow</span></div>` },
+  };
+
+  const reportCategories = [
+    { id: 'presence', name: 'Présence & Technique', icon: 'radio' },
+    { id: 'competitive', name: 'Competitive Landscape', icon: 'users' },
+    { id: 'sources', name: 'Sources & Backlinks', icon: 'file-text' },
+    { id: 'narratives', name: 'Narratives & Mentions', icon: 'message-square' },
+  ];
+
+  // ===================== SIDEBAR =====================
+  function toggleSidebar() {
+    state.sidebarCollapsed = !state.sidebarCollapsed;
+    const sidebar = document.getElementById('sidebar');
+    const icon = document.getElementById('toggle-icon');
+    if (state.sidebarCollapsed) {
+      sidebar.style.width = '72px';
+      document.body.classList.add('collapsed');
+      icon.setAttribute('data-lucide', 'chevron-right');
+    } else {
+      sidebar.style.width = '240px';
+      document.body.classList.remove('collapsed');
+      icon.setAttribute('data-lucide', 'chevron-left');
+    }
+    lucide.createIcons();
+  }
+
+  function toggleUserMenu() {
+    state.userMenuOpen = !state.userMenuOpen;
+    document.getElementById('user-menu').classList.toggle('hidden', !state.userMenuOpen);
+  }
+
+  // Close menus on outside click
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('#user-trigger') && !e.target.closest('#user-menu')) {
+      document.getElementById('user-menu').classList.add('hidden');
+      state.userMenuOpen = false;
+    }
+    // Close card menus
+    document.querySelectorAll('.card-menu.open').forEach(m => {
+      if (!m.closest('.card-wrapper').contains(e.target)) m.classList.remove('open');
+    });
+  });
+
+  // ===================== NAVIGATION =====================
+  function navigate(view) {
+    state.currentView = view;
+    document.querySelectorAll('[data-view]').forEach(el => el.classList.remove('active'));
+    const target = document.querySelector(`[data-view="${view}"]`);
+    if (target) { target.classList.add('active'); target.classList.add('fade-in'); }
+
+    // Update sidebar active state
+    document.querySelectorAll('.sidebar-item[data-nav]').forEach(el => el.classList.remove('active'));
+    const navKey = (view === 'report-detail') ? 'reports' : view;
+    const navEl = document.querySelector(`.sidebar-item[data-nav="${navKey}"]`);
+    if (navEl) navEl.classList.add('active');
+
+    if (view === 'report-detail') renderDetailContent();
+    if (view === 'reports') renderReportsTable();
+    if (view === 'dashboard') renderDashboardTable();
+    if (view === 'inbox') renderInbox();
+
+    lucide.createIcons();
+  }
+
+  // ===================== CLIENT / PRODUCT SELECTS =====================
+  function populateSelects() {
+    const clients = Object.keys(mockDB);
+    ['client-select'].forEach(id => {
+      const sel = document.getElementById(id);
+      clients.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; sel.appendChild(o); });
+    });
+    const inboxSel = document.getElementById('inbox-client-select');
+    clients.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; inboxSel.appendChild(o); });
+  }
+
+  function onClientChange(val) {
+    state.selectedClient = val;
+    const productSel = document.getElementById('product-select');
+    const settingsBtn = document.getElementById('client-settings-btn');
+    if (val !== 'all') {
+      productSel.classList.remove('hidden');
+      productSel.innerHTML = '<option value="all">Tous les produits</option>';
+      mockDB[val].products.forEach(p => { const o = document.createElement('option'); o.value = p; o.textContent = p; productSel.appendChild(o); });
+      settingsBtn.classList.remove('hidden');
+    } else {
+      productSel.classList.add('hidden');
+      settingsBtn.classList.add('hidden');
+    }
+    state.selectedProduct = 'all';
+    renderReportsTable();
+  }
+
+  function onProductChange(val) {
+    state.selectedProduct = val;
+    renderReportsTable();
+  }
+
+  function filterInbox(val) {
+    state.inboxSelectedClient = val;
+    renderInbox();
+  }
+
+  // ===================== REPORT DETAIL =====================
+  function setDetailTab(tab) {
+    state.activeDetailTab = tab;
+    document.querySelectorAll('.detail-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(`tab-${tab}`).classList.add('active');
+    renderDetailContent();
+    lucide.createIcons();
+  }
+
+  function setTemporality(val) {
+    state.temporality = val;
+  }
+
+  function renderDetailContent() {
+    const container = document.getElementById('detail-content');
+    const isClient = state.activeDetailTab === 'client';
+    const cardsToShow = isClient ? state.clientCards : Object.keys(cardDefinitions);
+
+    // Published badge
+    const badge = document.getElementById('published-badge');
+    badge.classList.add('hidden');
+    if (state.selectedClient !== 'all' && mockDB[state.selectedClient]) {
+      const report = mockDB[state.selectedClient].reports.find(r => r.product === state.selectedProduct);
+      if (report && state.publishedReports.includes(report.id)) badge.classList.remove('hidden');
+    }
+
+    // Title
+    const titleEl = document.getElementById('detail-report-title');
+    if (state.selectedClient !== 'all') {
+      const reports = mockDB[state.selectedClient].reports;
+      titleEl.textContent = reports.length > 0 ? reports[0].title : 'Rapport';
+    } else {
+      titleEl.textContent = 'Rapport GEO';
+    }
+
+    let html = '';
+    if (isClient && cardsToShow.length === 0) {
+      html = `<div class="text-center py-20 text-slate-400"><p class="text-lg font-medium">Aucune carte partagée avec le client.</p><p class="text-sm mt-2">Depuis la vue globale, cliquez sur ••• sur une carte pour l'ajouter.</p></div>`;
+    } else {
+      reportCategories.forEach(cat => {
+        const catCards = Object.entries(cardDefinitions).filter(([id, def]) => def.category === cat.id && cardsToShow.includes(id));
+        if (catCards.length === 0) return;
+        html += `<section class="mb-10">
+          <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4 flex items-center gap-2">
+            <i data-lucide="${cat.icon}" class="w-4 h-4 text-slate-500"></i> ${cat.name}
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            ${catCards.map(([id, def]) => renderCard(id, def, isClient)).join('')}
+          </div>
+        </section>`;
+      });
+    }
+    container.innerHTML = html;
+    lucide.createIcons();
+    // Bind card menu buttons
+    container.querySelectorAll('.card-menu-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const cardId = btn.closest('.card-wrapper').dataset.cardId;
+        const menu = btn.nextElementSibling;
+        document.querySelectorAll('.card-menu.open').forEach(m => { if (m !== menu) m.classList.remove('open'); });
+        menu.classList.toggle('open');
+      });
+    });
+    container.querySelectorAll('.card-toggle-client').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = btn.dataset.cardId;
+        if (state.clientCards.includes(id)) {
+          state.clientCards = state.clientCards.filter(c => c !== id);
+        } else {
+          state.clientCards = [...state.clientCards, id];
         }
+        btn.closest('.card-menu').classList.remove('open');
+        renderDetailContent();
+        lucide.createIcons();
+      });
+    });
+  }
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
+  function renderCard(id, def, isClientView) {
+    const isAdded = state.clientCards.includes(id);
+    const colClass = def.colSpan === 2 ? 'col-span-2' : 'col-span-1';
+    const borderClass = def.borderClass || '';
+    const toggleText = isClientView ? 'Enlever de la vue client' : (isAdded ? 'Retirer de la vue client' : 'Ajouter à la vue client');
+    const toggleColor = (isClientView || isAdded) ? 'text-red-600 hover:bg-red-50' : 'text-emerald-600 hover:bg-emerald-50';
+    return `<div class="card-wrapper bg-white p-5 border border-slate-200 rounded-xl shadow-sm relative ${colClass} ${borderClass}" data-card-id="${id}">
+      <div class="flex justify-between items-start mb-2">
+        <div class="text-xs text-slate-500 font-semibold uppercase tracking-wider">${def.title}</div>
+        <div class="relative">
+          <button class="card-menu-btn text-slate-400 hover:text-slate-600 p-1 rounded hover:bg-slate-100 transition-colors">
+            <i data-lucide="more-horizontal" class="w-4 h-4"></i>
+          </button>
+          <div class="card-menu absolute right-0 top-6 w-48 bg-white border border-slate-200 rounded-lg shadow-xl z-20 py-1">
+            <div class="card-toggle-client px-3 py-2 text-xs font-medium cursor-pointer transition-colors ${toggleColor}" data-card-id="${id}">
+              ${toggleText}
+            </div>
+          </div>
+        </div>
+      </div>
+      ${def.html()}
+    </div>`;
+  }
+
+  // ===================== TABLES =====================
+  function statusBadge(status) {
+    const map = { 'Terminé': 'bg-emerald-50 text-emerald-700', 'En cours': 'bg-blue-50 text-blue-700', 'Planifié': 'bg-slate-100 text-slate-600' };
+    return `<span class="px-2.5 py-1 rounded-full text-xs font-semibold ${map[status] || 'bg-slate-100 text-slate-600'}">${status}</span>`;
+  }
+
+  function renderDashboardTable() {
+    const tbody = document.getElementById('dashboard-table-body');
+    if (!tbody) return;
+    let rows = '';
+    Object.entries(mockDB).forEach(([client, data]) => {
+      data.reports.forEach(r => {
+        rows += `<tr class="border-t border-slate-100 hover:bg-slate-50 transition-colors">
+          <td class="px-6 py-4 font-semibold">${client}</td>
+          <td class="px-6 py-4">${r.title}</td>
+          <td class="px-6 py-4 text-slate-500">${r.product}</td>
+          <td class="px-6 py-4 text-slate-500">${r.date}</td>
+          <td class="px-6 py-4">${statusBadge(r.status)}</td>
+        </tr>`;
+      });
+    });
+    tbody.innerHTML = rows || '<tr><td colspan="5" class="px-6 py-8 text-center text-slate-400">Aucun rapport.</td></tr>';
+  }
+
+  function renderReportsTable() {
+    const tbody = document.getElementById('reports-table-body');
+    if (!tbody) return;
+    let rows = '';
+    let allReports = [];
+    Object.entries(mockDB).forEach(([client, data]) => {
+      data.reports.forEach(r => allReports.push({ client, ...r }));
+    });
+    if (state.selectedClient !== 'all') allReports = allReports.filter(r => r.client === state.selectedClient);
+    if (state.selectedProduct !== 'all') allReports = allReports.filter(r => r.product === state.selectedProduct);
+
+    allReports.forEach(r => {
+      const isPublished = state.publishedReports.includes(r.id);
+      rows += `<tr class="border-t border-slate-100 hover:bg-slate-50 transition-colors">
+        <td class="px-6 py-4 font-semibold">${r.client}</td>
+        <td class="px-6 py-4">${r.title}</td>
+        <td class="px-6 py-4 text-slate-500">${r.product}</td>
+        <td class="px-6 py-4 text-slate-500">${r.date}</td>
+        <td class="px-6 py-4">${statusBadge(r.status)}</td>
+        <td class="px-6 py-4">
+          <button onclick="togglePublished('${r.id}')" class="w-11 h-6 rounded-full relative transition-colors duration-300 focus:outline-none ${isPublished ? 'bg-emerald-500' : 'bg-slate-300'}">
+            <div class="w-4 h-4 bg-white rounded-full absolute top-1 shadow-sm transition-transform duration-300 ${isPublished ? 'translate-x-6' : 'translate-x-1'}"></div>
+          </button>
+        </td>
+        <td class="px-6 py-4">
+          <button onclick="navigate('report-detail')" class="text-blue-600 hover:text-blue-800 text-xs font-medium">Voir →</button>
+        </td>
+      </tr>`;
+    });
+    tbody.innerHTML = rows || '<tr><td colspan="7" class="px-6 py-8 text-center text-slate-400">Aucun rapport trouvé.</td></tr>';
+    lucide.createIcons();
+  }
+
+  function togglePublished(id) {
+    if (state.publishedReports.includes(id)) {
+      state.publishedReports = state.publishedReports.filter(r => r !== id);
+    } else {
+      state.publishedReports = [...state.publishedReports, id];
+    }
+    renderReportsTable();
+  }
+
+  // ===================== INBOX =====================
+  function renderInbox() {
+    const list = document.getElementById('inbox-list');
+    if (!list) return;
+    const filtered = state.inboxSelectedClient === 'all'
+      ? inboxNotifications
+      : inboxNotifications.filter(n => n.client === state.inboxSelectedClient);
+
+    const tagColors = { Critical: 'bg-red-100 text-red-700', High: 'bg-amber-100 text-amber-700', Medium: 'bg-blue-100 text-blue-700' };
+
+    list.innerHTML = filtered.map(n => `
+      <div class="bg-white border ${n.isWarning ? 'border-l-4 border-l-amber-400' : 'border-slate-200'} rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow ${n.isUnread ? 'ring-1 ring-blue-200' : ''}">
+        <div class="flex items-start justify-between gap-4">
+          <div class="flex items-start gap-4">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${n.isWarning ? 'bg-amber-50' : 'bg-slate-100'}">
+              <i data-lucide="${n.icon}" class="w-5 h-5 ${n.isWarning ? 'text-amber-500' : 'text-slate-600'}"></i>
+            </div>
+            <div>
+              <div class="flex items-center gap-2 mb-1 flex-wrap">
+                <span class="text-sm font-bold text-slate-800">${n.title}</span>
+                ${n.isUnread ? '<span class="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></span>' : ''}
+                ${n.tag ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${tagColors[n.tag] || 'bg-slate-100 text-slate-600'}">${n.tag}</span>` : ''}
+              </div>
+              <p class="text-sm text-slate-600 leading-relaxed">${n.desc}</p>
+              <div class="flex items-center gap-3 mt-2 text-xs text-slate-400 flex-wrap">
+                <span class="font-medium text-slate-600">${n.client}</span>
+                <span>•</span><span>${n.context}</span>
+                <span>•</span><span>${n.time}</span>
+              </div>
+            </div>
+          </div>
+          <div class="flex-shrink-0">
+            <span class="text-sm font-bold ${n.isWarning ? 'text-amber-600' : 'text-emerald-600'} bg-${n.isWarning ? 'amber' : 'emerald'}-50 px-3 py-1 rounded-lg">${n.stat}</span>
+          </div>
+        </div>
+      </div>
+    `).join('') || '<div class="text-center py-12 text-slate-400">Aucune notification.</div>';
+    lucide.createIcons();
+  }
+
+  // ===================== MODAL =====================
+  function openModal() {
+    const client = state.selectedClient;
+    if (client === 'all') return;
+    document.getElementById('modal-client-name').textContent = client;
+    document.getElementById('client-link-input').value = `https://agence-seo.com/portail/${client.toLowerCase().replace(/\s+/g, '-')}`;
+    renderModalReports(client);
+    document.getElementById('client-modal').classList.remove('hidden');
+    lucide.createIcons();
+  }
+
+  function closeModal() {
+    document.getElementById('client-modal').classList.add('hidden');
+  }
+
+  function renderModalReports(client) {
+    const list = document.getElementById('modal-reports-list');
+    const reports = mockDB[client]?.reports || [];
+    list.innerHTML = reports.length === 0
+      ? '<div class="text-sm text-slate-500 text-center py-4">Aucun rapport pour ce client.</div>'
+      : reports.map(r => {
+        const on = state.publishedReports.includes(r.id);
+        return `<div class="flex items-center justify-between p-3 bg-white border border-slate-100 rounded-lg shadow-sm">
+          <div><div class="font-bold text-slate-800 text-sm">${r.title}</div><div class="text-xs text-slate-500 mt-0.5">${r.product}</div></div>
+          <button onclick="togglePublishedModal('${r.id}', '${client}')" class="w-11 h-6 rounded-full relative transition-colors duration-300 ${on ? 'bg-emerald-500' : 'bg-slate-300'}">
+            <div class="w-4 h-4 bg-white rounded-full absolute top-1 shadow-sm transition-transform duration-300 ${on ? 'translate-x-6' : 'translate-x-1'}"></div>
+          </button>
+        </div>`;
+      }).join('');
+  }
+
+  function togglePublishedModal(id, client) {
+    togglePublished(id);
+    renderModalReports(client);
+  }
+
+  function handleCopyLink() {
+    const input = document.getElementById('client-link-input');
+    input.select();
+    document.execCommand('copy');
+    const btn = document.getElementById('copy-btn');
+    btn.innerHTML = '<i data-lucide="check-circle-2" class="w-4 h-4"></i> Copié';
+    btn.classList.replace('bg-slate-900', 'bg-emerald-500');
+    lucide.createIcons();
+    setTimeout(() => {
+      btn.innerHTML = '<i data-lucide="copy" class="w-4 h-4"></i> Copier';
+      btn.classList.replace('bg-emerald-500', 'bg-slate-900');
+      lucide.createIcons();
+    }, 2000);
+  }
+
+  // Close modal on backdrop click
+  document.getElementById('client-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+
+  // ===================== INIT =====================
+  populateSelects();
+  renderReportsTable();
+  renderDashboardTable();
+  lucide.createIcons();
+</script>
 </body>
 </html>
