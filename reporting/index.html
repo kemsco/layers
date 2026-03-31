@@ -45,7 +45,6 @@
         ::-webkit-scrollbar-thumb { background: #2A2A2A; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #383838; }
         
-        /* Outline reset for strict focus styles */
         *:focus { outline: none; }
     </style>
 </head>
@@ -92,7 +91,7 @@
           ChevronRight, Calendar, Play, TrendingUp, Activity, Info, MoreHorizontal,
           LayoutDashboard, BarChart2, BarChart, LogOut, ChevronLeft,
           MapPin, ArrowUpRight, CheckCircle2, Map: MapIcon, Folder, ArrowLeft,
-          X, Link, Copy, Filter, CheckCheck
+          X, Link, Copy, Filter, CheckCheck, Check, Edit2, Plus
         } = lucideProxy;
 
         // UI Components (Strict Design System)
@@ -112,8 +111,8 @@
           </div>
         );
 
-        const StandardButton = ({ children, onClick, className = "" }) => (
-          <button onClick={onClick} className={`bg-[#1C1C1C] border border-[#2A2A2A] hover:bg-[#202020] hover:border-[#383838] transition-strict duration-150 ease-in-out rounded-[4px] px-[16px] py-[8px] flex items-center gap-[8px] text-[13px] font-medium text-[#A0A0A0] hover:text-[#FFFFFF] focus:border-[#00C9A7] duration-200 ${className}`}>
+        const StandardButton = ({ children, onClick, className = "", disabled = false }) => (
+          <button type="button" disabled={disabled} onClick={onClick} className={`bg-[#1C1C1C] border transition-strict duration-150 ease-in-out rounded-[4px] px-[16px] py-[8px] flex items-center gap-[8px] text-[13px] font-medium ${disabled ? 'border-[#1E1E1E] text-[#4A4A4A] cursor-not-allowed' : 'border-[#2A2A2A] hover:bg-[#202020] hover:border-[#383838] text-[#A0A0A0] hover:text-[#FFFFFF] focus:border-[#00C9A7]'} ${className}`}>
             {children}
           </button>
         );
@@ -140,7 +139,7 @@
               <div className="flex justify-between items-start mb-[16px]">
                 <div className="text-[11px] font-bold uppercase tracking-[0.10em] text-[#606060]">{title}</div>
                 <div className="relative">
-                  <button onClick={() => setMenuOpen(!menuOpen)} className="text-[#A0A0A0] hover:text-[#FFFFFF] transition-strict duration-150 rounded-[4px] focus:outline-none">
+                  <button type="button" onClick={() => setMenuOpen(!menuOpen)} className="text-[#A0A0A0] hover:text-[#FFFFFF] transition-strict duration-150 rounded-[4px] focus:outline-none">
                     <MoreHorizontal className="w-[14px] h-[14px]" />
                   </button>
                   {menuOpen && (
@@ -159,6 +158,399 @@
           );
         };
 
+        // ====== WORKFLOW: CREATE REPORT FULLSCREEN OVERLAY ======
+        const CreateReportFlow = ({ onClose }) => {
+          const [step, setStep] = useState(1);
+          const [data, setData] = useState({
+            type: null,
+            name: '',
+            associatedBrand: '',
+            url: '',
+            target: null,
+            industry: null,
+            reportName: '',
+            objectives: '',
+            schedule: null,
+            locations: '',
+            neighborhoods: '',
+            languages: '',
+            template: null,
+            competitorUrls: [''],
+            seoQueries: '',
+            personasType: null,
+            keywordsType: null,
+            savePrefs: false
+          });
+
+          // Handlers
+          const update = (field, value) => setData(prev => ({ ...prev, [field]: value }));
+
+          // Validation logic assouplie (6 étapes maintenant)
+          const isStep1Valid = data.type !== null && data.name.trim() !== '' && data.target !== null && data.industry !== null;
+          const isStep2Valid = data.reportName.trim() !== '' && data.schedule !== null && data.template !== null;
+          const isStep3Valid = true; // Champs optionnels
+          const isStep4Valid = data.personasType !== null;
+          const isStep5Valid = data.keywordsType !== null;
+
+          // Progressive disclosure flags for Step 1
+          const showName = data.type !== null;
+          const showAssocBrand = (data.type === 'product' || data.type === 'service') && data.name.trim() !== '';
+          const showUrl = (data.type === 'brand' && data.name.trim() !== '') || (showAssocBrand && data.associatedBrand.trim() !== '');
+          const showTarget = showUrl && data.url.trim() !== '';
+          const showIndustry = showTarget && data.target !== null;
+
+          const navigateStep = (newStep) => {
+             if (newStep < step || 
+                (newStep === 2 && isStep1Valid) || 
+                (newStep === 3 && isStep1Valid && isStep2Valid) ||
+                (newStep === 4 && isStep1Valid && isStep2Valid && isStep3Valid) ||
+                (newStep === 5 && isStep1Valid && isStep2Valid && isStep3Valid && isStep4Valid) ||
+                (newStep === 6 && isStep1Valid && isStep2Valid && isStep3Valid && isStep4Valid && isStep5Valid)) {
+                 setStep(newStep);
+             }
+          };
+
+          return (
+            <div className="fixed inset-0 z-[200] bg-[#0A0A0A] overflow-y-auto animate-in fade-in duration-200 flex flex-col">
+              
+              {/* TOP HEADER & BREADCRUMB */}
+              <div className="sticky top-0 bg-[#0D0D0D] border-b border-[#1E1E1E] z-10 px-[24px] h-[60px] flex items-center justify-between flex-shrink-0">
+                <div className="flex items-center gap-[16px] text-[11px] font-bold uppercase tracking-[0.10em] overflow-x-auto whitespace-nowrap hide-scrollbar">
+                  <span onClick={() => navigateStep(1)} className={`cursor-pointer transition-colors duration-150 flex-shrink-0 ${step >= 1 ? 'text-[#FFFFFF]' : 'text-[#4A4A4A]'}`}>1. Entité</span>
+                  <span className="text-[#4A4A4A] flex-shrink-0">/</span>
+                  <span onClick={() => navigateStep(2)} className={`cursor-pointer transition-colors duration-150 flex-shrink-0 ${step >= 2 ? 'text-[#FFFFFF]' : 'text-[#4A4A4A]'}`}>2. Config</span>
+                  <span className="text-[#4A4A4A] flex-shrink-0">/</span>
+                  <span onClick={() => navigateStep(3)} className={`cursor-pointer transition-colors duration-150 flex-shrink-0 ${step >= 3 ? 'text-[#FFFFFF]' : 'text-[#4A4A4A]'}`}>3. Périmètre</span>
+                  <span className="text-[#4A4A4A] flex-shrink-0">/</span>
+                  <span onClick={() => navigateStep(4)} className={`cursor-pointer transition-colors duration-150 flex-shrink-0 ${step >= 4 ? 'text-[#FFFFFF]' : 'text-[#4A4A4A]'}`}>4. Personas</span>
+                  <span className="text-[#4A4A4A] flex-shrink-0">/</span>
+                  <span onClick={() => navigateStep(5)} className={`cursor-pointer transition-colors duration-150 flex-shrink-0 ${step >= 5 ? 'text-[#FFFFFF]' : 'text-[#4A4A4A]'}`}>5. Mots-clés</span>
+                  <span className="text-[#4A4A4A] flex-shrink-0">/</span>
+                  <span onClick={() => navigateStep(6)} className={`cursor-pointer transition-colors duration-150 flex-shrink-0 ${step >= 6 ? 'text-[#FFFFFF]' : 'text-[#4A4A4A]'}`}>6. Résumé</span>
+                </div>
+                <button type="button" onClick={onClose} className="text-[#A0A0A0] hover:text-[#FFFFFF] transition-strict duration-150 p-[8px] flex-shrink-0 ml-[16px]">
+                  <X className="w-[20px] h-[20px]" />
+                </button>
+              </div>
+
+              <div className="flex-1 w-full max-w-3xl mx-auto px-[24px] pb-[100px] pt-[40px]">
+                
+                {/* ETAPE 1 : ENTITÉ */}
+                {step === 1 && (
+                  <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex flex-col gap-[32px]">
+                    <h1 className="text-[32px] sm:text-[38px] font-black text-[#FFFFFF] uppercase tracking-[0.01em] mb-[16px] leading-[1.1] text-center">INITIALISATION</h1>
+                    
+                    <div>
+                      <label className="text-[11px] font-bold uppercase tracking-[0.10em] text-[#606060] mb-[12px] block">Que souhaitez-vous analyser ?</label>
+                      <div className="grid grid-cols-3 gap-[12px]">
+                        {[{ id: 'brand', l: 'Marque' }, { id: 'product', l: 'Produit' }, { id: 'service', l: 'Service' }].map(opt => (
+                          <button type="button" key={opt.id} onClick={() => update('type', opt.id)} className={`py-[16px] rounded-[8px] border transition-strict duration-150 text-[13px] font-medium ${data.type === opt.id ? 'bg-[#1C1C1C] border-[#00C9A7] text-[#FFFFFF]' : 'bg-[#1C1C1C] border-[#2A2A2A] text-[#A0A0A0] hover:border-[#383838] hover:text-[#FFFFFF]'}`}>{opt.l}</button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {showName && (
+                      <div className="animate-in fade-in duration-300">
+                        <label className="text-[11px] font-bold uppercase tracking-[0.10em] text-[#606060] mb-[12px] block">{data.type === 'brand' ? 'Nom de la marque' : data.type === 'product' ? 'Nom du produit' : 'Nom du service'}</label>
+                        <input type="text" value={data.name} onChange={(e) => update('name', e.target.value)} placeholder="Saisissez le nom..." className="w-full bg-[#1C1C1C] border border-[#2A2A2A] rounded-[8px] px-[16px] py-[12px] text-[13px] text-[#FFFFFF] placeholder-[#4A4A4A] focus:border-[#00C9A7] transition-strict duration-200" />
+                      </div>
+                    )}
+
+                    {showAssocBrand && (
+                      <div className="animate-in fade-in duration-300">
+                        <label className="text-[11px] font-bold uppercase tracking-[0.10em] text-[#606060] mb-[12px] block">Marque parente associée <span className="text-[#4A4A4A] lowercase ml-[4px]">(Optionnel)</span></label>
+                        <input type="text" value={data.associatedBrand} onChange={(e) => update('associatedBrand', e.target.value)} placeholder="Ex: Google (pour Workspace)..." className="w-full bg-[#1C1C1C] border border-[#2A2A2A] rounded-[8px] px-[16px] py-[12px] text-[13px] text-[#FFFFFF] placeholder-[#4A4A4A] focus:border-[#00C9A7] transition-strict duration-200" />
+                      </div>
+                    )}
+
+                    {showUrl && (
+                      <div className="animate-in fade-in duration-300">
+                        <label className="text-[11px] font-bold uppercase tracking-[0.10em] text-[#606060] mb-[12px] block">Lien web associé <span className="text-[#4A4A4A] lowercase ml-[4px]">(Optionnel)</span></label>
+                        <div className="flex items-center bg-[#1C1C1C] border border-[#2A2A2A] rounded-[8px] focus-within:border-[#00C9A7] transition-strict duration-200 overflow-hidden">
+                          <span className="pl-[16px] pr-[4px] text-[13px] text-[#606060] select-none">https://</span>
+                          <input type="text" value={data.url} onChange={(e) => update('url', e.target.value)} placeholder="www.exemple.com" className="flex-1 bg-transparent py-[12px] pr-[16px] text-[13px] text-[#FFFFFF] placeholder-[#4A4A4A] outline-none" />
+                        </div>
+                      </div>
+                    )}
+
+                    {showTarget && (
+                      <div className="animate-in fade-in duration-300">
+                        <label className="text-[11px] font-bold uppercase tracking-[0.10em] text-[#606060] mb-[12px] block">Cible de l'entité</label>
+                        <div className="grid grid-cols-3 gap-[12px]">
+                          {[{ id: 'b2b', l: 'B2B' }, { id: 'b2c', l: 'B2C' }, { id: 'hybrid', l: 'HYBRIDE' }].map(opt => (
+                            <button type="button" key={opt.id} onClick={() => update('target', opt.id)} className={`py-[16px] rounded-[8px] border transition-strict duration-150 text-[13px] font-medium ${data.target === opt.id ? 'bg-[#1C1C1C] border-[#00C9A7] text-[#FFFFFF]' : 'bg-[#1C1C1C] border-[#2A2A2A] text-[#A0A0A0] hover:border-[#383838] hover:text-[#FFFFFF]'}`}>{opt.l}</button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {showIndustry && (
+                      <div className="animate-in fade-in duration-300">
+                        <label className="text-[11px] font-bold uppercase tracking-[0.10em] text-[#606060] mb-[12px] block">Industrie principale</label>
+                        <div className="grid grid-cols-3 gap-[12px]">
+                          {[{ id: 'tech', l: 'Technologie & SaaS' }, { id: 'ecom', l: 'E-commerce' }, { id: 'local', l: 'Services Locaux' }].map(opt => (
+                            <button type="button" key={opt.id} onClick={() => update('industry', opt.id)} className={`py-[16px] rounded-[8px] border transition-strict duration-150 text-[13px] font-medium ${data.industry === opt.id ? 'bg-[#1C1C1C] border-[#00C9A7] text-[#FFFFFF]' : 'bg-[#1C1C1C] border-[#2A2A2A] text-[#A0A0A0] hover:border-[#383838] hover:text-[#FFFFFF]'}`}>{opt.l}</button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* ETAPE 2 : CONFIGURATION */}
+                {step === 2 && (
+                  <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex flex-col gap-[32px]">
+                    <h1 className="text-[32px] sm:text-[38px] font-black text-[#FFFFFF] uppercase tracking-[0.01em] mb-[16px] leading-[1.1] text-center">CONFIGURATION</h1>
+                    
+                    <div>
+                      <label className="text-[11px] font-bold uppercase tracking-[0.10em] text-[#606060] mb-[12px] block">Nom du rapport</label>
+                      <input type="text" value={data.reportName} onChange={(e) => update('reportName', e.target.value)} placeholder="Ex: Audit Mensuel SEO..." className="w-full bg-[#1C1C1C] border border-[#2A2A2A] rounded-[8px] px-[16px] py-[12px] text-[13px] text-[#FFFFFF] placeholder-[#4A4A4A] focus:border-[#00C9A7] transition-strict duration-200" />
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] font-bold uppercase tracking-[0.10em] text-[#606060] mb-[12px] block">Objectifs du rapport <span className="text-[#4A4A4A] lowercase ml-[4px]">(Optionnel)</span></label>
+                      <textarea rows="4" value={data.objectives} onChange={(e) => update('objectives', e.target.value)} placeholder="Ce rapport a pour objectif d'analyser la marque sur ce sujet comparé à leurs compétiteurs..." className="w-full bg-[#1C1C1C] border border-[#2A2A2A] rounded-[8px] px-[16px] py-[12px] text-[13px] text-[#FFFFFF] placeholder-[#4A4A4A] focus:border-[#00C9A7] transition-strict duration-200 resize-none"></textarea>
+                      <p className="text-[11px] text-[#606060] mt-[8px] leading-[1.5]">Cette partie vise à comprendre précisément les besoins du client pour adapter les analyses générées par nos modèles.</p>
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] font-bold uppercase tracking-[0.10em] text-[#606060] mb-[12px] block">Temporalité (Schedule)</label>
+                      <div className="grid grid-cols-3 gap-[12px]">
+                        {[{ id: 'daily', l: 'Quotidien' }, { id: 'weekly', l: 'Hebdomadaire' }, { id: 'monthly', l: 'Mensuel' }].map(opt => (
+                          <button type="button" key={opt.id} onClick={() => update('schedule', opt.id)} className={`py-[12px] rounded-[8px] border transition-strict duration-150 text-[13px] font-medium ${data.schedule === opt.id ? 'bg-[#1C1C1C] border-[#00C9A7] text-[#FFFFFF]' : 'bg-[#1C1C1C] border-[#2A2A2A] text-[#A0A0A0] hover:border-[#383838] hover:text-[#FFFFFF]'}`}>{opt.l}</button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] font-bold uppercase tracking-[0.10em] text-[#606060] mb-[12px] block">Modèles de templates</label>
+                      <div className="grid grid-cols-3 gap-[16px]">
+                        {/* CONCISE */}
+                        <div onClick={() => update('template', 'concise')} className={`p-[16px] rounded-[8px] border transition-strict duration-150 cursor-pointer flex flex-col ${data.template === 'concise' ? 'bg-[#1C1C1C] border-[#00C9A7]' : 'bg-[#1C1C1C] border-[#2A2A2A] hover:border-[#383838]'}`}>
+                          <div className="h-[60px] w-full border border-[#2A2A2A] rounded-[4px] mb-[16px] flex flex-col gap-[6px] p-[8px] opacity-60">
+                             <div className="h-[8px] w-1/2 bg-[#4A4A4A] rounded-[2px]"></div>
+                             <div className="h-[16px] w-full bg-[#2A2A2A] rounded-[2px]"></div>
+                          </div>
+                          <span className={`text-[13px] font-medium text-center ${data.template === 'concise' ? 'text-[#FFFFFF]' : 'text-[#A0A0A0]'}`}>Concise</span>
+                        </div>
+                        {/* DETAILED */}
+                        <div onClick={() => update('template', 'detailed')} className={`p-[16px] rounded-[8px] border transition-strict duration-150 cursor-pointer flex flex-col ${data.template === 'detailed' ? 'bg-[#1C1C1C] border-[#00C9A7]' : 'bg-[#1C1C1C] border-[#2A2A2A] hover:border-[#383838]'}`}>
+                          <div className="h-[60px] w-full border border-[#2A2A2A] rounded-[4px] mb-[16px] flex flex-col gap-[6px] p-[8px] opacity-80">
+                             <div className="h-[8px] w-1/2 bg-[#4A4A4A] rounded-[2px]"></div>
+                             <div className="flex gap-[4px] flex-1">
+                               <div className="flex-1 bg-[#2A2A2A] rounded-[2px]"></div><div className="w-[12px] bg-[#4A4A4A] rounded-[2px]"></div>
+                             </div>
+                          </div>
+                          <span className={`text-[13px] font-medium text-center ${data.template === 'detailed' ? 'text-[#FFFFFF]' : 'text-[#A0A0A0]'}`}>Detailed</span>
+                        </div>
+                        {/* FULL */}
+                        <div onClick={() => update('template', 'full')} className={`p-[16px] rounded-[8px] border transition-strict duration-150 cursor-pointer flex flex-col ${data.template === 'full' ? 'bg-[#1C1C1C] border-[#00C9A7]' : 'bg-[#1C1C1C] border-[#2A2A2A] hover:border-[#383838]'}`}>
+                          <div className="h-[60px] w-full border border-[#2A2A2A] rounded-[4px] mb-[16px] flex flex-col gap-[4px] p-[6px]">
+                             <div className="h-[6px] w-1/2 bg-[#4A4A4A] rounded-[2px]"></div>
+                             <div className="grid grid-cols-2 gap-[4px] flex-1">
+                               <div className="bg-[#2A2A2A] rounded-[2px]"></div><div className="bg-[#383838] rounded-[2px]"></div>
+                               <div className="bg-[#383838] rounded-[2px]"></div><div className="bg-[#2A2A2A] rounded-[2px]"></div>
+                             </div>
+                          </div>
+                          <span className={`text-[13px] font-medium text-center ${data.template === 'full' ? 'text-[#FFFFFF]' : 'text-[#A0A0A0]'}`}>Full</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* ETAPE 3 : PÉRIMÈTRE */}
+                {step === 3 && (
+                  <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex flex-col gap-[32px]">
+                    <h1 className="text-[32px] sm:text-[38px] font-black text-[#FFFFFF] uppercase tracking-[0.01em] mb-[16px] leading-[1.1] text-center">PÉRIMÈTRE D'ANALYSE</h1>
+                    
+                    <div className="grid grid-cols-2 gap-[24px]">
+                      <div>
+                        <label className="text-[11px] font-bold uppercase tracking-[0.10em] text-[#606060] mb-[12px] block">Pays / Villes cibles <span className="text-[#4A4A4A] lowercase ml-[4px]">(Optionnel)</span></label>
+                        <input type="text" value={data.locations} onChange={(e) => update('locations', e.target.value)} placeholder="Ex: France, Paris..." className="w-full bg-[#1C1C1C] border border-[#2A2A2A] rounded-[8px] px-[16px] py-[12px] text-[13px] text-[#FFFFFF] placeholder-[#4A4A4A] focus:border-[#00C9A7] transition-strict duration-200" />
+                        
+                        <label className="text-[11px] font-bold uppercase tracking-[0.10em] text-[#606060] mb-[12px] mt-[24px] block">Quartiers / Arrond. <span className="text-[#4A4A4A] lowercase ml-[4px]">(Optionnel)</span></label>
+                        <input type="text" value={data.neighborhoods} onChange={(e) => update('neighborhoods', e.target.value)} placeholder="Ex: Paris 11e..." className="w-full bg-[#1C1C1C] border border-[#2A2A2A] rounded-[8px] px-[16px] py-[12px] text-[13px] text-[#FFFFFF] placeholder-[#4A4A4A] focus:border-[#00C9A7] transition-strict duration-200" />
+                      </div>
+                      <div>
+                        <label className="text-[11px] font-bold uppercase tracking-[0.10em] text-[#606060] mb-[12px] block">Langues <span className="text-[#4A4A4A] lowercase ml-[4px]">(Optionnel)</span></label>
+                        <input type="text" value={data.languages} onChange={(e) => update('languages', e.target.value)} placeholder="Ex: Français, Anglais..." className="w-full bg-[#1C1C1C] border border-[#2A2A2A] rounded-[8px] px-[16px] py-[12px] text-[13px] text-[#FFFFFF] placeholder-[#4A4A4A] focus:border-[#00C9A7] transition-strict duration-200" />
+                      </div>
+                    </div>
+
+                    <div className="border-t border-[#1E1E1E] pt-[32px]">
+                      <label className="text-[11px] font-bold uppercase tracking-[0.10em] text-[#606060] mb-[12px] block">URL des concurrents <span className="text-[#4A4A4A] lowercase ml-[4px]">(Optionnel)</span></label>
+                      <div className="flex flex-col gap-[8px]">
+                        {data.competitorUrls.map((url, i) => (
+                          <div key={i} className="flex items-center bg-[#1C1C1C] border border-[#2A2A2A] rounded-[8px] focus-within:border-[#00C9A7] transition-strict duration-200 overflow-hidden">
+                            <span className="pl-[16px] pr-[4px] text-[13px] text-[#606060] select-none">https://</span>
+                            <input type="text" value={url} onChange={(e) => {
+                              const newUrls = [...data.competitorUrls];
+                              newUrls[i] = e.target.value;
+                              update('competitorUrls', newUrls);
+                            }} placeholder="www.concurrent.com" className="flex-1 bg-transparent py-[12px] pr-[16px] text-[13px] text-[#FFFFFF] placeholder-[#4A4A4A] outline-none" />
+                          </div>
+                        ))}
+                      </div>
+                      <button type="button" onClick={() => update('competitorUrls', [...data.competitorUrls, ''])} className="mt-[16px] flex items-center text-[11px] font-medium text-[#A0A0A0] hover:text-[#FFFFFF] transition-colors w-fit"><Plus className="w-[12px] h-[12px] mr-[4px]" /> Ajouter un concurrent</button>
+                      <p className="text-[11px] text-[#606060] mt-[8px] leading-[1.5]">On va analyser les concurrents qui ressortent naturellement mais également les concurrents directs que votre client veut se comparer.</p>
+                    </div>
+
+                    <div className="border-t border-[#1E1E1E] pt-[32px]">
+                      <label className="text-[11px] font-bold uppercase tracking-[0.10em] text-[#606060] mb-[12px] block">Requêtes SEO trackées <span className="text-[#4A4A4A] lowercase ml-[4px]">(Optionnel)</span></label>
+                      <textarea rows="8" value={data.seoQueries} onChange={(e) => update('seoQueries', e.target.value)} placeholder="Copiez-collez ici toutes les requêtes (mots-clés) que vous trackez en SEO pour ce client (une par ligne)..." className="w-full bg-[#1C1C1C] border border-[#2A2A2A] rounded-[8px] px-[16px] py-[12px] text-[13px] text-[#FFFFFF] placeholder-[#4A4A4A] focus:border-[#00C9A7] transition-strict duration-200 resize-y"></textarea>
+                    </div>
+                  </div>
+                )}
+
+                {/* ETAPE 4 : PERSONAS */}
+                {step === 4 && (
+                  <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex flex-col gap-[32px]">
+                    <h1 className="text-[32px] sm:text-[38px] font-black text-[#FFFFFF] uppercase tracking-[0.01em] mb-[16px] leading-[1.1] text-center">PERSONAS</h1>
+
+                    <div>
+                      <label className="text-[11px] font-bold uppercase tracking-[0.10em] text-[#606060] mb-[12px] block">Ciblage des Personas</label>
+                      <div className="grid grid-cols-2 gap-[16px]">
+                        <div onClick={() => update('personasType', 'auto')} className={`p-[20px] rounded-[8px] border transition-strict duration-150 cursor-pointer flex flex-col gap-[8px] ${data.personasType === 'auto' ? 'bg-[#1C1C1C] border-[#00C9A7]' : 'bg-[#1C1C1C] border-[#2A2A2A] hover:border-[#383838]'}`}>
+                          <div className={`text-[13px] font-medium ${data.personasType === 'auto' ? 'text-[#FFFFFF]' : 'text-[#A0A0A0]'}`}>Automatique (IA)</div>
+                          <div className="text-[11px] text-[#606060] leading-[1.5]">Le système déduit les personas cibles à partir de l'URL fournie et de la marque associée.</div>
+                        </div>
+                        <div onClick={() => update('personasType', 'manual')} className={`p-[20px] rounded-[8px] border transition-strict duration-150 cursor-pointer flex flex-col gap-[8px] ${data.personasType === 'manual' ? 'bg-[#1C1C1C] border-[#00C9A7]' : 'bg-[#1C1C1C] border-[#2A2A2A] hover:border-[#383838]'}`}>
+                          <div className={`text-[13px] font-medium ${data.personasType === 'manual' ? 'text-[#FFFFFF]' : 'text-[#A0A0A0]'}`}>Manuel</div>
+                          <div className="text-[11px] text-[#606060] leading-[1.5]">Vous définirez précisément chaque persona dans une interface dédiée après la validation.</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* ETAPE 5 : MOTS-CLÉS & ATTRIBUTS */}
+                {step === 5 && (
+                  <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex flex-col gap-[32px]">
+                    <h1 className="text-[32px] sm:text-[38px] font-black text-[#FFFFFF] uppercase tracking-[0.01em] mb-[16px] leading-[1.1] text-center">MOTS-CLÉS & ATTRIBUTS</h1>
+
+                    <div>
+                      <label className="text-[11px] font-bold uppercase tracking-[0.10em] text-[#606060] mb-[12px] block">Détection des sujets</label>
+                      <div className="grid grid-cols-2 gap-[16px]">
+                        <div onClick={() => update('keywordsType', 'auto')} className={`p-[20px] rounded-[8px] border transition-strict duration-150 cursor-pointer flex flex-col gap-[8px] ${data.keywordsType === 'auto' ? 'bg-[#1C1C1C] border-[#00C9A7]' : 'bg-[#1C1C1C] border-[#2A2A2A] hover:border-[#383838]'}`}>
+                          <div className={`text-[13px] font-medium ${data.keywordsType === 'auto' ? 'text-[#FFFFFF]' : 'text-[#A0A0A0]'}`}>Automatique (Discovery)</div>
+                          <div className="text-[11px] text-[#606060] leading-[1.5]">Analyse exploratoire basée sur la sémantique détectée sur vos marchés.</div>
+                        </div>
+                        <div onClick={() => update('keywordsType', 'manual')} className={`p-[20px] rounded-[8px] border transition-strict duration-150 cursor-pointer flex flex-col gap-[8px] ${data.keywordsType === 'manual' ? 'bg-[#1C1C1C] border-[#00C9A7]' : 'bg-[#1C1C1C] border-[#2A2A2A] hover:border-[#383838]'}`}>
+                          <div className={`text-[13px] font-medium ${data.keywordsType === 'manual' ? 'text-[#FFFFFF]' : 'text-[#A0A0A0]'}`}>Manuel (Liste stricte)</div>
+                          <div className="text-[11px] text-[#606060] leading-[1.5]">Surveillance restreinte à une liste de sujets/attributs que vous fournirez.</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-[12px] mt-[16px]">
+                      <button type="button" onClick={() => update('savePrefs', !data.savePrefs)} className={`w-[20px] h-[20px] rounded-[4px] border flex items-center justify-center transition-strict duration-150 ${data.savePrefs ? 'bg-[#00C9A7] border-[#00C9A7]' : 'bg-[#1C1C1C] border-[#2A2A2A]'}`}>
+                        {data.savePrefs && <Check className="w-[12px] h-[12px] text-[#000000]" strokeWidth={3} />}
+                      </button>
+                      <span className="text-[13px] text-[#A0A0A0]">Sauvegarder ces personas et mots-clés pour ce client.</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* ETAPE 6 : RÉSUMÉ */}
+                {step === 6 && (
+                  <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex flex-col gap-[32px]">
+                    <h1 className="text-[32px] sm:text-[38px] font-black text-[#FFFFFF] uppercase tracking-[0.01em] mb-[16px] leading-[1.1] text-center">RÉSUMÉ DE L'ANALYSE</h1>
+                    
+                    <div className="flex flex-col gap-[16px]">
+                      {/* Recap 1: Entité */}
+                      <Container className="p-[0] overflow-hidden">
+                        <div className="px-[20px] py-[16px] bg-[#111111] border-b border-[#1E1E1E] flex justify-between items-center">
+                          <h3 className="text-[11px] font-bold uppercase tracking-[0.10em] text-[#A0A0A0]">1. Entité Analysée</h3>
+                          <button type="button" onClick={() => setStep(1)} className="text-[11px] font-medium text-[#606060] hover:text-[#FFFFFF] flex items-center gap-[4px]"><Edit2 className="w-[12px] h-[12px]"/> ÉDITER</button>
+                        </div>
+                        <div className="p-[20px] grid grid-cols-2 gap-[16px] bg-[#141414]">
+                          <div><div className="text-[11px] text-[#606060] mb-[4px]">Type & Nom</div><div className="text-[13px] text-[#FFFFFF] font-medium capitalize">{data.type} : {data.name}</div></div>
+                          {data.associatedBrand && <div><div className="text-[11px] text-[#606060] mb-[4px]">Marque associée</div><div className="text-[13px] text-[#FFFFFF] font-medium">{data.associatedBrand}</div></div>}
+                          {data.url && <div><div className="text-[11px] text-[#606060] mb-[4px]">URL</div><div className="text-[13px] text-[#FFFFFF] font-medium">https://{data.url}</div></div>}
+                          <div><div className="text-[11px] text-[#606060] mb-[4px]">Cible & Industrie</div><div className="text-[13px] text-[#FFFFFF] font-medium uppercase">{data.target} • {data.industry}</div></div>
+                        </div>
+                      </Container>
+
+                      {/* Recap 2: Config */}
+                      <Container className="p-[0] overflow-hidden">
+                        <div className="px-[20px] py-[16px] bg-[#111111] border-b border-[#1E1E1E] flex justify-between items-center">
+                          <h3 className="text-[11px] font-bold uppercase tracking-[0.10em] text-[#A0A0A0]">2. Configuration</h3>
+                          <button type="button" onClick={() => setStep(2)} className="text-[11px] font-medium text-[#606060] hover:text-[#FFFFFF] flex items-center gap-[4px]"><Edit2 className="w-[12px] h-[12px]"/> ÉDITER</button>
+                        </div>
+                        <div className="p-[20px] grid grid-cols-2 gap-[16px] bg-[#141414]">
+                          <div className="col-span-2"><div className="text-[11px] text-[#606060] mb-[4px]">Nom du rapport</div><div className="text-[13px] text-[#FFFFFF] font-medium">{data.reportName}</div></div>
+                          {data.objectives && <div className="col-span-2"><div className="text-[11px] text-[#606060] mb-[4px]">Objectifs</div><div className="text-[13px] text-[#A0A0A0] leading-[1.5]">{data.objectives}</div></div>}
+                          <div><div className="text-[11px] text-[#606060] mb-[4px]">Temporalité</div><div className="text-[13px] text-[#FFFFFF] font-medium capitalize">{data.schedule}</div></div>
+                          <div><div className="text-[11px] text-[#606060] mb-[4px]">Format</div><div className="text-[13px] text-[#FFFFFF] font-medium capitalize">{data.template}</div></div>
+                        </div>
+                      </Container>
+
+                      {/* Recap 3: Périmètre */}
+                      <Container className="p-[0] overflow-hidden">
+                        <div className="px-[20px] py-[16px] bg-[#111111] border-b border-[#1E1E1E] flex justify-between items-center">
+                          <h3 className="text-[11px] font-bold uppercase tracking-[0.10em] text-[#A0A0A0]">3. Périmètre d'analyse</h3>
+                          <button type="button" onClick={() => setStep(3)} className="text-[11px] font-medium text-[#606060] hover:text-[#FFFFFF] flex items-center gap-[4px]"><Edit2 className="w-[12px] h-[12px]"/> ÉDITER</button>
+                        </div>
+                        <div className="p-[20px] grid grid-cols-2 gap-[16px] bg-[#141414]">
+                          <div><div className="text-[11px] text-[#606060] mb-[4px]">Zones Géo</div><div className="text-[13px] text-[#FFFFFF] font-medium">{data.locations || 'Global'} {data.neighborhoods ? `(${data.neighborhoods})` : ''}</div></div>
+                          <div><div className="text-[11px] text-[#606060] mb-[4px]">Langues</div><div className="text-[13px] text-[#FFFFFF] font-medium capitalize">{data.languages || 'Non spécifié'}</div></div>
+                          {data.competitorUrls.filter(u => u.trim()).length > 0 && <div className="col-span-2"><div className="text-[11px] text-[#606060] mb-[4px]">Concurrents ajoutés</div><div className="text-[13px] text-[#FFFFFF] font-medium">{data.competitorUrls.filter(u => u.trim()).join(', ')}</div></div>}
+                          {data.seoQueries.trim() && <div className="col-span-2"><div className="text-[11px] text-[#606060] mb-[4px]">Requêtes SEO</div><div className="text-[13px] text-[#FFFFFF] font-medium">{data.seoQueries.split('\n').filter(q => q.trim()).length} requêtes à tracker</div></div>}
+                        </div>
+                      </Container>
+
+                      {/* Recap 4 & 5: Ciblage */}
+                      <Container className="p-[0] overflow-hidden mb-[24px]">
+                        <div className="px-[20px] py-[16px] bg-[#111111] border-b border-[#1E1E1E] flex justify-between items-center">
+                          <h3 className="text-[11px] font-bold uppercase tracking-[0.10em] text-[#A0A0A0]">4. & 5. Ciblage Sémantique</h3>
+                          <button type="button" onClick={() => setStep(4)} className="text-[11px] font-medium text-[#606060] hover:text-[#FFFFFF] flex items-center gap-[4px]"><Edit2 className="w-[12px] h-[12px]"/> ÉDITER</button>
+                        </div>
+                        <div className="p-[20px] grid grid-cols-2 gap-[16px] bg-[#141414]">
+                          <div><div className="text-[11px] text-[#606060] mb-[4px]">Personas</div><div className="text-[13px] text-[#FFFFFF] font-medium capitalize">{data.personasType}</div></div>
+                          <div><div className="text-[11px] text-[#606060] mb-[4px]">Mots-clés / Sujets</div><div className="text-[13px] text-[#FFFFFF] font-medium capitalize">{data.keywordsType}</div></div>
+                          {data.savePrefs && <div className="col-span-2 text-[11px] text-[#00C9A7] font-medium flex items-center gap-[4px] mt-[8px]"><Check className="w-[12px] h-[12px]"/> Préférences sauvegardées pour le client</div>}
+                        </div>
+                      </Container>
+                    </div>
+                  </div>
+                )}
+
+              </div>
+
+              {/* FOOTER NAVIGATION */}
+              <div className="fixed bottom-0 left-0 right-0 h-[80px] bg-[#0D0D0D] border-t border-[#1E1E1E] flex items-center justify-between px-[40px] z-10">
+                <div>
+                  {step > 1 && (
+                    <button type="button" onClick={() => setStep(step - 1)} className="px-[24px] py-[12px] rounded-[4px] bg-transparent border border-[#2A2A2A] text-[#A0A0A0] hover:text-[#FFFFFF] hover:bg-[#141414] text-[13px] font-medium transition-strict duration-200">
+                      Précédent
+                    </button>
+                  )}
+                </div>
+                <div>
+                  {step < 6 ? (
+                    <button 
+                      type="button"
+                      onClick={() => setStep(step + 1)}
+                      disabled={(step === 1 && !isStep1Valid) || (step === 2 && !isStep2Valid) || (step === 3 && !isStep3Valid) || (step === 4 && !isStep4Valid) || (step === 5 && !isStep5Valid)}
+                      className={`px-[32px] py-[12px] rounded-[4px] text-[13px] font-medium transition-strict duration-200 
+                      ${((step === 1 && isStep1Valid) || (step === 2 && isStep2Valid) || (step === 3 && isStep3Valid) || (step === 4 && isStep4Valid) || (step === 5 && isStep5Valid))
+                        ? 'bg-[#1C1C1C] border border-[#2A2A2A] text-[#FFFFFF] hover:bg-[#202020] hover:border-[#00C9A7] cursor-pointer' 
+                        : 'bg-[#141414] border border-[#1E1E1E] text-[#4A4A4A] cursor-not-allowed'}`}
+                    >
+                      Suivant
+                    </button>
+                  ) : (
+                    <button type="button" onClick={() => { alert('Analyse lancée avec succès !'); onClose(); }} className="px-[32px] py-[12px] rounded-[4px] bg-[#00C9A7] text-[#000000] font-bold text-[13px] hover:bg-[#00e6bf] transition-strict duration-200 shadow-[0_0_15px_rgba(0,201,167,0.3)]">
+                      Lancer l'analyse
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        };
+
         // Main App
         function App() {
           const [currentView, setCurrentView] = useState('dashboard'); 
@@ -171,6 +563,7 @@
           const [settingsOpen, setSettingsOpen] = useState(false);
           const [reportTemporality, setReportTemporality] = useState('monthly');
           const [isClientSettingsModalOpen, setIsClientSettingsModalOpen] = useState(false);
+          const [isCreatingReport, setIsCreatingReport] = useState(false);
           const [copied, setCopied] = useState(false);
           const [publishedReports, setPublishedReports] = useState(['g1', 'g2', 'm1', 't1']); 
 
@@ -310,7 +703,12 @@
           return (
             <div className="flex h-screen w-full bg-[#0A0A0A] font-sans text-[#FFFFFF] overflow-hidden">
               
-              {/* MODALS */}
+              {/* OVERLAY NOUVEAU RAPPORT */}
+              {isCreatingReport && (
+                <CreateReportFlow onClose={() => setIsCreatingReport(false)} />
+              )}
+
+              {/* MODALS SETTINGS */}
               {isClientSettingsModalOpen && selectedClient !== 'all' && (
                 <div className="fixed inset-0 bg-[#0A0A0A]/80 z-[100] flex items-center justify-center p-[24px]">
                   <div className="bg-[#141414] border border-[#1E1E1E] rounded-[10px] w-full max-w-lg flex flex-col">
@@ -324,7 +722,7 @@
                       <div>
                         <label className="text-[11px] font-bold uppercase tracking-[0.10em] text-[#606060] mb-[8px] block">Lien unique du portail</label>
                         <div className="flex items-center gap-[8px]">
-                          <input id="client-link-input" value={`https://agence-seo.com/portail/${selectedClient.toLowerCase().replace(/\s+/g, '-')}`} readOnly className="flex-1 bg-[#1C1C1C] border border-[#2A2A2A] rounded-[4px] px-[12px] py-[8px] text-[13px] text-[#FFFFFF]" />
+                          <input id="client-link-input" value={`https://agence-seo.com/portail/${selectedClient.toLowerCase().replace(/\s+/g, '-')}`} readOnly className="flex-1 bg-[#1C1C1C] border border-[#2A2A2A] rounded-[4px] px-[12px] py-[8px] text-[13px] text-[#FFFFFF] outline-none focus:border-[#00C9A7]" />
                           <StandardButton onClick={handleCopyLink}>{copied ? 'Copié' : 'Copier'}</StandardButton>
                         </div>
                         <p className="text-[11px] text-[#606060] mt-[8px] leading-[1.5]">Ce lien donne accès uniquement aux rapports que vous avez activés ci-dessous.</p>
@@ -338,7 +736,7 @@
                                 <div className="text-[13px] font-medium text-[#FFFFFF]">{r.title}</div>
                                 <div className="text-[11px] text-[#606060] mt-[4px]">{r.product}</div>
                               </div>
-                              <button onClick={() => toggleReportPublished(r.id)} className="text-[#A0A0A0] hover:text-[#FFFFFF] text-[11px] border border-[#2A2A2A] rounded-[4px] px-[8px] py-[4px]">
+                              <button onClick={() => toggleReportPublished(r.id)} className={`text-[11px] border border-[#2A2A2A] rounded-[4px] px-[8px] py-[4px] transition-strict duration-150 ${publishedReports.includes(r.id) ? 'bg-[#1C1C1C] text-[#00C9A7] border-[#00C9A7]' : 'text-[#A0A0A0] hover:text-[#FFFFFF]'}`}>
                                 {publishedReports.includes(r.id) ? "ON" : "OFF"}
                               </button>
                             </div>
@@ -398,7 +796,9 @@
                           </div>
                           <div className="flex items-center gap-[16px]">
                             <span className="text-[11px] text-[#606060]">Mis à jour à l'instant</span>
-                            <StandardButton className="text-[#FFFFFF]"><Play className="w-[14px] h-[14px]"/> Nouveau Rapport</StandardButton>
+                            <StandardButton onClick={() => setIsCreatingReport(true)} className="text-[#FFFFFF]">
+                              <Play className="w-[14px] h-[14px]"/> Nouveau Rapport
+                            </StandardButton>
                           </div>
                         </Container>
 
@@ -513,11 +913,11 @@
                       <div className="px-[24px]">
                         <Container className="mb-[32px] flex justify-between items-center">
                           <div className="flex gap-[12px]">
-                            <select className="bg-[#1C1C1C] border border-[#2A2A2A] text-[#A0A0A0] text-[13px] px-[16px] py-[8px] rounded-[4px]" value={selectedClient} onChange={(e) => { setSelectedClient(e.target.value); setSelectedProduct('all'); }}>
+                            <select className="bg-[#1C1C1C] border border-[#2A2A2A] text-[#A0A0A0] text-[13px] px-[16px] py-[8px] rounded-[4px] focus:border-[#00C9A7] outline-none" value={selectedClient} onChange={(e) => { setSelectedClient(e.target.value); setSelectedProduct('all'); }}>
                               <option value="all">Tous les clients</option>
                               {Object.keys(mockDB).map(c => <option key={c} value={c}>{c}</option>)}
                             </select>
-                            <select className={`bg-[#1C1C1C] border border-[#2A2A2A] text-[#A0A0A0] text-[13px] px-[16px] py-[8px] rounded-[4px] ${selectedClient === 'all' ? 'opacity-50' : ''}`} value={selectedProduct} onChange={(e) => setSelectedProduct(e.target.value)}>
+                            <select className={`bg-[#1C1C1C] border border-[#2A2A2A] text-[#A0A0A0] text-[13px] px-[16px] py-[8px] rounded-[4px] focus:border-[#00C9A7] outline-none transition-opacity duration-200 ${selectedClient === 'all' ? 'opacity-50 cursor-not-allowed' : ''}`} value={selectedProduct} onChange={(e) => setSelectedProduct(e.target.value)}>
                               <option value="all">Tous les produits</option>
                               {selectedClient !== 'all' && mockDB[selectedClient].products.map(p => <option key={p} value={p}>{p}</option>)}
                             </select>
@@ -550,7 +950,7 @@
                                       <td className="py-[16px] px-[20px] text-[13px] text-[#FFFFFF]">{report.title}</td>
                                       <td className="py-[16px] px-[20px]"><span className="border border-[#2A2A2A] rounded-[4px] px-[8px] py-[4px] text-[11px] text-[#A0A0A0]">{report.product}</span></td>
                                       <td className="py-[16px] px-[20px]"><span className="border border-[#2A2A2A] rounded-[4px] px-[8px] py-[4px] text-[11px] text-[#A0A0A0]">{report.status}</span></td>
-                                      <td className="py-[16px] px-[20px] text-right"><span className="text-[13px] text-[#808080] hover:text-[#FFFFFF]">Ouvrir</span></td>
+                                      <td className="py-[16px] px-[20px] text-right"><span className="text-[13px] text-[#808080] hover:text-[#FFFFFF] transition-colors">Ouvrir</span></td>
                                     </tr>
                                   ))}
                                 </tbody>
@@ -583,7 +983,7 @@
                                 <h4 className="text-[13px] font-medium text-[#FFFFFF] mb-[16px] border-b border-[#1E1E1E] pb-[8px]">Paramètres du Rapport</h4>
                                 <div className="mb-[16px]">
                                   <label className="text-[11px] font-bold uppercase tracking-[0.10em] text-[#606060] mb-[8px] block">Temporalité</label>
-                                  <select value={reportTemporality} onChange={(e) => setReportTemporality(e.target.value)} className="w-full bg-[#1C1C1C] border border-[#2A2A2A] text-[#FFFFFF] text-[13px] px-[12px] py-[8px] rounded-[4px]">
+                                  <select value={reportTemporality} onChange={(e) => setReportTemporality(e.target.value)} className="w-full bg-[#1C1C1C] border border-[#2A2A2A] text-[#FFFFFF] text-[13px] px-[12px] py-[8px] rounded-[4px] focus:border-[#00C9A7] outline-none">
                                     <option value="monthly">Mois par mois</option>
                                     <option value="weekly">Semaine par semaine</option>
                                     <option value="daily">Jour par jour</option>
@@ -591,7 +991,9 @@
                                 </div>
                                 <div className="flex justify-between items-center border-t border-[#1E1E1E] pt-[16px]">
                                   <div><div className="text-[13px] text-[#FFFFFF]">Visibilité Client</div><div className="text-[11px] text-[#606060]">Activer sur le portail.</div></div>
-                                  <button onClick={() => toggleReportPublished(currentReportObj.id)} className="text-[#A0A0A0] hover:text-[#FFFFFF] text-[11px] border border-[#2A2A2A] rounded-[4px] px-[8px] py-[4px]">{isCurrentReportPublished ? 'ON' : 'OFF'}</button>
+                                  <button onClick={() => toggleReportPublished(currentReportObj.id)} className={`text-[11px] border border-[#2A2A2A] rounded-[4px] px-[8px] py-[4px] transition-strict duration-150 ${isCurrentReportPublished ? 'bg-[#1C1C1C] text-[#00C9A7] border-[#00C9A7]' : 'text-[#A0A0A0] hover:text-[#FFFFFF]'}`}>
+                                    {isCurrentReportPublished ? 'ON' : 'OFF'}
+                                  </button>
                                 </div>
                               </div>
                             )}
@@ -610,7 +1012,7 @@
                         ) : (
                           <div>
                             {clientCards.length === 0 ? (
-                              <Container className="flex flex-col items-center justify-center h-[300px] border-dashed">
+                              <Container className="flex flex-col items-center justify-center h-[300px]">
                                 <Eye className="w-[32px] h-[32px] text-[#4A4A4A] mb-[16px]" />
                                 <h3 className="text-[13px] text-[#FFFFFF] mb-[8px]">La vue client est vide</h3>
                                 <p className="text-[11px] text-[#606060] mb-[24px]">Ajoutez des modules depuis le Rapport Global.</p>
@@ -638,7 +1040,7 @@
                         
                         <Container className="mb-[32px] flex justify-between items-center">
                           <div className="flex gap-[12px]">
-                            <select className="bg-[#1C1C1C] border border-[#2A2A2A] text-[#A0A0A0] text-[13px] px-[16px] py-[8px] rounded-[4px]" value={inboxSelectedClient} onChange={(e) => setInboxSelectedClient(e.target.value)}>
+                            <select className="bg-[#1C1C1C] border border-[#2A2A2A] focus:border-[#00C9A7] outline-none text-[#A0A0A0] text-[13px] px-[16px] py-[8px] rounded-[4px]" value={inboxSelectedClient} onChange={(e) => setInboxSelectedClient(e.target.value)}>
                               <option value="all">Tous les clients</option>
                               {Object.keys(mockDB).map(c => <option key={c} value={c}>{c}</option>)}
                             </select>
