@@ -1,1 +1,1123 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Layers — GEO Platform pour Agences</title>
+  <meta name="description" content="Layers est la plateforme GEO conçue pour les agences marketing et SEO. Trackez et optimisez la présence de vos clients dans ChatGPT, Perplexity et Gemini." />
+  
+  <link rel="icon" type="image/png" href="./icone-layers.png" />
+  <link rel="apple-touch-icon" href="./icone-layers.png" />
+  
+  <!-- ===== PERFORMANCES & PRELOADS ===== -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://app.cal.eu" crossorigin />
+  
+  <!-- Préchargement de l'image LCP (Hero) pour un affichage instantané -->
+  <link rel="preload" as="image" href="./hero.webp" type="image/webp" />
 
+  <!-- Chargement asynchrone et non-bloquant de Google Fonts -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+  <noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  </noscript>
+
+  <style>
+    /* ===== CSS VARIABLES ===== */
+    :root {
+      --bg:      #0E1010;
+      --surface: #161818;
+      --card:    #1c1e1e;
+      --border:  #2e3030;
+      --border2: #4E5052;
+      --muted:   #909091;
+      --subtle:  #B7B7B7;
+      --white:   #FFFFFF;
+      --font:    'Manrope', 'Inter', sans-serif;
+      --ease:    cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+    }
+    
+    html { 
+      scroll-behavior: smooth; 
+    }
+    
+    body { 
+      background: var(--bg); 
+      color: var(--white); 
+      font-family: var(--font); 
+      -webkit-font-smoothing: antialiased; 
+      overflow-x: hidden; 
+    }
+    
+    a { 
+      color: inherit; 
+      text-decoration: none; 
+    }
+
+    /* ===== SCROLLBAR ===== */
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+    /* ===== GLOBAL EFFECTS ===== */
+    body::before {
+      content: ''; 
+      position: fixed; 
+      inset: 0; 
+      z-index: 0; 
+      pointer-events: none; 
+      opacity: .018;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 128px 128px;
+    }
+
+    .glow {
+      position: fixed; 
+      pointer-events: none; 
+      z-index: 9999;
+      width: 600px; 
+      height: 600px; 
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,.025) 0%, transparent 65%);
+      transform: translate(-50%, -50%); 
+      will-change: left, top;
+    }
+
+    .container { 
+      max-width: 1200px; 
+      margin: 0 auto; 
+      padding: 0 2.5rem; 
+      position: relative;
+    }
+
+    /* ===== TYPOGRAPHY & COMPONENTS ===== */
+    .label {
+      display: inline-flex; 
+      align-items: center; 
+      gap: .625rem;
+      font-size: .68rem; 
+      font-weight: 500; 
+      letter-spacing: .14em; 
+      text-transform: uppercase; 
+      color: var(--muted);
+    }
+    .label::before { 
+      content: ''; 
+      display: block; 
+      width: 16px; 
+      height: 1px; 
+      background: var(--border2); 
+      flex-shrink: 0; 
+    }
+
+    .badge {
+      display: inline-flex; 
+      align-items: center; 
+      gap: .5rem;
+      padding: .375rem .875rem; 
+      border: 1px solid var(--border2); 
+      border-radius: 2px;
+      font-size: .68rem; 
+      font-weight: 500; 
+      letter-spacing: .1em; 
+      text-transform: uppercase; 
+      color: var(--muted);
+    }
+    
+    .badge-dot { 
+      width: 5px; 
+      height: 5px; 
+      border-radius: 50%; 
+      background: var(--white); 
+      animation: blink 2.5s ease-in-out infinite; 
+    }
+    
+    @keyframes blink { 
+      0%, 100% { opacity: 1; } 
+      50% { opacity: .15; } 
+    }
+
+    .btn {
+      display: inline-flex; 
+      align-items: center; 
+      gap: .5rem;
+      padding: .875rem 1.75rem; 
+      font-family: var(--font); 
+      font-size: .875rem; 
+      font-weight: 500;
+      letter-spacing: -.01em; 
+      border: 1px solid transparent; 
+      border-radius: 2px; 
+      cursor: pointer;
+      transition: background .2s ease, color .2s ease, border-color .2s ease, transform .2s var(--ease);
+      white-space: nowrap;
+    }
+    .btn-primary { 
+      background: var(--white); 
+      color: var(--bg); 
+      border-color: var(--white); 
+    }
+    .btn-primary:hover { 
+      background: transparent; 
+      color: var(--white); 
+      transform: translateY(-2px); 
+    }
+    .btn-ghost { 
+      background: transparent; 
+      color: var(--subtle); 
+      border-color: var(--border2); 
+    }
+    .btn-ghost:hover { 
+      border-color: var(--subtle); 
+      color: var(--white); 
+      transform: translateY(-2px); 
+    }
+
+    /* ===== NAV ===== */
+    #nav {
+      position: fixed; 
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 200;
+      padding: 1.25rem 0; 
+      background: transparent;
+      border-bottom: 1px solid transparent;
+      transition: background 0.4s ease, padding 0.4s ease, border-color 0.4s ease;
+    }
+    
+    #nav.scrolled { 
+      padding: 0.75rem 0; 
+      background: rgba(14, 16, 16, 0.85); 
+      backdrop-filter: blur(16px); 
+      -webkit-backdrop-filter: blur(16px); 
+      border-bottom-color: rgba(255, 255, 255, 0.06); 
+    }
+    
+    .nav-inner { 
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .nav-logo { 
+      display: flex; 
+      align-items: center; 
+      z-index: 2;
+    }
+    
+    .nav-logo img { 
+      height: 48px; 
+      width: auto; 
+      display: block; 
+    }
+
+    .nav-cta .btn {
+      padding: 0.65rem 1.25rem; 
+      font-size: 0.8rem;
+    }
+
+    @media (max-width: 768px) {
+      #nav { padding: 1.25rem 0; }
+      #nav.scrolled { padding: 0.875rem 0; }
+      .nav-logo img { height: 60px; } 
+      .nav-cta .btn { padding: .875rem 1.75rem; font-size: .875rem; } 
+    }
+
+    /* ===== HERO ===== */
+    #hero {
+      position: relative; 
+      min-height: 100vh;
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
+      overflow: hidden; 
+      background: var(--bg); 
+      text-align: center;
+    }
+    
+    .hero-bg-fallback { 
+      position: absolute; 
+      inset: 0; 
+      background: radial-gradient(ellipse 80% 60% at 50% 40%, #1c1e1e 0%, #0E1010 100%); 
+    }
+    
+    .hero-bg { 
+      position: absolute; 
+      inset: 0; 
+      background-image: url('./hero.webp'); 
+      background-size: cover; 
+      background-position: center; 
+    }
+    
+    .hero-bg::after {
+      content: ''; 
+      position: absolute; 
+      inset: 0;
+      background: linear-gradient(180deg, rgba(14,16,16,.55) 0%, rgba(14,16,16,.75) 50%, rgba(14,16,16,1) 100%);
+    }
+    
+    .hero-grid {
+      position: absolute; 
+      inset: 0; 
+      z-index: 1;
+      background-image: linear-gradient(rgba(255,255,255,.022) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.022) 1px, transparent 1px);
+      background-size: 80px 80px; 
+      animation: gridDrift 28s linear infinite;
+      mask-image: radial-gradient(ellipse 90% 90% at 50% 50%, black 0%, transparent 100%);
+      -webkit-mask-image: radial-gradient(ellipse 90% 90% at 50% 50%, black 0%, transparent 100%);
+    }
+    
+    @keyframes gridDrift { 
+      0% { background-position: 0 0; } 
+      100% { background-position: 80px 80px; } 
+    }
+
+    .hero-content {
+      position: relative; 
+      z-index: 2; 
+      padding: 9rem 1rem 5rem;
+      display: flex; 
+      flex-direction: column; 
+      align-items: center;
+      max-width: 1100px; /* Élargi de 800px à 1100px pour laisser le titre s'étaler sur 3 lignes max sur ordinateur */
+      margin: 0 auto; 
+      width: 100%;
+    }
+
+    .hero-eyebrow { 
+      margin-bottom: 2.25rem; 
+      animation: fadeUp .7s var(--ease) .1s both; 
+    }
+
+    .hero-h1 {
+      font-size: clamp(2.75rem, 6.5vw, 5.25rem);
+      font-weight: 700; 
+      line-height: 1.03; 
+      letter-spacing: -.05em;
+      margin-bottom: 1.5rem;
+      animation: fadeUp .8s var(--ease) .25s both;
+    }
+
+    .hero-sub {
+      font-size: 1.0625rem; 
+      line-height: 1.7; 
+      color: var(--subtle);
+      max-width: 500px; 
+      margin-bottom: 2.75rem;
+      animation: fadeUp .7s var(--ease) .42s both;
+    }
+
+    .hero-cta-row {
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
+      gap: .875rem; 
+      flex-wrap: wrap; 
+      margin-bottom: 3.5rem;
+      animation: fadeUp .7s var(--ease) .56s both;
+    }
+
+    /* ===== TEAM CARDS ===== */
+    .team-cards {
+      display: grid; 
+      grid-template-columns: 1fr 1fr; 
+      gap: .5rem; /* Gap réduit pour gagner de la place */
+      width: 100%; 
+      max-width: 540px;
+    }
+    
+    .team-card {
+      padding: 1rem 1.125rem; /* Padding réduit */
+      border: 1px solid var(--border); 
+      border-radius: 4px;
+      background: rgba(22,24,24,.65); 
+      backdrop-filter: blur(16px); 
+      -webkit-backdrop-filter: blur(16px);
+      display: flex; 
+      flex-direction: column; 
+      gap: .875rem; /* Espace interne réajusté pour laisser respirer les éléments */
+      text-align: left;
+      transition: background .2s ease, border-color .2s ease, transform .2s var(--ease);
+    }
+    
+    .team-card:hover { 
+      background: rgba(43,44,47,.75); 
+      border-color: var(--border2); 
+      transform: translateY(-2px); 
+    }
+    
+    .team-card-top { 
+      display: flex; 
+      align-items: center; 
+      gap: .6rem; 
+    }
+    
+    .team-photo {
+      width: 36px; /* Taille de la photo réduite */
+      height: 36px; 
+      border-radius: 50%; 
+      border: 1.5px solid var(--border2);
+      background: var(--card); 
+      flex-shrink: 0; 
+      overflow: hidden;
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
+      transition: border-color .2s ease;
+    }
+    
+    .team-card:hover .team-photo { border-color: var(--subtle); }
+    
+    .team-photo img { 
+      width: 100%; 
+      height: 100%; 
+      object-fit: cover; 
+      border-radius: 50%; 
+    }
+    
+    .team-name { 
+      font-size: .8375rem; 
+      font-weight: 600; 
+      letter-spacing: -.02em; 
+      color: var(--white); 
+      line-height: 1.2; 
+    }
+    
+    .team-role { 
+      font-size: .72rem; 
+      color: var(--muted); 
+      margin-top: .15rem; 
+    }
+    
+    .team-badge {
+      display: inline-flex; 
+      padding: .25rem .5rem; 
+      border: 1px solid var(--border); 
+      border-radius: 2px;
+      font-size: .55rem; 
+      font-weight: 500; 
+      letter-spacing: .06em; 
+      text-transform: uppercase; 
+      color: var(--subtle); /* Couleur éclaircie pour un meilleur contraste */
+      width: fit-content;
+      text-align: left;
+      line-height: 1.4;
+    }
+
+    /* ===== REVEAL ANIMATIONS ===== */
+    @keyframes fadeUp { 
+      from { opacity: 0; transform: translateY(22px); } 
+      to { opacity: 1; transform: translateY(0); } 
+    }
+    
+    .reveal { 
+      opacity: 0; 
+      transform: translateY(26px); 
+      transition: opacity .8s var(--ease), transform .8s var(--ease); 
+    }
+    
+    .reveal.on { 
+      opacity: 1; 
+      transform: translateY(0); 
+    }
+    
+    .d1 { transition-delay: .07s; } 
+    .d2 { transition-delay: .15s; } 
+    .d3 { transition-delay: .23s; }
+
+    /* ===== MARQUEE ===== */
+    .marquee-wrap { 
+      border-top: 1px solid var(--border); 
+      border-bottom: 1px solid var(--border); 
+      overflow: hidden; 
+      padding: .8rem 0; 
+      background: var(--bg); 
+    }
+    
+    .marquee-track { 
+      display: flex; 
+      gap: 2.5rem; 
+      width: max-content; 
+      animation: marquee 24s linear infinite; 
+    }
+    
+    .marquee-track span { 
+      font-size: .66rem; 
+      font-weight: 500; 
+      letter-spacing: .16em; 
+      text-transform: uppercase; 
+      color: var(--border2); 
+      white-space: nowrap; 
+    }
+    
+    @keyframes marquee { 
+      0% { transform: translateX(0); } 
+      100% { transform: translateX(-50%); } 
+    }
+
+    /* ===== SECTIONS ===== */
+    section { 
+      position: relative; 
+      z-index: 1; 
+      background: var(--bg); 
+    }
+    
+    #value, #booking { 
+      padding: 8rem 0; 
+      border-top: 1px solid var(--border); 
+    }
+
+    /* Split layout */
+    .split { 
+      display: grid; 
+      gap: 5rem; 
+      align-items: start; 
+    }
+    .split-50 { grid-template-columns: 1fr 1fr; }
+    .split-booking { grid-template-columns: 4fr 2fr; }
+
+    .split-text .label { margin-bottom: 1.5rem; }
+    
+    .split-text h2 {
+      font-size: clamp(1.75rem, 2.8vw, 2.5rem); 
+      font-weight: 700;
+      letter-spacing: -.04em; 
+      line-height: 1.1; 
+      margin-bottom: 1.25rem;
+    }
+    
+    .split-text p { 
+      font-size: .9375rem; 
+      color: var(--muted); 
+      line-height: 1.75; 
+      margin-bottom: 2rem; 
+    }
+
+    .split.reverse .split-text { order: 2; }
+    .split.reverse .split-content { order: 1; }
+
+    /* ===== FEATURE CARDS ===== */
+    .cards-col { 
+      display: flex; 
+      flex-direction: column; 
+      gap: 1px; 
+      background: var(--border); 
+      border: 1px solid var(--border); 
+      border-radius: 4px; 
+      overflow: hidden; 
+    }
+    
+    .card { 
+      background: var(--bg); 
+      padding: 1.875rem 2.25rem; 
+      transition: background .2s ease, transform .2s var(--ease); 
+      display: grid; 
+      grid-template-columns: 44px 1fr; 
+      gap: 1.25rem; 
+      align-items: start; 
+    }
+    
+    .card:hover { 
+      background: var(--card); 
+      transform: translateY(-2px); 
+    }
+    
+    .card-num { 
+      font-size: .65rem; 
+      font-weight: 600; 
+      letter-spacing: .12em; 
+      text-transform: uppercase; 
+      color: var(--border2); 
+      padding-top: .2rem; 
+    }
+    
+    .card-title { 
+      font-size: .9375rem; 
+      font-weight: 600; 
+      letter-spacing: -.025em; 
+      margin-bottom: .5rem; 
+      color: var(--white); 
+    }
+    
+    .card-desc { 
+      font-size: .875rem; 
+      line-height: 1.7; 
+      color: var(--muted); 
+    }
+
+    /* Mini tags */
+    .mini-tags { 
+      display: flex; 
+      flex-wrap: wrap; 
+      gap: .5rem; 
+      margin-top: .875rem; 
+    }
+    
+    .mini-tag {
+      display: inline-flex; 
+      align-items: center; 
+      gap: .35rem;
+      padding: .3rem .7rem; 
+      border: 1px solid var(--border); 
+      border-radius: 2px;
+      font-size: .65rem; 
+      font-weight: 500; 
+      letter-spacing: .06em; 
+      text-transform: uppercase; 
+      color: var(--muted);
+      transition: border-color .2s ease, color .2s ease;
+    }
+    
+    .mini-tag:hover { 
+      border-color: var(--border2); 
+      color: var(--subtle); 
+    }
+
+    /* ===== PERKS & PILL TAGS ===== */
+    .perks { 
+      list-style: none; 
+      display: flex; 
+      flex-direction: column; 
+      gap: .75rem; 
+      margin-bottom: 2.5rem; 
+    }
+    
+    .perks li { 
+      display: flex; 
+      align-items: center; 
+      gap: .75rem; 
+      font-size: .875rem; 
+      color: var(--subtle); 
+    }
+    
+    .perks li::before { 
+      content: ''; 
+      display: block; 
+      width: 3px; 
+      height: 3px; 
+      background: var(--white); 
+      border-radius: 50%; 
+      flex-shrink: 0; 
+    }
+
+    .pill-tags { 
+      display: flex; 
+      flex-wrap: wrap; 
+      gap: .5rem; 
+      margin-top: .875rem; 
+    }
+    
+    .pill-tag {
+      display: inline-flex; 
+      align-items: center;
+      padding: .3rem .75rem; 
+      border: 1px solid var(--border); 
+      border-radius: 2px;
+      font-size: .65rem; 
+      font-weight: 500; 
+      letter-spacing: .06em; 
+      text-transform: uppercase; 
+      color: var(--muted);
+      transition: border-color .2s ease, color .2s ease;
+    }
+    
+    .pill-tag:hover { 
+      border-color: var(--border2); 
+      color: var(--subtle); 
+    }
+
+    /* ===== REASSURANCE TAGS (Booking) ===== */
+    .reassurance-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-bottom: 2.5rem;
+    }
+    
+    .reassurance-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.5rem 0.85rem;
+      background: rgba(22, 24, 24, 0.45);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--white);
+    }
+
+    /* ===== CALENDAR ===== */
+    .calendar-frame { 
+      border: 1px solid var(--border); 
+      border-radius: 4px; 
+      overflow: hidden; 
+      background: #111111; 
+      height: 680px; 
+      position: relative;
+    }
+
+    .cal-scale-wrap {
+      width: 118%; 
+      height: 125%; 
+      transform: scale(0.85); 
+      transform-origin: top left;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    /* Overlay pour cacher le logo Cal.eu */
+    .cal-watermark-hider {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 65px; 
+      background: #111111; 
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    /* ===== FOOTER ===== */
+    footer { 
+      background: var(--bg); 
+      border-top: 1px solid var(--border); 
+      padding: 1.75rem 0; 
+      position: relative; 
+      z-index: 1; 
+    }
+    
+    .footer-inner { 
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between; 
+    }
+    
+    .footer-logo { 
+      display: flex; 
+      align-items: center; 
+    }
+    
+    .footer-logo img { 
+      height: 24px; 
+      width: auto; 
+      display: block;
+      opacity: .5; 
+      transition: opacity .2s ease; 
+    }
+    
+    .footer-logo img:hover { 
+      opacity: 1; 
+    }
+    
+    .footer-copy { 
+      font-size: .8rem; 
+      color: var(--muted); 
+    }
+    
+    .footer-mail { 
+      font-size: .8rem; 
+      color: var(--muted); 
+      transition: color .2s ease; 
+    }
+    
+    .footer-mail:hover { 
+      color: var(--white); 
+    }
+
+    /* Alignement bureau uniquement pour la grille */
+    @media (min-width: 1025px) {
+      .align-with-h2 {
+        margin-top: 3.5rem; /* Pousse la grille pour l'aligner avec le H2 */
+      }
+      /* Configuration Grid pour maintenir l'équipe à gauche sous le texte, avec un gap vertical réduit */
+      .split-50 {
+        grid-template-areas: 
+          "text cards"
+          "team cards";
+        row-gap: 1.5rem; /* Réduit drastiquement l'espace vide entre le texte et l'équipe sur Desktop */
+        column-gap: 5rem;
+      }
+      .split-50 .split-text { grid-area: text; }
+      .split-50 .split-content { grid-area: cards; }
+      .split-50 .team-section { grid-area: team; }
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 1024px) {
+      .split-50,
+      .split-booking,
+      .split.reverse { grid-template-columns: 1fr; gap: 3rem; }
+      .split.reverse .split-text { order: 1; }
+      .split.reverse .split-content { order: 2; }
+    }
+    
+    @media (max-width: 768px) {
+      .container { padding: 0 1.5rem; }
+      #value, #booking { padding: 4rem 0; } 
+      .hero-content { padding: 7.5rem 0 2rem; } 
+      /* H1 poussé au maximum de sa taille relative */
+      .hero-h1 { font-size: clamp(3rem, 12vw, 4rem); letter-spacing: -.04em; }
+      .hero-sub { font-size: 1rem; }
+      .hero-cta-row { flex-direction: column; align-items: center; width: 100%; margin-bottom: 1.5rem; } 
+      .hero-cta-row .btn { width: 100%; justify-content: center; }
+      .team-cards { grid-template-columns: 1fr; max-width: 360px; }
+      .card { grid-template-columns: 1fr; gap: .625rem; padding: 1.5rem 1.5rem; }
+      .split-text h2 { font-size: clamp(1.6rem, 6vw, 2rem); }
+      .footer-inner { flex-direction: column; gap: 1.5rem; text-align: center; } 
+      .footer-logo img { height: 96px; } 
+      .marquee-wrap { padding: .65rem 0; }
+      
+      .calendar-frame { height: 900px; } 
+      .cal-scale-wrap { 
+        width: 100%; 
+        height: 100%; 
+        transform: none; 
+        position: relative; 
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .container { padding: 0 1.125rem; }
+      /* H1 massif pour mobile, ajusté pour que le mot "Customers" ne saute pas à la ligne cassée */
+      .hero-h1 { font-size: 3.2rem; line-height: 1.05; }
+      .mini-tags, .pill-tags { gap: .35rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="glow" id="glow"></div>
+
+<!-- NAV -->
+<header id="nav">
+  <div class="container">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo" aria-label="Layers">
+        <!-- Fetchpriority high sur le logo pour le chargement initial -->
+        <img src="./logo-layers.png" alt="Layers" fetchpriority="high" />
+      </a>
+
+      <div class="nav-cta">
+        <a href="#booking" class="btn btn-primary">
+          Parler à un expert
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+            <path d="M1 6h10M7 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- ===== HERO ===== -->
+  <section id="hero">
+    <div class="hero-bg-fallback"></div>
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+
+    <div class="container" style="width:100%;">
+      <div class="hero-content">
+
+        <div class="hero-eyebrow">
+          <div class="badge">
+            <span class="badge-dot"></span>
+            Outil GEO conçu pour les agences
+          </div>
+        </div>
+
+        <h1 class="hero-h1">
+          Lancez votre offre GEO<br>
+          en quelques minutes.<br>
+          <span style="font-size: 0.85em; color: var(--subtle);">Sans recruter. Sans improviser.</span>
+        </h1>
+
+        <p class="hero-sub">
+          Layers est un outil GEO qui vous permet de mesurer et améliorer la présence de vos clients sur les IA, sans expertise.
+        </p>
+
+        <div class="hero-cta-row">
+          <a href="#booking" class="btn btn-primary">
+            Je veux développer une offre GEO
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+              <path d="M1 6h10M7 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-wrap">
+    <div class="marquee-track" aria-hidden="true">
+      <span>GEO — Generative Engine Optimization</span>
+      <span>·</span><span>ChatGPT</span>
+      <span>·</span><span>Perplexity</span>
+      <span>·</span><span>Gemini</span>
+      <span>·</span><span>Tracking de précision</span>
+      <span>·</span><span>Conçu pour les agences</span>
+      <span>·</span><span>Accompagnement partenaire</span>
+      <span>·</span>
+      <span>GEO — Generative Engine Optimization</span>
+      <span>·</span><span>ChatGPT</span>
+      <span>·</span><span>Perplexity</span>
+      <span>·</span><span>Gemini</span>
+      <span>·</span><span>Tracking de précision</span>
+      <span>·</span><span>Conçu pour les agences</span>
+      <span>·</span><span>Accompagnement partenaire</span>
+      <span>·</span>
+    </div>
+  </div>
+
+  <!-- ===== VALUE — texte gauche, cards droite ===== -->
+  <section id="value">
+    <div class="container">
+      <div class="split split-50 reveal">
+
+        <!-- 1. Le Texte et le CTA -->
+        <div class="split-text">
+          <span class="label">Pourquoi Layers</span>
+          <h2 style="margin-top:1.25rem;">
+            L’outil qui transforme<br>
+            le GEO en offre concrète<br>
+            pour votre agence.
+          </h2>
+          <p>
+            Vos clients vous demandent où ils apparaissent sur ChatGPT ou Gemini et vous ne pouvez pas leur répondre ? C’est une offre supplémentaire que vous laissez échapper sur la table.
+          </p>
+          <a href="#booking" class="btn btn-ghost">
+            Je veux développer une offre GEO
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+              <path d="M1 6h10M7 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+        </div>
+
+        <!-- 2. Les 3 arguments (S'affichent en 2ème sur mobile, mais à droite sur Desktop) -->
+        <div class="split-content align-with-h2">
+          <div class="cards-col">
+
+            <div class="card reveal d1">
+              <div class="card-num">01</div>
+              <div>
+                <div class="card-title">Conçu pour les agences</div>
+                <div class="card-desc">
+                  Dashboard multi-clients, marque blanche, alertes automatiques.
+                  Intégration native Looker Studio, dashboards personnalisés
+                  en ligne pour chacun de vos clients.
+                </div>
+                <div class="mini-tags">
+                  <span class="mini-tag">Looker Studio</span>
+                  <span class="mini-tag">Marque blanche</span>
+                  <span class="mini-tag">Multi-clients</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="card reveal d2">
+              <div class="card-num">02</div>
+              <div>
+                <div class="card-title">Tracking ultra-granulaire</div>
+                <div class="card-desc">
+                  Voyez exactement ce que les IA génèrent sur vos clients :
+                  marques, concurrents, marchés. D'une marque nationale à une boutique locale.
+                </div>
+                <div class="mini-tags">
+                  <span class="mini-tag">Localisation</span>
+                  <span class="mini-tag">Personas</span>
+                  <span class="mini-tag">Services</span>
+                  <span class="mini-tag">Produits</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="card reveal d3">
+              <div class="card-num">03</div>
+              <div>
+                <div class="card-title">Accompagnement mensuel</div>
+                <div class="card-desc">
+                  On travaille directement avec vous chaque mois pour structurer votre offre GEO, maîtriser l’outil et accompagner vos clients.
+                </div>
+                <div class="pill-tags">
+                  <span class="pill-tag">Sales assets</span>
+                  <span class="pill-tag">Meetings</span>
+                  <span class="pill-tag">Formations</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- 3. L'équipe (S'affiche en dernier sur mobile, et sous le texte sur Desktop) -->
+        <div class="team-section reveal d1" style="padding-top: 2rem; border-top: 1px solid var(--border);">
+          <span class="label" style="margin-bottom: 1.5rem;">Rencontrez l'équipe</span>
+          <div class="team-cards" style="margin: 0; max-width: 100%;">
+            <div class="team-card">
+              <div class="team-card-top">
+                <div class="team-photo">
+                  <img src="./clement.webp" alt="Clément" loading="lazy" decoding="async" />
+                </div>
+                <div>
+                  <div class="team-name">Clément</div>
+                  <div class="team-role">Co-fondateur</div>
+                </div>
+              </div>
+              <div class="team-badge">Ex Sales Specialist AI @Google</div>
+              <p style="font-size: 0.75rem; color: var(--subtle); margin: 0; line-height: 1.4; font-style: italic;">J'ai accompagné +80 startups françaises dans leur transition à l'IA.</p>
+            </div>
+
+            <div class="team-card">
+              <div class="team-card-top">
+                <div class="team-photo">
+                  <img src="./yacine.webp" alt="Yacine" loading="lazy" decoding="async" />
+                </div>
+                <div>
+                  <div class="team-name">Yacine</div>
+                  <div class="team-role">Co-fondateur</div>
+                </div>
+              </div>
+              <div class="team-badge">Ex ML Engineer AI @Google</div>
+              <p style="font-size: 0.75rem; color: var(--subtle); margin: 0; line-height: 1.4; font-style: italic;">J'ai contribué à la construction de Gemini au sein des équipes de machine learning françaises.</p>
+            </div>
+          </div>
+          <p style="font-size:.875rem; color:var(--muted); margin-top:1.5rem; margin-bottom:0; line-height:1.6; border-left: 2px solid var(--white); padding-left: 1rem;">
+            "On accompagne les agences à transformer le GEO en levier de revenu réel, avec un outil de précision et un accompagnement mensuel pour que ce virage inévitable se prenne sereinement."
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== BOOKING — calendrier gauche (60%), texte droite (40%) ===== -->
+  <section id="booking">
+    <div class="container">
+      <div class="split split-booking reverse reveal">
+
+        <!-- Calendrier à gauche (order 1 via .reverse) -->
+        <div class="split-content">
+          <div class="calendar-frame">
+            <div class="cal-scale-wrap">
+              <!-- Cal inline embed code begins -->
+              <!-- Note : Le overflow est "auto" pour conserver le scroll de secours sur petits écrans -->
+              <div style="width:100%;height:100%;overflow:auto" id="my-cal-inline-develop-your-geo-offer-with-layers"></div>
+              <script type="text/javascript">
+                (function (C, A, L) { let p = function (a, ar) { a.q.push(ar); }; let d = C.document; C.Cal = C.Cal || function () { let cal = C.Cal; let ar = arguments; if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; d.head.appendChild(d.createElement("script")).src = A; cal.loaded = true; } if (ar[0] === L) { const api = function () { p(api, arguments); }; const namespace = ar[1]; api.q = api.q || []; if(typeof namespace === "string"){cal.ns[namespace] = cal.ns[namespace] || api;p(cal.ns[namespace], ar);p(cal, ["initNamespace", namespace]);} else p(cal, ar); return;} p(cal, ar); }; })(window, "https://app.cal.com/embed/embed.js", "init");
+                Cal("init", "develop-your-geo-offer-with-layers", {origin:"https://app.cal.com"});
+
+                Cal.ns["develop-your-geo-offer-with-layers"]("inline", {
+                  elementOrSelector:"#my-cal-inline-develop-your-geo-offer-with-layers",
+                  config: {"layout":"month_view","useSlotsViewOnSmallScreen":"true","theme":"dark"},
+                  calLink: "layers/develop-your-geo-offer-with-layers",
+                });
+
+                Cal.ns["develop-your-geo-offer-with-layers"]("ui", {"theme":"dark","cssVarsPerTheme":{"light":{"cal-brand":"#101212"}},"hideEventTypeDetails":false,"layout":"month_view"});
+              </script>
+              <!-- Cal inline embed code ends -->
+            </div>
+            <!-- Masque par-dessus le filigrane Cal.com -->
+            <div class="cal-watermark-hider"></div>
+          </div>
+        </div>
+
+        <!-- Texte à droite -->
+        <div class="split-text">
+          <span class="label">Prendre rendez-vous</span>
+          <h2 style="margin-top:1.25rem;">
+            Passons au concret,<br>
+            discutons-en !
+          </h2>
+          <p>
+            Pas une démo générique, pas de PPT. En 30 minutes : on part de votre situation, vos clients, vos offres, vos questions sur le GEO et on vous montre exactement ce que Layers peut faire pour vous.
+          </p>
+          <div class="reassurance-tags">
+            <span class="reassurance-tag">Sans engagement</span>
+            <span class="reassurance-tag">30mn chrono</span>
+            <span class="reassurance-tag">Repartez avec des insights actionnables</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <a href="#" class="footer-logo" aria-label="Layers">
+        <!-- Lazy loading du logo footer -->
+        <img src="./logo-layers.png" alt="Layers" loading="lazy" decoding="async" />
+      </a>
+      <p class="footer-copy">© 2025 Layers — Tous droits réservés</p>
+      <a href="mailto:contact@trylayers.ai" class="footer-mail">contact@trylayers.ai</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  /* Navbar scroll */
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 60), { passive: true });
+
+  /* Cursor glow */
+  const glowEl = document.getElementById('glow');
+  let mx=0,my=0,gx=0,gy=0;
+  document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; }, { passive: true });
+  (function loop(){ 
+    gx += (mx - gx) * .065; 
+    gy += (my - gy) * .065; 
+    glowEl.style.left = gx + 'px'; 
+    glowEl.style.top = gy + 'px'; 
+    requestAnimationFrame(loop); 
+  })();
+
+  /* Scroll reveal */
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { 
+      if(e.isIntersecting){ 
+        e.target.classList.add('on'); 
+        io.unobserve(e.target); 
+      } 
+    });
+  }, { threshold: .08, rootMargin: '0px 0px -50px 0px' });
+  
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  /* Smooth scroll */
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const t = document.querySelector(a.getAttribute('href'));
+      if(t){ 
+        e.preventDefault(); 
+        t.scrollIntoView({ behavior: 'smooth', block: 'start' }); 
+      }
+    });
+  });
+
+  /* Hero bg fallback */
+  const heroBg = document.querySelector('.hero-bg');
+  const img = new Image(); 
+  img.src = './hero.webp';
+  img.onerror = () => { heroBg.style.opacity = '0'; };
+</script>
+
+</body>
+</html>
